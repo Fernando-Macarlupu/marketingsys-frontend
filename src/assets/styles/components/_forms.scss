@@ -1,0 +1,145 @@
+/* Forms */
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.search-field {
+  .input-group {
+    background: $navbar-search-bg;
+    outline: 1px solid $border-color;
+    input {
+      font-size: $default-font-size;
+      padding: .5rem;
+      @include input-placeholder {
+        font-size: $navbar-font-size;
+        color: #6C757D;
+        font-family: $type1;
+        font-weight: 400;
+      }
+    }
+    i {
+      font-size: 14px;
+      margin-right: 0;
+      color: $nvabar-search-icon-color;
+    }
+    .input-group-text {
+      background: transparent;
+      .rtl & {
+        padding : 0.94rem 1rem 0.94rem .5rem
+      }
+    }
+  }
+  .rtl & {
+    @extend .ml-0;
+    @extend .mr-4;
+  }
+}
+
+.input-group-append,
+.input-group-prepend {
+  color: #21272A;
+  width: auto;
+  border: none;
+  .input-group-text {
+    border-color: $border-color;
+    padding: 0.94rem 0.5rem 0.94rem 1rem;
+    color: #6C757D;
+  }
+  button {
+    padding-top: .3rem;
+    padding-bottom: .3rem;
+  }
+}
+
+.custom-control {
+  .custom-control-label {
+    line-height: 1.6;
+    margin-bottom: 0;
+  }
+}
+
+.form-control {
+  border: 1px solid $border-color;
+  font-family: $type1;
+  font-size: $input-font-size;
+  font-weight: 400;
+}
+
+select {
+  &.form-control {
+    padding: .4375rem .75rem;
+    border: 0;
+    outline: 1px solid $border-color;
+    color: #21272A;
+    &:focus {
+      outline: 1px solid $border-color;
+    }
+    @each $color,
+    $value in $theme-colors {
+      &.border-#{$color} {
+        outline: 1px solid $value;
+        &:focus {
+          outline: 1px solid $value;
+        }
+      }
+    }
+  }
+}
+
+.form-group {
+  label {
+    font-size: $default-font-size;
+    line-height: 1;
+    vertical-align: top;
+    margin-bottom: .5rem;
+    color: #21272A;
+  }
+  &.has-danger {
+    .form-control {
+      border-color: theme-color(danger);
+    }
+  }
+  .file-upload-default {
+    visibility: hidden;
+    position: absolute;
+  }
+  .file-upload-info {
+    background: transparent;
+  }
+}
+.form-check-input {
+  margin-left: 0;
+}
+.custom-file {
+  .visibility-hidden {
+    visibility: hidden;
+  }
+  .custom-file-label {
+    background: $input-bg;;
+    border: 1px solid $border-color;
+    height: calc(2.25rem + 2px);
+    font-weight: normal;
+    font-size: 0.875rem;
+    padding: 0.625rem 0.6875rem;
+    border-radius: 2px;
+    &:after {
+      background-color: theme-color(primary);
+      height: auto;
+      @extend .btn-primary;
+    }
+  }
+}
+.custom-file-input:lang(en) ~ .custom-file-label:after {
+  content: "Buscar";
+}
+.custom-file-label:after {
+  bottom: 0;
+  z-index: 3;
+  display: block;
+  height: calc(1.5em + 0.75rem);
+  content: "Buscar";
+  background-color: #e9ecef;
+  border-left: inherit;
+  border-radius: 0 0.25rem 0.25rem 0;
+}
