@@ -60,6 +60,7 @@ const Contactos = () => {
   //   estado: "",
   //   contactos: [],
   // };
+  
   const buscarContactos = () => {
     //console.log("esto es la cadena")
     console.log(cadena);
