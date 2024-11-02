@@ -9,6 +9,8 @@ const Register = () => {
   const [contrasena, setContrasena] = useState("");
   const [correo, setCorreo] = useState("");
   const [nombreCompleto, setNombreCompleto] = useState("");
+  const [mostrarCargaDatos, setMostrarCargaDatos] = useState(false);
+  const [mostrarDatos, setMostrarDatos] = useState(true);
 
   const handleRegister = (e) => {
     e.preventDefault();
@@ -37,14 +39,18 @@ const Register = () => {
         diasExpiracioncuenta: 180,
       }
     };
-
+    setMostrarDatos(false);
+    setMostrarCargaDatos(true);
     api
       .post("registrarUsuario", usuarioCreado)
       .then((res) => res.data)
       .then((data) => {
         console.log(data);
+        setMostrarCargaDatos(false);
+        setMostrarDatos(true);
         history.push({
           pathname: "/iniciarSesion",
+          state: { registroDeCuenta: true },
         });
       })
       .catch((err) => alert(err));
@@ -52,6 +58,14 @@ const Register = () => {
 
   return (
     <div>
+      {mostrarCargaDatos && (
+        <div className="row h-100">
+          <div className="col-sm-12 my-auto">
+            <div className="circle-loader"></div>
+          </div>
+        </div>
+      )}
+      {mostrarDatos && (
       <div className="d-flex auth px-0">
         <div className="row w-100 mx-0">
         <div className="col-lg-6 px-0">
@@ -175,7 +189,7 @@ const Register = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div>)}
     </div>
   );
 };

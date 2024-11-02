@@ -10,21 +10,22 @@ const CargarEmpresas = () => {
     "Nombre",
     "Sector",
     "Tipo",
-    "Pais",
-    "Ciudad",
     "Cantidad de empleados",
     "Telefonos",
+    "Direcciones",
     "Correos de contacto",
   ];
   const posiblesCamposIndividual = [
     "Nombre",
     "Sector",
     "Tipo",
-    "Pais",
-    "Ciudad",
     "Cantidad de empleados",
   ];
-  const posiblesCamposLista = ["Telefonos", "Correos de contacto"];
+  const posiblesCamposLista = [
+    "Telefonos",
+    "Direcciones",
+    "Correos de contacto",
+  ];
 
   const history = useHistory();
 
@@ -73,7 +74,7 @@ const CargarEmpresas = () => {
         setShow(false);
         history.push({
           pathname: "/empresas",
-          state: { empresaGuardada: false, empresasCargadas: true }
+          state: { empresaGuardada: false, empresasCargadas: true },
         });
       })
       .catch((err) => alert(err));
@@ -114,7 +115,7 @@ const CargarEmpresas = () => {
       setDataCarga({
         campos: columnasVerificacion,
         datos: filasGuardar,
-        propietario: usuarioLogueado['idCuenta'],
+        propietario: usuarioLogueado["idCuenta"],
       });
       console.log(dataCarga);
       setShow(true);
@@ -145,7 +146,8 @@ const CargarEmpresas = () => {
     const reader = new FileReader();
     reader.onload = async ({ target }) => {
       const csv = parse(target.result, {
-        header: true, encoding: "ISO-8859-1",
+        header: true,
+        encoding: "ISO-8859-1",
       });
       const parsedData = csv.data;
 
@@ -455,6 +457,7 @@ const CargarEmpresas = () => {
                                     <th>Encabezado de archivo</th>
                                     <th>Tipo de propiedad</th>
                                     <th>Propiedad de empresa</th>
+                                    <th>Asignado</th>
                                   </tr>
                                 </thead>
                                 <tbody>
@@ -497,12 +500,6 @@ const CargarEmpresas = () => {
                                               <option value={"Tipo"}>
                                                 Tipo
                                               </option>
-                                              <option value={"Pais"}>
-                                                Pais
-                                              </option>
-                                              <option value={"Ciudad"}>
-                                                Ciudad
-                                              </option>
                                               <option
                                                 value={"Cantidad de empleados"}
                                               >
@@ -511,8 +508,13 @@ const CargarEmpresas = () => {
                                               <option value={"Telefonos"}>
                                                 Telefonos
                                               </option>
-                                              <option value={"Correos de contacto"}>
-                                              Correos de contacto
+                                              <option value={"Direcciones"}>
+                                                Direcciones
+                                              </option>
+                                              <option
+                                                value={"Correos de contacto"}
+                                              >
+                                                Correos de contacto
                                               </option>
                                             </select>
                                           ) : (
@@ -540,18 +542,6 @@ const CargarEmpresas = () => {
                                                 <option>Tipo</option>
                                               )}
                                               {String(columna["nombre"]) ==
-                                              "Pais" ? (
-                                                <option selected>Pais</option>
-                                              ) : (
-                                                <option>Pais</option>
-                                              )}
-                                              {String(columna["nombre"]) ==
-                                              "Ciudad" ? (
-                                                <option selected>Ciudad</option>
-                                              ) : (
-                                                <option>Ciudad</option>
-                                              )}
-                                              {String(columna["nombre"]) ==
                                               "Cantidad de empleados" ? (
                                                 <option selected>
                                                   Cantidad de empleados
@@ -570,16 +560,38 @@ const CargarEmpresas = () => {
                                                 <option>Telefonos</option>
                                               )}
                                               {String(columna["nombre"]) ==
+                                              "Direcciones" ? (
+                                                <option selected>
+                                                  Direcciones
+                                                </option>
+                                              ) : (
+                                                <option>Telefonos</option>
+                                              )}
+                                              {String(columna["nombre"]) ==
                                               "Correos de contacto" ? (
                                                 <option selected>
                                                   Correos de contacto
                                                 </option>
                                               ) : (
-                                                <option>Correos de contacto</option>
+                                                <option>
+                                                  Correos de contacto
+                                                </option>
                                               )}
                                             </select>
                                           )}
                                         </div>
+                                      </td>
+                                      <td>
+                                        {columnasVerificacion[columna["id"]] ==
+                                        "" ? (
+                                          <label className="badge badge-success">
+                                            Asignado
+                                          </label>
+                                        ) : (
+                                          <label className="badge badge-danger">
+                                            No asignado
+                                          </label>
+                                        )}
                                       </td>
                                     </tr>
                                   ))}
@@ -595,11 +607,16 @@ const CargarEmpresas = () => {
                 {step == 1 && (
                   <div className="row">
                     <div className="col-md-6">
-                      <Link className="nav-link" to="/empresas">
-                        <button className="btn btn-outline-primary">
-                          Salir
-                        </button>
-                      </Link>
+                      <button
+                        className="btn btn-outline-primary"
+                        onClick={() =>
+                          history.push({
+                            pathname: "/empresas",
+                          })
+                        }
+                      >
+                        Salir
+                      </button>
                     </div>
                     <div className="col-md-6">
                       <button
@@ -654,11 +671,10 @@ const CargarEmpresas = () => {
           <button className="btn btn-outline-primary" onClick={handleClose}>
             Cancelar
           </button>
-          
-            <button className="btn btn-primary" onClick={handleSaveConfirm}>
-              Guardar
-            </button>
-          
+
+          <button className="btn btn-primary" onClick={handleSaveConfirm}>
+            Guardar
+          </button>
         </Modal.Footer>
       </Modal>
     </>

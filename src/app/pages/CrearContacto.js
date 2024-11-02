@@ -8,6 +8,9 @@ import bsCustomFileInput from "bs-custom-file-input";
 const CrearContacto = () => {
   const history = useHistory();
   const [show, setShow] = useState(false);
+  const [mostrarCargaDatos, setMostrarCargaDatos] = useState(false);
+  const [mostrarDatos, setMostrarDatos] = useState(true);
+
   const [mostrarBuscarEmpresas, setMostrarBuscarEmpresas] = useState(false);
   const [mostrarTabla, setMostrarTabla] = useState(false);
   const [cadenaBuscarEmpresa, setCadenaBuscarEmpresa] = useState("");
@@ -363,12 +366,15 @@ const CrearContacto = () => {
     console.log("cuerpo a subir");
     console.log(cuerpo);
     //setShow(false);
-
+    setMostrarDatos(false);
+    setMostrarCargaDatos(true);
     api
       .post("registrarContacto", cuerpo)
       .then((res) => res.data)
       .then((data) => {
         console.log(data);
+        setMostrarCargaDatos(false);
+        setMostrarDatos(true);
         setShow(false);
         history.push({
           pathname: "/contactos",
@@ -413,6 +419,15 @@ const CrearContacto = () => {
   };
   return (
     <>
+    {mostrarCargaDatos && (
+        <div className="row h-100">
+          <div className="col-sm-12 my-auto">
+            <div className="circle-loader"></div>
+          </div>
+        </div>
+      )}
+      {mostrarDatos && (
+      <div>
       <div>
         <div className="page-header">
           <h3 className="page-title"> Nuevo contacto </h3>
@@ -934,14 +949,17 @@ const CrearContacto = () => {
                   </div>
                   <div className="row">
                     <div className="col-md-6">
-                      <Link className="nav-link" to="/contactos">
                         <button
                           type="button"
                           className="btn btn-outline-primary"
+                          onClick={() =>
+                            history.push({
+                              pathname: "/contactos",
+                            })
+                          }
                         >
                           Salir
                         </button>
-                      </Link>
                     </div>
                     <div className="col-md-6">
                       <button
@@ -983,6 +1001,7 @@ const CrearContacto = () => {
           
         </Modal.Footer>
       </Modal>
+      </div>)}
     </>
   );
 };

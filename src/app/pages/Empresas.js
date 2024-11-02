@@ -9,6 +9,8 @@ const Empresas = () => {
   const location = useLocation();
   const history = useHistory();
   const [show, setShow] = useState(false);
+  const [mostrarTabla, setMostrarTabla] = useState(false);
+  const [mostrarCarga, setMostrarCarga] = useState(false);
   const [usuarioLogueado, setUsuarioLogueado] = useState({});
   const [startDateCreate, setStartDateCreate] = useState(new Date());
   const [endDateCreate, setEndDateCreate] = useState(new Date());
@@ -94,6 +96,8 @@ const Empresas = () => {
       console.log(fechaModificacionIni);
       console.log(fechaModificacionFin);
     }
+    setMostrarTabla(false);
+    setMostrarCarga(true);
     api
       .post("filtrarEmpresas", {
         cadena: cadena,
@@ -107,7 +111,9 @@ const Empresas = () => {
       .then((res) => res.data)
       .then((data) => {
         console.log(data);
+        setMostrarCarga(false);
         setEmpresas(data);
+        setMostrarTabla(true);
       })
       .catch((err) => alert(err));
   };
@@ -195,6 +201,15 @@ const Empresas = () => {
             {" "}
             <i className="px-2 mdi mdi-check-circle"></i>
             Empresa registrada correctamente
+          </Alert>
+          <Alert
+            show={mostrarMensajeExitoCarga}
+            variant="success"
+            className="small text-center"
+          >
+            {" "}
+            <i className="px-2 mdi mdi-check-circle"></i>
+            Empresas cargadas correctamente
           </Alert>
         </div>
         <div className="col-md-2">
@@ -344,46 +359,55 @@ const Empresas = () => {
       </form>
       <div className="row">
         <div className="col-sm-12">
-          <div className="table-responsive">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>Nombre</th>
-                  <th>Teléfono</th>
-                  <th>Sector</th>
-                  <th>Tipo</th>
-                  <th>Fecha de creación</th>
-                  <th>Fecha de modificación</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {empresas.map((empresa) => (
-                  <tr key={empresa["id"]}>
-                    <td>{empresa["nombre"]}</td>
-                    <td>{empresa["telefono"]}</td>
-                    <td>{empresa["sector"]}</td>
-                    <td>{empresa["tipo"]}</td>
-                    <td>{empresa["fechaCreacion"]}</td>
-                    <td>{empresa["fechaModificacion"]}</td>
-                    <td>
-                      {" "}
-                      <select
-                        className="form-control"
-                        onChange={(e) => handleVerDetalle(empresa["id"], e)}
-                      >
-                        <option value={0} disabled selected hidden>
-                          ...
-                        </option>
-                        <option value={1}>Ver detalle</option>
-                        <option value={2}>Eliminar</option>
-                      </select>
-                    </td>
+          {mostrarCarga && (
+            <div className="row h-100">
+              <div className="col-sm-12 my-auto">
+                <div className="circle-loader"></div>
+              </div>
+            </div>
+          )}
+          {mostrarTabla && (
+            <div className="table-responsive">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Teléfono</th>
+                    <th>Sector</th>
+                    <th>Tipo</th>
+                    <th>Fecha de creación</th>
+                    <th>Fecha de modificación</th>
+                    <th></th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {empresas.map((empresa) => (
+                    <tr key={empresa["id"]}>
+                      <td>{empresa["nombre"]}</td>
+                      <td>{empresa["telefono"]}</td>
+                      <td>{empresa["sector"]}</td>
+                      <td>{empresa["tipo"]}</td>
+                      <td>{empresa["fechaCreacion"]}</td>
+                      <td>{empresa["fechaModificacion"]}</td>
+                      <td>
+                        {" "}
+                        <select
+                          className="form-control"
+                          onChange={(e) => handleVerDetalle(empresa["id"], e)}
+                        >
+                          <option value={0} disabled selected hidden>
+                            ...
+                          </option>
+                          <option value={1}>Ver detalle</option>
+                          <option value={2}>Eliminar</option>
+                        </select>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
       <Modal show={show} onHide={handleClose}>

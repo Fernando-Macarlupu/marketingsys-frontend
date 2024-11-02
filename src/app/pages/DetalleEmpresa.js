@@ -9,6 +9,9 @@ const DetalleEmpresa = () => {
   const history = useHistory();
   const location = useLocation();
   const [show, setShow] = useState(false);
+  const [mostrarCargaDatos, setMostrarCargaDatos] = useState(false);
+  const [mostrarDatos, setMostrarDatos] = useState(false);
+
   const [usuarioLogueado, setUsuarioLogueado] = useState({});
 
   const [mostrarBuscarContactos, setMostrarBuscarContactos] = useState(false);
@@ -230,11 +233,15 @@ const DetalleEmpresa = () => {
   };
 
   const cargarEmpresa = () => {
+    setMostrarDatos(false);
+    setMostrarCargaDatos(true);
     api
       .get(`detalleEmpresa/${location.state.idEmpresa}`)
       .then((res) => res.data)
       .then((data) => {
         console.log(data);
+        setMostrarCargaDatos(false);
+        setMostrarDatos(true);
         setIdEmpresa(parseInt(data["idEmpresa"]));
         setNombre(data["nombre"]);
         setSector(data["sector"]);
@@ -376,6 +383,14 @@ const DetalleEmpresa = () => {
   };
   return (
     <>
+    {mostrarCargaDatos && (
+        <div className="row h-100">
+          <div className="col-sm-12 my-auto">
+            <div className="circle-loader"></div>
+          </div>
+        </div>
+      )}
+    {mostrarDatos && (<div>
       <div>
         <div className="page-header">
           <h3 className="page-title"> Detalle de empresa </h3>
@@ -831,14 +846,17 @@ const DetalleEmpresa = () => {
 
                   <div className="row">
                     <div className="col-md-6">
-                      <Link className="nav-link" to="/empresas">
                         <button
                           type="button"
                           className="btn btn-outline-primary"
+                          onClick={() =>
+                            history.push({
+                              pathname: "/empresas",
+                            })
+                          }
                         >
                           Salir
                         </button>
-                      </Link>
                     </div>
                     <div className="col-md-6">
                       <button
@@ -880,6 +898,7 @@ const DetalleEmpresa = () => {
           
         </Modal.Footer>
       </Modal>
+      </div>)}
     </>
   );
 };

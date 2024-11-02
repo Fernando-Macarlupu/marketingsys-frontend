@@ -9,6 +9,8 @@ const Contactos = () => {
   const history = useHistory();
   const location = useLocation();
   const [show, setShow] = useState(false);
+  const [mostrarTabla, setMostrarTabla] = useState(false);
+  const [mostrarCarga, setMostrarCarga] = useState(false);
   const [usuarioLogueado, setUsuarioLogueado] = useState({});
   const [startDateCreate, setStartDateCreate] = useState(new Date());
   const [endDateCreate, setEndDateCreate] = useState(new Date());
@@ -60,7 +62,7 @@ const Contactos = () => {
   //   estado: "",
   //   contactos: [],
   // };
-  
+
   const buscarContactos = () => {
     //console.log("esto es la cadena")
     console.log(cadena);
@@ -103,6 +105,8 @@ const Contactos = () => {
       console.log(fechaModificacionIni);
       console.log(fechaModificacionFin);
     }
+    setMostrarTabla(false);
+    setMostrarCarga(true);
     api
       .post("filtrarContactos", {
         cadena: cadena,
@@ -116,7 +120,9 @@ const Contactos = () => {
       .then((res) => res.data)
       .then((data) => {
         console.log(data);
+        setMostrarCarga(false);
         setContactos(data);
+        setMostrarTabla(true);
       })
       .catch((err) => alert(err));
   };
@@ -371,45 +377,54 @@ const Contactos = () => {
       </form>
       <div className="row">
         <div className="col-sm-12">
-          <div className="table-responsive">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>Nombre completo</th>
-                  <th>Correo</th>
-                  <th>Teléfono</th>
-                  <th>Estado</th>
-                  <th>Fecha de creación</th>
-                  <th>Fecha de modificación</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {contactos.map((contacto) => (
-                  <tr key={contacto["id"]}>
-                    <td>{contacto["persona__nombreCompleto"]}</td>
-                    <td>{contacto["correo"]}</td>
-                    <td>{contacto["telefono"]}</td>
-                    <td>{contacto["estado"]}</td>
-                    <td>{contacto["fechaCreacion"]}</td>
-                    <td>{contacto["fechaModificacion"]}</td>
-                    <td>
-                      <select
-                        className="form-control"
-                        onChange={(e) => handleVerDetalle(contacto["id"], e)}
-                      >
-                        <option value={0} disabled selected hidden>
-                          ...
-                        </option>
-                        <option value={1}>Ver detalle</option>
-                        <option value={2}>Eliminar</option>
-                      </select>
-                    </td>
+          {mostrarCarga && (
+            <div className="row h-100">
+              <div className="col-sm-12 my-auto">
+                <div className="circle-loader"></div>
+              </div>
+            </div>
+          )}
+          {mostrarTabla && (
+            <div className="table-responsive">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Nombre completo</th>
+                    <th>Correo</th>
+                    <th>Teléfono</th>
+                    <th>Estado</th>
+                    <th>Fecha de creación</th>
+                    <th>Fecha de modificación</th>
+                    <th></th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {contactos.map((contacto) => (
+                    <tr key={contacto["id"]}>
+                      <td>{contacto["persona__nombreCompleto"]}</td>
+                      <td>{contacto["correo"]}</td>
+                      <td>{contacto["telefono"]}</td>
+                      <td>{contacto["estado"]}</td>
+                      <td>{contacto["fechaCreacion"]}</td>
+                      <td>{contacto["fechaModificacion"]}</td>
+                      <td>
+                        <select
+                          className="form-control"
+                          onChange={(e) => handleVerDetalle(contacto["id"], e)}
+                        >
+                          <option value={0} disabled selected hidden>
+                            ...
+                          </option>
+                          <option value={1}>Ver detalle</option>
+                          <option value={2}>Eliminar</option>
+                        </select>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
       <Modal show={show} onHide={handleClose}>

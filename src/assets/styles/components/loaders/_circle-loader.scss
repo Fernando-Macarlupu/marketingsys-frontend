@@ -1,22 +1,15 @@
 /* Circle loader */
 .circle-loader {
-    width: 70px;
-    height: 70px;
-    border-radius: 100%;
+
+  width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    border: 0.3rem solid lighten(theme-color(primary),30%);
+    border-top-color: lighten(theme-color(primary),10%);
+    animation: 1.5s spin infinite linear;
     position: relative;
     margin: 0 auto;
 }
-.circle-loader:before, .circle-loader:after{
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: 100%;
-    border: 10px solid transparent;
-    border-top-color: theme-color(warning);
-  }
   
   .circle-loader:before{
     z-index: 10;
