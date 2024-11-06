@@ -1,8 +1,16 @@
-import React, { Component } from 'react'
-import {Tabs, Tab } from 'react-bootstrap';
-export class Tacticas extends Component {
-    render() {
-      return (
+import React, { useEffect, useState } from "react";
+import { Tabs, Tab,Form, Modal, Alert } from "react-bootstrap";
+import { Link, useHistory, useLocation } from "react-router-dom";
+import DatePicker from "react-datepicker";
+import api from "../api";
+import "react-datepicker/dist/react-datepicker.css";
+import Campanas from "./Campanas";
+import Recursos from "./Recursos";
+
+const Tacticas = () => {
+
+  
+return (
         <div>
             <div className="page-header">
             <h3 className="page-title"> Tácticas </h3>
@@ -12,10 +20,10 @@ export class Tacticas extends Component {
               <div className="justify-content-between align-items-center tab-transparent">
                 <Tabs defaultActiveKey="Campanas" className="nav">
                     <Tab eventKey="Campanas" title="Campañas">
-                    <p></p>
+                    <Campanas></Campanas>
                     </Tab>
                     <Tab eventKey="Recursos" title="Recursos">
-                    <p></p>
+                    <Recursos></Recursos>
                     </Tab>
                     </Tabs>
               </div>
@@ -23,6 +31,5 @@ export class Tacticas extends Component {
           </div>
         </div>
       )
-    }
 }
 export default Tacticas

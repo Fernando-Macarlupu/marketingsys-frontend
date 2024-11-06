@@ -717,6 +717,7 @@ const CrearEmpresa = () => {
                                       type="text"
                                       className="form-control bg-white border-0"
                                       placeholder="Nombres, apellidos, telefono o correo"
+                                      value={cadenaBuscarContacto}
                                       onChange={handleChangeCadenaContacto}
                                     />
                                   </div>

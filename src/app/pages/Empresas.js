@@ -303,9 +303,9 @@ const Empresas = () => {
           </div>
         </div>
         <div className="row">
-          <div className="col-md-5">
+          <div className="col-md-6">
             <Form.Group className="row">
-              <div className="search-field col-sm-12">
+              <div className="search-field col-sm-10">
                 <form
                   className="d-flex align-items-center h-100"
                   onSubmit={buscarEmpresasCadena}
@@ -325,7 +325,7 @@ const Empresas = () => {
               </div>
             </Form.Group>
           </div>
-          <div className="col-md-5">
+          <div className="col-md-4">
             <Form.Group className="row">
               <select
                 className="form-control col-sm-6"

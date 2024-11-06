@@ -9,6 +9,9 @@ const Planes = () => {
   const location = useLocation();
   const history = useHistory();
   const [show, setShow] = useState(false);
+  const [mostrarTabla, setMostrarTabla] = useState(false);
+  const [mostrarCarga, setMostrarCarga] = useState(false);
+
   const [usuarioLogueado, setUsuarioLogueado] = useState({});
   const [startDateActive, setStartDateActive] = useState(new Date());
   const [endDateActive, setEndDateActive] = useState(new Date());
@@ -50,9 +53,17 @@ const Planes = () => {
     //console.log("esto es la cadena")
     console.log(cadena);
     let fechaVigenciaIni = "",
-      fechaVigenciaFin = "", fechaHoy = "";
+      fechaVigenciaFin = "",
+      fechaHoy = "",
+      fecha = new Date();
 
-    if (buscarFechas == 1 || buscarFechas == 3) {
+    fechaHoy =
+      fecha.getDate() +
+      "-" +
+      parseInt(fecha.getMonth() + 1) +
+      "-" +
+      fecha.getFullYear();
+    if (estado == "2" && buscarFechas == 1) {
       fechaVigenciaIni =
         startDateActive.getDate() +
         "-" +
@@ -65,9 +76,10 @@ const Planes = () => {
         parseInt(endDateActive.getMonth() + 1) +
         "-" +
         endDateActive.getFullYear();
-      console.log(fechaVigenciaIni);
-      console.log(fechaVigenciaFin);
     }
+
+    setMostrarTabla(false);
+    setMostrarCarga(true);
     api
       .post("filtrarPlanes", {
         cadena: cadena,
@@ -81,6 +93,8 @@ const Planes = () => {
       .then((data) => {
         console.log(data);
         setPlanes(data);
+        setMostrarCarga(false);
+        setMostrarTabla(true);
       })
       .catch((err) => alert(err));
   };
@@ -155,7 +169,7 @@ const Planes = () => {
   return (
     <div>
       <div className="row">
-        <div className="page-header col-md-5">
+        <div className="page-header col-md-7">
           <h3 className="page-title"> Planes </h3>
         </div>
         <div className="page-header col-md-3">
@@ -184,10 +198,10 @@ const Planes = () => {
       </div>
       <form className="forms-sample">
         <div className="row">
-          <div className="col-md-5">
+          <div className="col-md-3">
             <Form.Group className="row">
               <select
-                className="form-control col-sm-6"
+                className="form-control col-sm-10"
                 onChange={handleChangeEstado}
               >
                 <option value="" disabled selected hidden>
@@ -204,7 +218,7 @@ const Planes = () => {
           <div className="col-md-3">
             <Form.Group className="row">
               <select
-                className="form-control col-sm-11"
+                className="form-control col-sm-10"
                 onChange={handleChangeBuscarFechas}
               >
                 <option value="" disabled selected hidden>
@@ -215,7 +229,7 @@ const Planes = () => {
               </select>
             </Form.Group>
           </div>
-          <div className="col-md-4">
+          <div className="col-md-6">
             <Form.Group className="row">
               <label className="col-sm-4 col-form-label">
                 Fecha de vigencia
@@ -254,7 +268,7 @@ const Planes = () => {
                     <input
                       type="text"
                       className="form-control bg-white border-0"
-                      placeholder="Descripcion del plan"
+                      placeholder="Descripción del plan"
                       onChange={handleChangeCadena}
                     />
                   </div>
@@ -263,7 +277,7 @@ const Planes = () => {
             </Form.Group>
           </div>
 
-          <div className="col-md-2">
+          <div className="col-md-7">
             <Form.Group>
               <div className="text-right">
                 <button
@@ -280,46 +294,55 @@ const Planes = () => {
       </form>
       <div className="row">
         <div className="col-sm-12">
-          <div className="table-responsive">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>Descripción</th>
-                  <th>Sponsor</th>
-                  <th>Presupuesto S/</th>
-                  <th>Estado</th>
-                  <th>Inicio de vigencia</th>
-                  <th>Fin de vigencia</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {planes.map((plan) => (
-                  <tr key={plan["id"]}>
-                    <td>{plan["descripcion"]}</td>
-                    <td>{plan["sponsor"]}</td>
-                    <td>{plan["presupuesto"]}</td>
-                    <td>{plan["estado"]}</td>
-                    <td>{plan["inicioVigencia"]}</td>
-                    <td>{plan["finVigencia"]}</td>
-                    <td>
-                      {" "}
-                      <select
-                        className="form-control"
-                        onChange={(e) => handleVerDetalle(plan["id"], e)}
-                      >
-                        <option value={0} disabled selected hidden>
-                          ...
-                        </option>
-                        <option value={1}>Ver detalle</option>
-                        <option value={2}>Eliminar</option>
-                      </select>
-                    </td>
+          {mostrarCarga && (
+            <div className="row h-100">
+              <div className="col-sm-12 my-auto">
+                <div className="circle-loader"></div>
+              </div>
+            </div>
+          )}
+          {mostrarTabla && (
+            <div className="table-responsive">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Descripción</th>
+                    <th>Sponsor</th>
+                    <th>Presupuesto S/</th>
+                    <th>Estado</th>
+                    <th>Inicio de vigencia</th>
+                    <th>Fin de vigencia</th>
+                    <th></th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {planes.map((plan) => (
+                    <tr key={plan["id"]}>
+                      <td>{plan["descripcion"]}</td>
+                      <td>{plan["sponsor"]}</td>
+                      <td>{plan["presupuesto"]}</td>
+                      <td>{plan["estado"]}</td>
+                      <td>{plan["inicioVigencia"]}</td>
+                      <td>{plan["finVigencia"]}</td>
+                      <td>
+                        {" "}
+                        <select
+                          className="form-control"
+                          onChange={(e) => handleVerDetalle(plan["id"], e)}
+                        >
+                          <option value={0} disabled selected hidden>
+                            ...
+                          </option>
+                          <option value={1}>Ver detalle</option>
+                          <option value={2}>Eliminar</option>
+                        </select>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
       <Modal show={show} onHide={handleClose}>

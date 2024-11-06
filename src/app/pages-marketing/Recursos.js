@@ -5,7 +5,7 @@ import DatePicker from "react-datepicker";
 import api from "../api";
 import "react-datepicker/dist/react-datepicker.css";
 
-const Estrategias = () => {
+const Recursos = () => {
   const location = useLocation();
   const history = useHistory();
   const [show, setShow] = useState(false);
@@ -21,9 +21,8 @@ const Estrategias = () => {
   const [cadena, setCadena] = useState("");
   const [tipo, setTipo] = useState("");
   const [estado, setEstado] = useState("");
-  const [estrategias, setEstrategias] = useState([]);
-  const [estrategiaEliminar, setEstrategiaEliminar] = useState(0);
-  const [tipoEstrategiaEliminar, setTipoEstrategiaEliminar] = useState("");
+  const [recursos, setRecursos] = useState([]);
+  const [recursoEliminar, setRecursoEliminar] = useState(0);
   const [mostrarMensajeExito, setMostrarMensajeExito] = useState(false);
   const [mostrarMensajeExitoCarga, setMostrarMensajeExitoCarga] =
     useState(false);
@@ -38,9 +37,9 @@ const Estrategias = () => {
       });
       return;
     }
-    if (location.state == null) console.log("La estrategia guardada es null");
+    if (location.state == null) console.log("El recurso guardado es null");
     else {
-      if (location.state.estrategiaGuardada == true) {
+      if (location.state.recursoGuardado == true) {
         setMostrarMensajeExito(true);
         setTimeout(() => {
           setMostrarMensajeExito(false);
@@ -50,7 +49,7 @@ const Estrategias = () => {
     setUsuarioLogueado(JSON.parse(usuario));
   }, []);
 
-  const buscarEstrategias = () => {
+  const buscarRecursos = () => {
     //console.log("esto es la cadena")
     console.log(cadena);
     let fechaVigenciaIni = "",
@@ -64,28 +63,28 @@ const Estrategias = () => {
       parseInt(fecha.getMonth() + 1) +
       "-" +
       fecha.getFullYear();
-    if (estado == "2" && buscarFechas == 1) {
-      fechaVigenciaIni =
-        startDateActive.getDate() +
-        "-" +
-        parseInt(startDateActive.getMonth() + 1) +
-        "-" +
-        startDateActive.getFullYear();
-      fechaVigenciaFin =
-        endDateActive.getDate() +
-        "-" +
-        parseInt(endDateActive.getMonth() + 1) +
-        "-" +
-        endDateActive.getFullYear();
-    }
+      if (estado == "2" && buscarFechas == 1) {
+        fechaVigenciaIni =
+          startDateActive.getDate() +
+          "-" +
+          parseInt(startDateActive.getMonth() + 1) +
+          "-" +
+          startDateActive.getFullYear();
+        fechaVigenciaFin =
+          endDateActive.getDate() +
+          "-" +
+          parseInt(endDateActive.getMonth() + 1) +
+          "-" +
+          endDateActive.getFullYear();
+      }
 
     setMostrarTabla(false);
     setMostrarCarga(true);
     api
-      .post("filtrarEstrategias", {
+      .post("filtrarRecursos", {
         cadena: cadena,
-        tipo: tipo,
         estado: estado,
+        tipo: tipo,
         fechaHoy: fechaHoy,
         fechaVigenciaIni: fechaVigenciaIni,
         fechaVigenciaFin: fechaVigenciaFin,
@@ -94,68 +93,51 @@ const Estrategias = () => {
       .then((res) => res.data)
       .then((data) => {
         console.log(data);
-        setEstrategias(data);
+        setRecursos(data);
         setMostrarCarga(false);
         setMostrarTabla(true);
       })
       .catch((err) => alert(err));
   };
 
-  const buscarEstrategiasCadena = (event) => {
+  const buscarRecursosCadena = (event) => {
     event.preventDefault();
-    buscarEstrategias();
+    buscarRecursos();
   };
 
-  const handleVerDetalle = (id, tipo, event) => {
-    let idTipo = "";
-    if (tipo == "Programa") idTipo = "0";
-    else idTipo = "1";
+  const handleVerDetalle = (id, event) => {
     console.log(id);
     if (event.target.value == 1) {
       console.log("Ver detalle");
       event.target.value = 0;
       history.push({
-        pathname: "/detalleEstrategia",
-        state: { idEstrategia: id, tipo: idTipo },
+        pathname: "/detalleRecurso",
+        state: { idRecurso: id },
       });
     }
     if (event.target.value == 2) {
       console.log("Eliminar");
       event.target.value = 0;
-      setEstrategiaEliminar(id);
-      setTipoEstrategiaEliminar(idTipo);
+      setRecursoEliminar(id);
       setShow(true);
     }
   };
 
-  const handleEliminarEstrategias = (id) => () => {
-    setEstrategias((prev) => prev.filter((el) => el.id !== id));
+  const handleEliminarRecursos = (id) => () => {
+    setRecursos((prev) => prev.filter((el) => el.id !== id));
     //console.log(event.target.value);
   };
 
-  const eliminarEstrategia = () => {
-    if (tipoEstrategiaEliminar == "0")
-      api
-        .delete(`eliminarEstrategia/${estrategiaEliminar}`)
-        .then((res) => res.data)
-        .then((data) => {
-          console.log(data);
-          //handleEliminarEmpresas(empresaEliminar);
-          setShow(false);
-        })
-        .catch((err) => alert(err));
-    else {
-      if (tipoEstrategiaEliminar == "1")
-        api
-          .delete(`eliminarCampana/${estrategiaEliminar}`)
-          .then((res) => res.data)
-          .then((data) => {
-            console.log(data);
-            //handleEliminarEmpresas(empresaEliminar);
-            setShow(false);
-          })
-          .catch((err) => alert(err));
-    }
+  const eliminarRecurso = () => {
+    api
+      .delete(`eliminarRecurso/${recursoEliminar}`)
+      .then((res) => res.data)
+      .then((data) => {
+        console.log(data);
+        //handleEliminarEmpresas(empresaEliminar);
+        setShow(false);
+      })
+      .catch((err) => alert(err));
   };
 
   const handleChangeCadena = (event) => {
@@ -189,7 +171,7 @@ const Estrategias = () => {
     <div>
       <div className="row">
         <div className="page-header col-md-7">
-          <h3 className="page-title"> Estrategias </h3>
+          <h3 className="page-title"> Recursos </h3>
         </div>
         <div className="page-header col-md-3">
           <Alert
@@ -199,7 +181,7 @@ const Estrategias = () => {
           >
             {" "}
             <i className="px-2 mdi mdi-check-circle"></i>
-            Estrategia registrada correctamente
+            Recurso registrado correctamente
           </Alert>
         </div>
         <div className="col-md-2">
@@ -207,9 +189,9 @@ const Estrategias = () => {
             <div className="text-right">
               <button
                 className="btn btn-primary"
-                onClick={() => history.push({ pathname: "/crearEstrategia" })}
+                onClick={() => history.push({ pathname: "/crearRecurso" })}
               >
-                Nueva estrategia
+                Nuevo recurso
               </button>
             </div>
           </Form.Group>
@@ -224,7 +206,7 @@ const Estrategias = () => {
                 onChange={handleChangeEstado}
               >
                 <option value="" disabled selected hidden>
-                  Estado de la estrategia
+                  Estado del recurso
                 </option>
                 <option value={""}>Todos los estados</option>
                 <option value={"0"}>No vigente</option>
@@ -278,7 +260,7 @@ const Estrategias = () => {
               <div className="search-field col-sm-10">
                 <form
                   className="d-flex align-items-center h-100"
-                  onSubmit={buscarEstrategiasCadena}
+                  onSubmit={buscarRecursos}
                 >
                   <div className="input-group">
                     <div className="input-group-prepend bg-white">
@@ -287,7 +269,7 @@ const Estrategias = () => {
                     <input
                       type="text"
                       className="form-control bg-white border-0"
-                      placeholder="Descripción de la estrategia"
+                      placeholder="Descripción del recurso"
                       onChange={handleChangeCadena}
                     />
                   </div>
@@ -295,6 +277,7 @@ const Estrategias = () => {
               </div>
             </Form.Group>
           </div>
+          
 
           <div className="col-md-4">
             <Form.Group className="row">
@@ -303,11 +286,12 @@ const Estrategias = () => {
                 onChange={handleChangeTipo}
               >
                 <option value="" disabled selected hidden>
-                  Tipo de estrategia
+                  Tipo de recurso
                 </option>
                 <option value={""}>Todos los tipos</option>
-                <option value={"0"}>Programa</option>
-                <option value={"1"}>Campaña stand-alone</option>
+                <option value={"0"}>Correo</option>
+                <option value={"1"}>Publicación</option>
+                <option value={"2"}>Página web</option>
               </select>
             </Form.Group>
           </div>
@@ -318,7 +302,7 @@ const Estrategias = () => {
                 <button
                   type="button"
                   className="btn btn-primary"
-                  onClick={buscarEstrategias}
+                  onClick={buscarRecursos}
                 >
                   Buscar
                 </button>
@@ -343,7 +327,6 @@ const Estrategias = () => {
                   <tr>
                     <th>Descripción</th>
                     <th>Tipo</th>
-                    <th>Sponsor</th>
                     <th>Presupuesto S/</th>
                     <th>Estado</th>
                     <th>Inicio de vigencia</th>
@@ -352,26 +335,19 @@ const Estrategias = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {estrategias.map((estrategia) => (
-                    <tr key={estrategia["id"] + estrategia["tipo"]}>
-                      <td>{estrategia["descripcion"]}</td>
-                      <td>{estrategia["tipo"]}</td>
-                      <td>{estrategia["sponsor"]}</td>
-                      <td>{estrategia["presupuesto"]}</td>
-                      <td>{estrategia["estado"]}</td>
-                      <td>{estrategia["inicioVigencia"]}</td>
-                      <td>{estrategia["finVigencia"]}</td>
+                  {recursos.map((recurso) => (
+                    <tr key={recurso["id"]}>
+                      <td>{recurso["descripcion"]}</td>
+                      <td>{recurso["tipo"]}</td>
+                      <td>{recurso["presupuesto"]}</td>
+                      <td>{recurso["estado"]}</td>
+                      <td>{recurso["inicioVigencia"]}</td>
+                      <td>{recurso["finVigencia"]}</td>
                       <td>
                         {" "}
                         <select
                           className="form-control"
-                          onChange={(e) =>
-                            handleVerDetalle(
-                              estrategia["id"],
-                              estrategia["tipo"],
-                              e
-                            )
-                          }
+                          onChange={(e) => handleVerDetalle(recurso["id"], e)}
                         >
                           <option value={0} disabled selected hidden>
                             ...
@@ -392,21 +368,21 @@ const Estrategias = () => {
         <Modal.Header closeButton>
           <Modal.Title>
             <h4 className="card-title" style={{ color: "#000000" }}>
-              Eliminar estrategia
+              Eliminar recurso
             </h4>
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <h5 className="card-title" style={{ color: "#000000" }}>
-            ¿Desea eliminar la estrategia?
+            ¿Desea eliminar el recurso?
           </h5>
         </Modal.Body>
         <Modal.Footer>
           <button className="btn btn-outline-primary" onClick={handleClose}>
             Cancelar
           </button>
-          <Link className="nav-link" to="/estrategias">
-            <button className="btn btn-primary" onClick={eliminarEstrategia}>
+          <Link className="nav-link" to="/tacticas">
+            <button className="btn btn-primary" onClick={eliminarRecurso}>
               Eliminar
             </button>
           </Link>
@@ -415,4 +391,4 @@ const Estrategias = () => {
     </div>
   );
 };
-export default Estrategias;
+export default Recursos;

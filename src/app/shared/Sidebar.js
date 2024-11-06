@@ -76,44 +76,44 @@ class Sidebar extends Component {
               <span className="menu-title"><Trans>Empresas</Trans></span>
             </Link>
           </li>
-          <li className={ this.isPathActive('/listas') ? 'nav-item active' : 'nav-item' }>
+          <li className={ this.isPathActive('/listas') || this.isPathActive('/crearLista') || this.isPathActive('/detalleLista')? 'nav-item active' : 'nav-item' }>
             <Link className="nav-link" to="/listas">
               <span className="icon-bg"><i className="mdi mdi-view-list menu-icon"></i></span>
               <span className="menu-title"><Trans>Listas</Trans></span>
             </Link>
           </li>
           <li className="nav-item nav-category"><Trans>Marketing</Trans></li>
-          <li className={ this.isPathActive('/indicadores') ? 'nav-item active' : 'nav-item' }>
+          <li className={ this.isPathActive('/indicadores') || this.isPathActive('/crearIndicador') || this.isPathActive('/detalleIndicador')? 'nav-item active' : 'nav-item' }>
             <Link className="nav-link" to="/indicadores">
               <span className="icon-bg"><i className="mdi mdi-speedometer menu-icon"></i></span>
               <span className="menu-title"><Trans>Indicadores</Trans></span>
             </Link>
           </li>
-          <li className={ this.isPathActive('/planes') ? 'nav-item active' : 'nav-item' }>
+          <li className={ this.isPathActive('/planes') || this.isPathActive('/crearPlan') || this.isPathActive('/detallePlan')? 'nav-item active' : 'nav-item' }>
             <Link className="nav-link" to="/planes">
               <span className="icon-bg"><i className="mdi mdi-file menu-icon"></i></span>
               <span className="menu-title"><Trans>Planes</Trans></span>
             </Link>
           </li>
-          <li className={ this.isPathActive('/estrategias') ? 'nav-item active' : 'nav-item' }>
+          <li className={ this.isPathActive('/estrategias') || this.isPathActive('/crearEstrategia') || this.isPathActive('/detalleEstrategia')? 'nav-item active' : 'nav-item' }>
             <Link className="nav-link" to="/estrategias">
               <span className="icon-bg"><i className="mdi mdi-lightbulb menu-icon"></i></span>
               <span className="menu-title"><Trans>Estrategias</Trans></span>
             </Link>
           </li>
-          <li className={ this.isPathActive('/tacticas') ? 'nav-item active' : 'nav-item' }>
+          <li className={ this.isPathActive('/tacticas') || this.isPathActive('/crearCampana') || this.isPathActive('/detalleCampana') || this.isPathActive('/crearRecurso') || this.isPathActive('/detalleRecurso')? 'nav-item active' : 'nav-item' }>
             <Link className="nav-link" to="/tacticas">
               <span className="icon-bg"><i className="mdi mdi-clipboard-text menu-icon"></i></span>
               <span className="menu-title"><Trans>Tácticas</Trans></span>
             </Link>
           </li>
-          <li className={ this.isPathActive('/flujos') ? 'nav-item active' : 'nav-item' }>
+          <li className={ this.isPathActive('/flujos') || this.isPathActive('/crearFlujo') || this.isPathActive('/detalleFlujo')? 'nav-item active' : 'nav-item' }>
             <Link className="nav-link" to="/flujos">
               <span className="icon-bg"><i className="mdi mdi-source-merge menu-icon"></i></span>
               <span className="menu-title"><Trans>Flujos de trabajo</Trans></span>
             </Link>
           </li>
-          <li className={ this.isPathActive('/oportunidades') ? 'nav-item active' : 'nav-item' }>
+          <li className={ this.isPathActive('/oportunidades') || this.isPathActive('/crearOportunidad') || this.isPathActive('/detalleOportunidad')? 'nav-item active' : 'nav-item' }>
             <Link className="nav-link" to="/oportunidades">
               <span className="icon-bg"><i className="mdi mdi-view-list menu-icon"></i></span>
               <span className="menu-title"><Trans>Oportunidades</Trans></span>

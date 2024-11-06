@@ -40,8 +40,7 @@ const CrearContacto = () => {
 
   const handleClose = () => setShow(false);
   const handleShow = () => {
-    if (nombreCompleto == "")
-      alert("Ingrese el nombre completo del contacto");
+    if (nombreCompleto == "") alert("Ingrese el nombre completo del contacto");
     else {
       if (estado == "") alert("Ingrese el estado del contacto");
       else {
@@ -216,19 +215,6 @@ const CrearContacto = () => {
     setNuevoTelefono(event.target.value);
   };
 
-  // const handleChangeNuevaRed = (event) => {
-  //   //console.log(event.target.value);
-  //   //const elemento = document.getElementById('redSocialNueva');
-  //   setNuevaRed({redSocial: "", nombreUsuario: event.target.value});
-  // };
-
-  // const handleChangeDireccionPrincipal = (event) => {
-  //   const elemento = document.getElementById('direccionPrincipal');
-  //   console.log("esta es la principal");
-  //   console.log(elemento.value);
-  //   setDireccionPrincipal(elemento.value);
-  // };
-
   const handleEliminarDirecciones = (direccion) => () => {
     console.log("se va a eliminar");
     console.log(direccion);
@@ -345,9 +331,11 @@ const CrearContacto = () => {
     }
     let empresasCargar = [];
     if (empresa["id"] != 0)
-      empresasCargar = [{
-        empresa: empresa["id"],
-      }];
+      empresasCargar = [
+        {
+          empresa: empresa["id"],
+        },
+      ];
     let cuerpo = {
       idContacto: 0,
       nombreCompleto: nombreCompleto,
@@ -378,7 +366,7 @@ const CrearContacto = () => {
         setShow(false);
         history.push({
           pathname: "/contactos",
-          state: { contactoGuardado: true, contactosCargados: false }
+          state: { contactoGuardado: true, contactosCargados: false },
         });
       })
       .catch((err) => alert(err));
@@ -419,7 +407,7 @@ const CrearContacto = () => {
   };
   return (
     <>
-    {mostrarCargaDatos && (
+      {mostrarCargaDatos && (
         <div className="row h-100">
           <div className="col-sm-12 my-auto">
             <div className="circle-loader"></div>
@@ -427,581 +415,586 @@ const CrearContacto = () => {
         </div>
       )}
       {mostrarDatos && (
-      <div>
-      <div>
-        <div className="page-header">
-          <h3 className="page-title"> Nuevo contacto </h3>
-        </div>
-        <div className="row">
-          <div className="col-12 grid-margin">
-            <div className="card">
-              <div className="card-body">
-                <div className="row">
-                  <h4 className="card-title col-md-8">Datos de contacto</h4>
-                  <div className="col-md-4">
-                    <Form.Group>
-                      <label className="col-form-label float-md-right">
-                        <code>*</code> Información obligatoria
-                      </label>
-                    </Form.Group>
-                  </div>
-                </div>
-                <form className="form-sample">
-                  <div className="row">
-                    <div className="col-md-12">
-                      <Form.Group>
-                        <label className="col-sm-12 col-form-label">
-                          Nombre completo<code>*</code>
-                        </label>
-                        <div className="col-sm-12">
-                          <Form.Control
-                            type="text"
-                            onChange={handleChangeNombreCompleto}
-                          />
-                        </div>
-                      </Form.Group>
-                    </div>
-                  </div>
-                  <div className="row">
-                    <div className="col-md-6">
-                      <Form.Group>
-                        <label className="col-sm-12 col-form-label">
-                          Correo
-                        </label>
-                        <div className="col-sm-12">
-                          <Form.Control
-                            type="email"
-                            onChange={handleChangeCorreo}
-                          />
-                        </div>
-                      </Form.Group>
-                    </div>
-                    <div className="col-md-6">
-                      <Form.Group>
-                        <label className="col-sm-12 col-form-label">
-                          Estado<code>*</code>
-                        </label>
-                        <div className="col-sm-12">
-                          <select
-                            className="form-control"
-                            onChange={handleChangeEstado}
-                          >
-                            <option value={"0"} selected>
-                              Suscriptor
-                            </option>
-                            <option value={"1"}>Lead</option>
-                            <option value={"2"}>Oportunidad</option>
-                            <option value={"3"}>Cliente</option>
-                          </select>
-                        </div>
-                      </Form.Group>
-                    </div>
-                  </div>
-                  <div className="row">
-                    <div className="col-md-4">
-                      <Form.Group>
-                        <div class="custom-control custom-switch">
-                          <input
-                            type="checkbox"
-                            className="custom-control-input"
-                            id="calificadoValor"
-                            checked={calificado}
-                            onChange={handleChangeCalificado}
-                          />
-                          <label
-                            className="custom-control-label"
-                            for="calificadoValor"
-                          >
-                            Contacto calificado para campañas de marketing
+        <div>
+          <div>
+            <div className="page-header">
+              <h3 className="page-title"> Nuevo contacto </h3>
+            </div>
+            <div className="row">
+              <div className="col-12 grid-margin">
+                <div className="card">
+                  <div className="card-body">
+                    <div className="row">
+                      <h4 className="card-title col-md-8">Datos de contacto</h4>
+                      <div className="col-md-4">
+                        <Form.Group>
+                          <label className="col-form-label float-md-right">
+                            <code>*</code> Información obligatoria
                           </label>
-                        </div>
-                      </Form.Group>
+                        </Form.Group>
+                      </div>
                     </div>
-                    <div className="col-md-8">
-                      <Form.Group>
-                        <label>
-                          <span className="icon-bg">
-                            <i
-                              className="mdi mdi-alert-circle-outline"
-                              style={{ color: "#E4A11B" }}
-                            ></i>
-                          </span>
-                          <span>
-                            Al guardar el contacto con esta opción seleccionada,
-                            ya no se podrá deseleccionar
-                          </span>
-                        </label>
-                      </Form.Group>
-                    </div>
-                  </div>
-                  <div className="row">
-                    <div className="col-md-6">
-                      <Form.Group>
-                        <label className="col-sm-12 col-form-label">
-                          Dirección principal
-                        </label>
-                        <div className="col-sm-12">
-                          <select
-                            className="form-control"
-                            id="direccionPrincipal"
-                          >
-                            <option value={""} selected>
-                              Sin dirección principal
-                            </option>
-                            {direcciones.map(
-                              ({ pais, estado, ciudad, direccion }) => (
-                                <option
-                                  key={
-                                    pais +
-                                    "&&" +
-                                    estado +
-                                    "&&" +
-                                    ciudad +
-                                    "&&" +
-                                    direccion
-                                  }
-                                  value={
-                                    pais +
-                                    "&&" +
-                                    estado +
-                                    "&&" +
-                                    ciudad +
-                                    "&&" +
-                                    direccion
-                                  }
-                                >
-                                  {mostrarDireccion(
-                                    pais,
-                                    estado,
-                                    ciudad,
-                                    direccion
-                                  )}
-                                </option>
-                              )
-                            )}
-                          </select>
-                        </div>
-                      </Form.Group>
-                    </div>
-                    <div className="col-md-6">
-                      <Form.Group>
-                        <label className="col-sm-12 col-form-label">
-                          Teléfono principal
-                        </label>
-                        <div className="col-sm-12">
-                          <select
-                            className="form-control"
-                            id="telefonoPrincipal"
-                          >
-                            <option value={""} selected>
-                              Sin teléfono principal
-                            </option>
-                            {telefonos.map(({ numero }) => (
-                              <option key={numero} value={numero}>
-                                {numero}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      </Form.Group>
-                    </div>
-                  </div>
-                  <div className="row">
-                    <div className="col-md-6">
-                      <Form.Group className="row">
-                        <label className="col-sm-7 col-form-label">
-                          Direcciones
-                        </label>
-                        <div className="col-sm-5">
-                          <button
-                            type="button"
-                            className="btn btn-link float-sm-right"
-                            onClick={handleAgregarDirecciones}
-                          >
-                            Agregar nueva dirección
-                          </button>
-                        </div>
-
-                        <div className="col-md-3">
-                          <Form.Group>
-                            <div className="col-sm-12">
-                              <Form.Control
-                                type="text"
-                                id="direccionPaisNuevo"
-                                placeholder="País"
-                              />
-                            </div>
-                          </Form.Group>
-                        </div>
-                        <div className="col-md-5">
-                          <Form.Group>
-                            <div className="col-sm-12">
-                              <Form.Control
-                                type="text"
-                                id="direccionEstadoNuevo"
-                                placeholder="Estado/Provincia/Región"
-                              />
-                            </div>
-                          </Form.Group>
-                        </div>
-                        <div className="col-md-4">
-                          <Form.Group>
-                            <div className="col-sm-12">
-                              <Form.Control
-                                type="text"
-                                id="direccionCiudadNuevo"
-                                placeholder="Ciudad"
-                              />
-                            </div>
-                          </Form.Group>
-                        </div>
+                    <form className="form-sample">
+                      <div className="row">
                         <div className="col-md-12">
                           <Form.Group>
+                            <label className="col-sm-12 col-form-label">
+                              Nombre completo<code>*</code>
+                            </label>
                             <div className="col-sm-12">
                               <Form.Control
                                 type="text"
-                                id="direccionDetalleNuevo"
-                                placeholder="Dirección"
+                                onChange={handleChangeNombreCompleto}
                               />
                             </div>
                           </Form.Group>
                         </div>
-                      </Form.Group>
-
-                      {direcciones.map(
-                        ({ pais, estado, ciudad, direccion }) => (
-                          <div
-                            className="row"
-                            key={
-                              pais +
-                              "&&" +
-                              estado +
-                              "&&" +
-                              ciudad +
-                              "&&" +
-                              direccion
-                            }
-                          >
-                            <div className="col-md-12">
-                              <Form.Group>
-                                <label
-                                  className="col-sm-12"
-                                  style={{ display: "flex" }}
-                                >
-                                  {mostrarDireccion(
-                                    pais,
-                                    estado,
-                                    ciudad,
-                                    direccion
-                                  )}
-                                  <button
-                                    style={{ marginLeft: "auto" }}
-                                    type="button"
-                                  >
-                                    <i
-                                      className="mdi mdi-delete"
-                                      style={{ color: "black" }}
-                                      onClick={handleEliminarDirecciones(
-                                        pais +
-                                          "&&" +
-                                          estado +
-                                          "&&" +
-                                          ciudad +
-                                          "&&" +
-                                          direccion
-                                      )}
-                                    ></i>
-                                  </button>
-                                </label>
-                              </Form.Group>
-                            </div>
-                          </div>
-                        )
-                      )}
-                    </div>
-                    <div className="col-md-6">
-                      <Form.Group className="row">
-                        <label className="col-sm-7 col-form-label">
-                          Teléfonos
-                        </label>
-                        <div className="col-sm-5">
-                          <button
-                            type="button"
-                            className="btn btn-link float-sm-right"
-                            onClick={handleAgregarTelefonos}
-                          >
-                            Agregar nuevo teléfono
-                          </button>
-                        </div>
-
-                        <div className="col-md-12">
+                      </div>
+                      <div className="row">
+                        <div className="col-md-6">
                           <Form.Group>
+                            <label className="col-sm-12 col-form-label">
+                              Correo
+                            </label>
                             <div className="col-sm-12">
                               <Form.Control
-                                type="text"
-                                placeholder="Número de teléfono"
-                                onChange={handleChangeNuevoTelefono}
-                                value={nuevoTelefono}
+                                type="email"
+                                onChange={handleChangeCorreo}
                               />
                             </div>
                           </Form.Group>
-                        </div>
-                      </Form.Group>
-
-                      {telefonos.map(({ numero }) => (
-                        <div className="row" key={numero}>
-                          <div className="col-md-12">
-                            <Form.Group>
-                              <label
-                                className="col-sm-12"
-                                style={{ display: "flex" }}
-                              >
-                                {numero}
-                                <button
-                                  type="button"
-                                  style={{ marginLeft: "auto" }}
-                                  
-                                >
-                                  <i
-                                    className="mdi mdi-delete"
-                                    style={{ color: "black" }}
-                                    onClick={handleEliminarTelefonos(numero)}
-                                  ></i>
-                                </button>
-                              </label>
-                            </Form.Group>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="row">
-                    <div className="col-md-6">
-                      <Form.Group className="row">
-                        <label className="col-sm-8 col-form-label">
-                          Empresa
-                        </label>
-                        <div className="col-sm-4">
-                          <button
-                            type="button"
-                            className="btn btn-link float-sm-right"
-                            onClick={handleBuscarEmpresas}
-                          >
-                            Buscar empresas
-                          </button>
-                        </div>
-                        <div className="col-md-12">
-                          <Form.Group>
-                            <div className="col-sm-12">
-                              <Form.Control
-                                type="text"
-                                value={empresa.nombre}
-                              />
-                            </div>
-                          </Form.Group>
-                        </div>
-                        {mostrarBuscarEmpresas && (
-                          <div className="col-md-12">
-                            <Form.Group>
-                              <div className="search-field col-sm-12">
-                                <form
-                                  className="d-flex align-items-center h-100"
-                                  onSubmit={buscarEmpresasCadena}
-                                >
-                                  <div className="input-group">
-                                    <div className="input-group-prepend bg-white">
-                                      <i className="input-group-text border-0 mdi mdi-magnify"></i>
-                                    </div>
-                                    <input
-                                      type="text"
-                                      className="form-control bg-white border-0"
-                                      placeholder="Nombre, telefono o sector"
-                                      onChange={handleChangeCadenaEmpresa}
-                                    />
-                                  </div>
-                                  <button
-                                    type="button"
-                                    className="btn btn-primary"
-                                    onClick={buscarEmpresas}
-                                  >
-                                    Buscar
-                                  </button>
-                                </form>
-                              </div>
-                            </Form.Group>
-                          </div>
-                        )}
-                      </Form.Group>
-
-                      <Form.Group className="row">
-                        <div className="col-sm-12">
-                          <div className="table-responsive">
-                            {mostrarTabla && (
-                              <table className="table">
-                                <thead>
-                                  <tr>
-                                    <th>Nombre</th>
-                                    <th>Teléfono</th>
-                                    <th>Sector</th>
-                                    <th></th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {empresasBusqueda.map((empresa) => (
-                                    <tr key={empresa["id"]}>
-                                      <td>{empresa["nombre"]}</td>
-                                      <td>{empresa["telefono"]}</td>
-                                      <td>{empresa["sector"]}</td>
-                                      <td>
-                                        <button
-                                          type="button"
-                                          onClick={handleAsignarEmpresa(
-                                            empresa["id"],
-                                            empresa["nombre"]
-                                          )}
-                                        >
-                                          <i
-                                            className="mdi mdi-plus"
-                                            style={{ color: "black" }}
-                                          ></i>
-                                        </button>
-                                      </td>
-                                    </tr>
-                                  ))}
-                                </tbody>
-                              </table>
-                            )}
-                          </div>
-                        </div>
-                      </Form.Group>
-                    </div>
-                    <div className="col-md-6">
-                      <Form.Group className="row">
-                        <label className="col-sm-7 col-form-label">
-                          Redes sociales
-                        </label>
-                        <div className="col-sm-5">
-                          <button
-                            type="button"
-                            className="btn btn-link float-sm-right"
-                            onClick={handleAgregarRedes}
-                          >
-                            Agregar nueva red social
-                          </button>
                         </div>
                         <div className="col-md-6">
                           <Form.Group>
+                            <label className="col-sm-12 col-form-label">
+                              Estado<code>*</code>
+                            </label>
                             <div className="col-sm-12">
                               <select
                                 className="form-control"
-                                id="redSocialNueva"
+                                onChange={handleChangeEstado}
                               >
-                                <option value={""} disabled selected hidden>
-                                  Red social
+                                <option value={"0"} selected>
+                                  Suscriptor
                                 </option>
-                                <option value={"0"}>Facebook</option>
-                                <option value={"1"}>Linkedin</option>
-                                <option value={"2"}>Instagram</option>
+                                <option value={"1"}>Lead</option>
+                                <option value={"2"}>Oportunidad</option>
+                                <option value={"3"}>Cliente</option>
+                              </select>
+                            </div>
+                          </Form.Group>
+                        </div>
+                      </div>
+                      <div className="row">
+                        <div className="col-md-4">
+                          <Form.Group>
+                            <div class="custom-control custom-switch">
+                              <input
+                                type="checkbox"
+                                className="custom-control-input"
+                                id="calificadoValor"
+                                checked={calificado}
+                                onChange={handleChangeCalificado}
+                              />
+                              <label
+                                className="custom-control-label"
+                                for="calificadoValor"
+                              >
+                                Contacto calificado para campañas de marketing
+                              </label>
+                            </div>
+                          </Form.Group>
+                        </div>
+                        <div className="col-md-8">
+                          <Form.Group>
+                            <label>
+                              <span className="icon-bg">
+                                <i
+                                  className="mdi mdi-alert-circle-outline"
+                                  style={{ color: "#E4A11B" }}
+                                ></i>
+                              </span>
+                              <span>
+                                Al guardar el contacto con esta opción
+                                seleccionada, ya no se podrá deseleccionar
+                              </span>
+                            </label>
+                          </Form.Group>
+                        </div>
+                      </div>
+                      <div className="row">
+                        <div className="col-md-6">
+                          <Form.Group>
+                            <label className="col-sm-12 col-form-label">
+                              Dirección principal
+                            </label>
+                            <div className="col-sm-12">
+                              <select
+                                className="form-control"
+                                id="direccionPrincipal"
+                              >
+                                <option value={""} selected>
+                                  Sin dirección principal
+                                </option>
+                                {direcciones.map(
+                                  ({ pais, estado, ciudad, direccion }) => (
+                                    <option
+                                      key={
+                                        pais +
+                                        "&&" +
+                                        estado +
+                                        "&&" +
+                                        ciudad +
+                                        "&&" +
+                                        direccion
+                                      }
+                                      value={
+                                        pais +
+                                        "&&" +
+                                        estado +
+                                        "&&" +
+                                        ciudad +
+                                        "&&" +
+                                        direccion
+                                      }
+                                    >
+                                      {mostrarDireccion(
+                                        pais,
+                                        estado,
+                                        ciudad,
+                                        direccion
+                                      )}
+                                    </option>
+                                  )
+                                )}
                               </select>
                             </div>
                           </Form.Group>
                         </div>
                         <div className="col-md-6">
                           <Form.Group>
+                            <label className="col-sm-12 col-form-label">
+                              Teléfono principal
+                            </label>
                             <div className="col-sm-12">
-                              <Form.Control
-                                type="text"
-                                id="nombreUsuarioNuevo"
-                                placeholder="Nombre de usuario"
-                              />
+                              <select
+                                className="form-control"
+                                id="telefonoPrincipal"
+                              >
+                                <option value={""} selected>
+                                  Sin teléfono principal
+                                </option>
+                                {telefonos.map(({ numero }) => (
+                                  <option key={numero} value={numero}>
+                                    {numero}
+                                  </option>
+                                ))}
+                              </select>
                             </div>
                           </Form.Group>
                         </div>
-                      </Form.Group>
-
-                      {redes.map(({ redSocial, nombreUsuario }) => (
-                        <div className="row" key={redSocial + nombreUsuario}>
-                          <div className="col-md-12">
-                            <Form.Group>
-                              <label
-                                className="col-sm-12"
-                                style={{ display: "flex" }}
+                      </div>
+                      <div className="row">
+                        <div className="col-md-6">
+                          <Form.Group className="row">
+                            <label className="col-sm-7 col-form-label">
+                              Direcciones
+                            </label>
+                            <div className="col-sm-5">
+                              <button
+                                type="button"
+                                className="btn btn-link float-sm-right"
+                                onClick={handleAgregarDirecciones}
                               >
-                                {mostrarRedSocial(redSocial, nombreUsuario)}
-                                <button
-                                  style={{ marginLeft: "auto" }}
-                                  type="button"
-                                >
-                                  <i
-                                    className="mdi mdi-delete"
-                                    style={{ color: "black" }}
-                                    onClick={handleEliminarRedes(
-                                      redSocial + nombreUsuario
-                                    )}
-                                  ></i>
-                                </button>
-                              </label>
-                            </Form.Group>
-                          </div>
+                                Agregar nueva dirección
+                              </button>
+                            </div>
+
+                            <div className="col-md-3">
+                              <Form.Group>
+                                <div className="col-sm-12">
+                                  <Form.Control
+                                    type="text"
+                                    id="direccionPaisNuevo"
+                                    placeholder="País"
+                                  />
+                                </div>
+                              </Form.Group>
+                            </div>
+                            <div className="col-md-5">
+                              <Form.Group>
+                                <div className="col-sm-12">
+                                  <Form.Control
+                                    type="text"
+                                    id="direccionEstadoNuevo"
+                                    placeholder="Estado/Provincia/Región"
+                                  />
+                                </div>
+                              </Form.Group>
+                            </div>
+                            <div className="col-md-4">
+                              <Form.Group>
+                                <div className="col-sm-12">
+                                  <Form.Control
+                                    type="text"
+                                    id="direccionCiudadNuevo"
+                                    placeholder="Ciudad"
+                                  />
+                                </div>
+                              </Form.Group>
+                            </div>
+                            <div className="col-md-12">
+                              <Form.Group>
+                                <div className="col-sm-12">
+                                  <Form.Control
+                                    type="text"
+                                    id="direccionDetalleNuevo"
+                                    placeholder="Dirección"
+                                  />
+                                </div>
+                              </Form.Group>
+                            </div>
+                          </Form.Group>
+
+                          {direcciones.map(
+                            ({ pais, estado, ciudad, direccion }) => (
+                              <div
+                                className="row"
+                                key={
+                                  pais +
+                                  "&&" +
+                                  estado +
+                                  "&&" +
+                                  ciudad +
+                                  "&&" +
+                                  direccion
+                                }
+                              >
+                                <div className="col-md-12">
+                                  <Form.Group>
+                                    <label
+                                      className="col-sm-12"
+                                      style={{ display: "flex" }}
+                                    >
+                                      {mostrarDireccion(
+                                        pais,
+                                        estado,
+                                        ciudad,
+                                        direccion
+                                      )}
+                                      <button
+                                        style={{ marginLeft: "auto" }}
+                                        type="button"
+                                      >
+                                        <i
+                                          className="mdi mdi-delete"
+                                          style={{ color: "black" }}
+                                          onClick={handleEliminarDirecciones(
+                                            pais +
+                                              "&&" +
+                                              estado +
+                                              "&&" +
+                                              ciudad +
+                                              "&&" +
+                                              direccion
+                                          )}
+                                        ></i>
+                                      </button>
+                                    </label>
+                                  </Form.Group>
+                                </div>
+                              </div>
+                            )
+                          )}
                         </div>
-                      ))}
-                    </div>
+                        <div className="col-md-6">
+                          <Form.Group className="row">
+                            <label className="col-sm-7 col-form-label">
+                              Teléfonos
+                            </label>
+                            <div className="col-sm-5">
+                              <button
+                                type="button"
+                                className="btn btn-link float-sm-right"
+                                onClick={handleAgregarTelefonos}
+                              >
+                                Agregar nuevo teléfono
+                              </button>
+                            </div>
+
+                            <div className="col-md-12">
+                              <Form.Group>
+                                <div className="col-sm-12">
+                                  <Form.Control
+                                    type="text"
+                                    placeholder="Número de teléfono"
+                                    onChange={handleChangeNuevoTelefono}
+                                    value={nuevoTelefono}
+                                  />
+                                </div>
+                              </Form.Group>
+                            </div>
+                          </Form.Group>
+
+                          {telefonos.map(({ numero }) => (
+                            <div className="row" key={numero}>
+                              <div className="col-md-12">
+                                <Form.Group>
+                                  <label
+                                    className="col-sm-12"
+                                    style={{ display: "flex" }}
+                                  >
+                                    {numero}
+                                    <button
+                                      type="button"
+                                      style={{ marginLeft: "auto" }}
+                                    >
+                                      <i
+                                        className="mdi mdi-delete"
+                                        style={{ color: "black" }}
+                                        onClick={handleEliminarTelefonos(
+                                          numero
+                                        )}
+                                      ></i>
+                                    </button>
+                                  </label>
+                                </Form.Group>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="row">
+                        <div className="col-md-6">
+                          <Form.Group className="row">
+                            <label className="col-sm-8 col-form-label">
+                              Empresa
+                            </label>
+                            <div className="col-sm-4">
+                              <button
+                                type="button"
+                                className="btn btn-link float-sm-right"
+                                onClick={handleBuscarEmpresas}
+                              >
+                                Buscar empresas
+                              </button>
+                            </div>
+                            <div className="col-md-12">
+                              <Form.Group>
+                                <div className="col-sm-12">
+                                  <Form.Control
+                                    type="text"
+                                    value={empresa.nombre}
+                                  />
+                                </div>
+                              </Form.Group>
+                            </div>
+                            {mostrarBuscarEmpresas && (
+                              <div className="col-md-12">
+                                <Form.Group>
+                                  <div className="search-field col-sm-12">
+                                    <form
+                                      className="d-flex align-items-center h-100"
+                                      onSubmit={buscarEmpresasCadena}
+                                    >
+                                      <div className="input-group">
+                                        <div className="input-group-prepend bg-white">
+                                          <i className="input-group-text border-0 mdi mdi-magnify"></i>
+                                        </div>
+                                        <input
+                                          type="text"
+                                          className="form-control bg-white border-0"
+                                          placeholder="Nombre, telefono o sector"
+                                          value={cadenaBuscarEmpresa}
+                                          onChange={handleChangeCadenaEmpresa}
+                                        />
+                                      </div>
+                                      <button
+                                        type="button"
+                                        className="btn btn-primary"
+                                        onClick={buscarEmpresas}
+                                      >
+                                        Buscar
+                                      </button>
+                                    </form>
+                                  </div>
+                                </Form.Group>
+                              </div>
+                            )}
+                          </Form.Group>
+
+                          <Form.Group className="row">
+                            <div className="col-sm-12">
+                              <div className="table-responsive">
+                                {mostrarTabla && (
+                                  <table className="table">
+                                    <thead>
+                                      <tr>
+                                        <th>Nombre</th>
+                                        <th>Teléfono</th>
+                                        <th>Sector</th>
+                                        <th></th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {empresasBusqueda.map((empresa) => (
+                                        <tr key={empresa["id"]}>
+                                          <td>{empresa["nombre"]}</td>
+                                          <td>{empresa["telefono"]}</td>
+                                          <td>{empresa["sector"]}</td>
+                                          <td>
+                                            <button
+                                              type="button"
+                                              onClick={handleAsignarEmpresa(
+                                                empresa["id"],
+                                                empresa["nombre"]
+                                              )}
+                                            >
+                                              <i
+                                                className="mdi mdi-plus"
+                                                style={{ color: "black" }}
+                                              ></i>
+                                            </button>
+                                          </td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                )}
+                              </div>
+                            </div>
+                          </Form.Group>
+                        </div>
+                        <div className="col-md-6">
+                          <Form.Group className="row">
+                            <label className="col-sm-7 col-form-label">
+                              Redes sociales
+                            </label>
+                            <div className="col-sm-5">
+                              <button
+                                type="button"
+                                className="btn btn-link float-sm-right"
+                                onClick={handleAgregarRedes}
+                              >
+                                Agregar nueva red social
+                              </button>
+                            </div>
+                            <div className="col-md-6">
+                              <Form.Group>
+                                <div className="col-sm-12">
+                                  <select
+                                    className="form-control"
+                                    id="redSocialNueva"
+                                  >
+                                    <option value={""} disabled selected hidden>
+                                      Red social
+                                    </option>
+                                    <option value={"0"}>Facebook</option>
+                                    <option value={"1"}>Linkedin</option>
+                                    <option value={"2"}>Instagram</option>
+                                  </select>
+                                </div>
+                              </Form.Group>
+                            </div>
+                            <div className="col-md-6">
+                              <Form.Group>
+                                <div className="col-sm-12">
+                                  <Form.Control
+                                    type="text"
+                                    id="nombreUsuarioNuevo"
+                                    placeholder="Nombre de usuario"
+                                  />
+                                </div>
+                              </Form.Group>
+                            </div>
+                          </Form.Group>
+
+                          {redes.map(({ redSocial, nombreUsuario }) => (
+                            <div
+                              className="row"
+                              key={redSocial + nombreUsuario}
+                            >
+                              <div className="col-md-12">
+                                <Form.Group>
+                                  <label
+                                    className="col-sm-12"
+                                    style={{ display: "flex" }}
+                                  >
+                                    {mostrarRedSocial(redSocial, nombreUsuario)}
+                                    <button
+                                      style={{ marginLeft: "auto" }}
+                                      type="button"
+                                    >
+                                      <i
+                                        className="mdi mdi-delete"
+                                        style={{ color: "black" }}
+                                        onClick={handleEliminarRedes(
+                                          redSocial + nombreUsuario
+                                        )}
+                                      ></i>
+                                    </button>
+                                  </label>
+                                </Form.Group>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="row">
+                        <div className="col-md-6">
+                          <button
+                            type="button"
+                            className="btn btn-outline-primary"
+                            onClick={() =>
+                              history.push({
+                                pathname: "/contactos",
+                              })
+                            }
+                          >
+                            Salir
+                          </button>
+                        </div>
+                        <div className="col-md-6">
+                          <button
+                            type="button"
+                            className="btn btn-primary float-sm-right"
+                            onClick={handleShow}
+                          >
+                            Guardar
+                          </button>
+                        </div>
+                      </div>
+                    </form>
                   </div>
-                  <div className="row">
-                    <div className="col-md-6">
-                        <button
-                          type="button"
-                          className="btn btn-outline-primary"
-                          onClick={() =>
-                            history.push({
-                              pathname: "/contactos",
-                            })
-                          }
-                        >
-                          Salir
-                        </button>
-                    </div>
-                    <div className="col-md-6">
-                      <button
-                        type="button"
-                        className="btn btn-primary float-sm-right"
-                        onClick={handleShow}
-                      >
-                        Guardar
-                      </button>
-                    </div>
-                  </div>
-                </form>
+                </div>
               </div>
             </div>
           </div>
+          <Modal show={show} onHide={handleClose}>
+            <Modal.Header closeButton>
+              <Modal.Title>
+                <h4 className="card-title" style={{ color: "#000000" }}>
+                  Guardar contacto
+                </h4>
+              </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <h5 className="card-title" style={{ color: "#000000" }}>
+                ¿Desea guardar el contacto?
+              </h5>
+            </Modal.Body>
+            <Modal.Footer>
+              <button className="btn btn-outline-primary" onClick={handleClose}>
+                Cancelar
+              </button>
+
+              <button className="btn btn-primary" onClick={guardarContacto}>
+                Guardar
+              </button>
+            </Modal.Footer>
+          </Modal>
         </div>
-      </div>
-      <Modal show={show} onHide={handleClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>
-            <h4 className="card-title" style={{ color: "#000000" }}>
-              Guardar contacto
-            </h4>
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <h5 className="card-title" style={{ color: "#000000" }}>
-            ¿Desea guardar el contacto?
-          </h5>
-        </Modal.Body>
-        <Modal.Footer>
-          <button className="btn btn-outline-primary" onClick={handleClose}>
-            Cancelar
-          </button>
-          
-            <button className="btn btn-primary" onClick={guardarContacto}>
-              Guardar
-            </button>
-          
-        </Modal.Footer>
-      </Modal>
-      </div>)}
+      )}
     </>
   );
 };

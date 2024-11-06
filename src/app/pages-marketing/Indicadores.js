@@ -9,6 +9,9 @@ const Indicadores = () => {
   const history = useHistory();
   const location = useLocation();
   const [show, setShow] = useState(false);
+  const [mostrarTabla, setMostrarTabla] = useState(false);
+  const [mostrarCarga, setMostrarCarga] = useState(false);
+
   const [usuarioLogueado, setUsuarioLogueado] = useState({});
   const [startDateCreate, setStartDateCreate] = useState(new Date());
   const [endDateCreate, setEndDateCreate] = useState(new Date());
@@ -95,9 +98,13 @@ const Indicadores = () => {
       console.log(fechaModificacionIni);
       console.log(fechaModificacionFin);
     }
+    setMostrarTabla(false);
+    setMostrarCarga(true);
     api
       .post("filtrarIndicadores", {
         cadena: cadena,
+        aspecto: "",
+        tipo: "",
         fechaCreacionIni: fechaCreacionIni,
         fechaCreacionFin: fechaCreacionFin,
         fechaModificacionIni: fechaModificacionIni,
@@ -108,6 +115,8 @@ const Indicadores = () => {
       .then((data) => {
         console.log(data);
         setIndicadores(data);
+        setMostrarCarga(false);
+        setMostrarTabla(true);
       })
       .catch((err) => alert(err));
   };
@@ -187,7 +196,7 @@ const Indicadores = () => {
   return (
     <div>
       <div className="row">
-        <div className="page-header col-md-5">
+        <div className="page-header col-md-7">
           <h3 className="page-title"> Indicadores </h3>
         </div>
         <div className="page-header col-md-3">
@@ -302,7 +311,7 @@ const Indicadores = () => {
               </div>
             </Form.Group>
           </div>
-          <div className="col-md-2">
+          <div className="col-md-7">
             <Form.Group>
               <div className="text-right">
                 <button
@@ -319,6 +328,14 @@ const Indicadores = () => {
       </form>
       <div className="row">
         <div className="col-sm-12">
+        {mostrarCarga && (
+            <div className="row h-100">
+              <div className="col-sm-12 my-auto">
+                <div className="circle-loader"></div>
+              </div>
+            </div>
+          )}
+          {mostrarTabla && (
           <div className="table-responsive">
             <table className="table">
               <thead>
@@ -352,6 +369,7 @@ const Indicadores = () => {
               </tbody>
             </table>
           </div>
+          )}
         </div>
       </div>
       <Modal show={show} onHide={handleClose}>

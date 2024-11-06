@@ -16,12 +16,14 @@ const Listas = lazy(() => import("./pages/Listas"));
 
 const CrearContacto = lazy(() => import("./pages/CrearContacto"));
 const CrearEmpresa = lazy(() => import("./pages/CrearEmpresa"));
+const CrearLista = lazy(() => import("./pages/CrearLista"));
 
 const CargarContactos = lazy(() => import("./pages/CargarContactos"));
 const CargarEmpresas = lazy(() => import("./pages/CargarEmpresas"));
 
 const DetalleContacto = lazy(() => import("./pages/DetalleContacto"));
 const DetalleEmpresa = lazy(() => import("./pages/DetalleEmpresa"));
+const DetalleLista = lazy(() => import("./pages/DetalleLista"));
 
 const Indicadores = lazy(() => import("./pages-marketing/Indicadores"));
 const Planes = lazy(() => import("./pages-marketing/Planes"));
@@ -30,6 +32,22 @@ const Tacticas = lazy(() => import("./pages-marketing/Tacticas"));
 const Flujos = lazy(() => import("./pages-marketing/Flujos"));
 const Oportunidades = lazy(() => import("./pages-marketing/Oportunidades"));
 const Informes = lazy(() => import("./pages-marketing/Informes"));
+
+const CrearIndicador= lazy(() => import("./pages-marketing/CrearIndicador"));
+const CrearPlan= lazy(() => import("./pages-marketing/CrearPlan"));
+const CrearEstrategia= lazy(() => import("./pages-marketing/CrearEstrategia"));
+const CrearCampana= lazy(() => import("./pages-marketing/CrearCampana"));
+const CrearRecurso= lazy(() => import("./pages-marketing/CrearRecurso"));
+const CrearFlujo= lazy(() => import("./pages-marketing/CrearFlujo"));
+const CrearOportunidad= lazy(() => import("./pages-marketing/CrearOportunidad"));
+
+const DetalleIndicador= lazy(() => import("./pages-marketing/DetalleIndicador"));
+const DetallePlan= lazy(() => import("./pages-marketing/DetallePlan"));
+const DetalleEstrategia= lazy(() => import("./pages-marketing/DetalleEstrategia"));
+const DetalleCampana= lazy(() => import("./pages-marketing/DetalleCampana"));
+const DetalleRecurso= lazy(() => import("./pages-marketing/DetalleRecurso"));
+const DetalleFlujo= lazy(() => import("./pages-marketing/DetalleFlujo"));
+const DetalleOportunidad= lazy(() => import("./pages-marketing/DetalleOportunidad"));
 
 const Eventos = lazy(() => import("./pages/Eventos"));
 
@@ -88,14 +106,38 @@ const AppRoutes = () => {
         <Route path="/crearEmpresa" component={CrearEmpresa} />
         <Route path="/detalleEmpresa" component={DetalleEmpresa} />
         <Route path="/cargarEmpresas" component={CargarEmpresas} />
+
         <Route path="/listas" component={Listas} />
+        <Route path="/crearLista" component={CrearLista} />
+        <Route path="/detalleLista" component={DetalleLista} />
 
         <Route path="/indicadores" component={Indicadores} />
+        <Route path="/crearIndicador" component={CrearIndicador} />
+        <Route path="/detalleIndicador" component={DetalleIndicador} />
+
         <Route path="/planes" component={Planes} />
+        <Route path="/crearPlan" component={CrearPlan} />
+        <Route path="/detallePlan" component={DetallePlan} />
+
         <Route path="/estrategias" component={Estrategias} />
+        <Route path="/crearEstrategia" component={CrearEstrategia} />
+        <Route path="/detalleEstrategia" component={DetalleEstrategia} />
+
         <Route path="/tacticas" component={Tacticas} />
+        <Route path="/crearCampana" component={CrearCampana} />
+        <Route path="/detalleCampana" component={DetalleCampana} />
+
+        <Route path="/crearRecurso" component={CrearRecurso} />
+        <Route path="/detalleRecurso" component={DetalleRecurso} />
+
         <Route path="/flujos" component={Flujos} />
+        <Route path="/crearFlujo" component={CrearFlujo} />
+        <Route path="/detalleFlujo" component={DetalleFlujo} />
+
         <Route path="/oportunidades" component={Oportunidades} />
+        <Route path="/crearOportunidad" component={CrearOportunidad} />
+        <Route path="/detalleOportunidad" component={DetalleOportunidad} />
+
         <Route path="/informes" component={Informes} />
 
         <Route path="/eventos" component={Eventos} />

@@ -120,8 +120,8 @@ const Contactos = () => {
       .then((res) => res.data)
       .then((data) => {
         console.log(data);
-        setMostrarCarga(false);
         setContactos(data);
+        setMostrarCarga(false);
         setMostrarTabla(true);
       })
       .catch((err) => alert(err));
@@ -321,9 +321,9 @@ const Contactos = () => {
           </div>
         </div>
         <div className="row">
-          <div className="col-md-5">
+          <div className="col-md-6">
             <Form.Group className="row">
-              <div className="search-field col-sm-12">
+              <div className="search-field col-sm-10">
                 <form
                   className="d-flex align-items-center h-100"
                   onSubmit={buscarContactosCadena}
@@ -343,7 +343,7 @@ const Contactos = () => {
               </div>
             </Form.Group>
           </div>
-          <div className="col-md-5">
+          <div className="col-md-4">
             <Form.Group className="row">
               <select
                 className="form-control col-sm-6"
