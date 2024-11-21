@@ -94,7 +94,6 @@ const AppRoutes = () => {
     <Suspense fallback={<Spinner />}>
       <Switch>
         <Route path="/iniciarSesion" component={IniciarSesion} />
-
         <Route path="/microsoft" component={LoginMicrosoftDemo} />
         
         <Route path="/dashboard" component={Dashboard} />
