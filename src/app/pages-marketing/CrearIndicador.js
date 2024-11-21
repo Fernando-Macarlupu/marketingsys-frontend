@@ -10,56 +10,352 @@ const CrearIndicador = () => {
   const [show, setShow] = useState(false);
   const [mostrarBuscarEmpresas, setMostrarBuscarEmpresas] = useState(false);
   const [mostrarTablaVariables, setMostrarTablaVariables] = useState(false);
+  const [sintaxis, setSintaxis] = useState(false);
 
   const [variablesBusqueda, setVariablesBusqueda] = useState([]);
-
-  const [cadenaBuscarEmpresa, setCadenaBuscarEmpresa] = useState("");
-  const [empresasBusqueda, setEmpresasBusqueda] = useState([]);
-  const [empresa, setEmpresa] = useState({ id: 0, nombre: "" });
 
   const [propietario, setPropietario] = useState(0);
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
-  const [asociado, setAsociado] = useState("");
-  const [variables, setVariables] = useState("");
+  const [formula, setFormula] = useState("");
+  const [tipo, setTipo] = useState("");
+  const [variables, setVariables] = useState([]);
 
-  const [correo, setCorreo] = useState("");
-  const [estado, setEstado] = useState("0");
+  const [automatica, setAutomatica] = useState(false);
   const [automatizado, setAutomatizado] = useState(false);
 
-  const [correosNoDisponibles, setCorreosNoDisponibles] = useState([]);
-
   const [usuarioLogueado, setUsuarioLogueado] = useState({});
+
+  const [mostrarBuscarAsociaciones, setMostrarBuscarAsociaciones] =
+    useState(false);
+  const [mostrarTablaAsociaciones, setMostrarTablaAsociaciones] =
+    useState(false);
+  const [mostrarCargaAsociaciones, setMostrarCargaAsociaciones] =
+    useState(false);
+  const [asociacionCadena, setAsociacionCadena] = useState("");
+  const [asociacionEstado, setAsociacionEstado] = useState("");
+  const [asociaciones, setAsociaciones] = useState([]);
+  const [asociacionesBusqueda, setAsociacionesBusqueda] = useState([]);
+
+  const [mostrarBuscarVariables, setMostrarBuscarVariables] = useState(false);
+
+  const [variableCadena, setVariableCadena] = useState("");
+  const [variableTipo, setVariableTipo] = useState("");
+
+  const handleAgregarAsociaciones = (id, descripcion, estado) => () => {
+    for (let index = 0; index < asociaciones.length; index++) {
+      const element = asociaciones[index];
+      if (element["id"] == id) return;
+    }
+    setAsociaciones([
+      ...asociaciones,
+      {
+        id: id,
+        descripcion: descripcion,
+        estado: estado,
+        valor: 0,
+      },
+    ]);
+  };
+  const handleEliminarAsociaciones = (id) => () => {
+    setAsociaciones((prev) => prev.filter((el) => el.id !== id));
+  };
+
+  const buscarPlanes = () => {
+    let fechaHoy = "",
+      fecha = new Date();
+
+    fechaHoy =
+      fecha.getDate() +
+      "-" +
+      parseInt(fecha.getMonth() + 1) +
+      "-" +
+      fecha.getFullYear();
+    setMostrarTablaAsociaciones(false);
+    setMostrarCargaAsociaciones(true);
+    api
+      .post("filtrarPlanes", {
+        cadena: asociacionCadena,
+        estado: asociacionEstado,
+        fechaHoy: fechaHoy,
+        fechaVigenciaIni: "",
+        fechaVigenciaFin: "",
+        propietario: usuarioLogueado["idCuenta"],
+      })
+      .then((res) => res.data)
+      .then((data) => {
+        console.log(data);
+        setAsociacionesBusqueda(data);
+        setMostrarCargaAsociaciones(false);
+        setMostrarTablaAsociaciones(true);
+      })
+      .catch((err) => alert(err));
+  };
+  const buscarPlanesCadena = (event) => {
+    event.preventDefault();
+    buscarPlanes();
+  };
+
+  const buscarProgramas = () => {
+    let fechaHoy = "",
+      fecha = new Date();
+
+    fechaHoy =
+      fecha.getDate() +
+      "-" +
+      parseInt(fecha.getMonth() + 1) +
+      "-" +
+      fecha.getFullYear();
+    setMostrarTablaAsociaciones(false);
+    setMostrarCargaAsociaciones(true);
+    api
+      .post("filtrarEstrategias", {
+        cadena: asociacionCadena,
+        estado: asociacionEstado,
+        tipo: "0",
+        fechaHoy: fechaHoy,
+        fechaVigenciaIni: "",
+        fechaVigenciaFin: "",
+        propietario: usuarioLogueado["idCuenta"],
+      })
+      .then((res) => res.data)
+      .then((data) => {
+        console.log(data);
+        setAsociacionesBusqueda(data);
+        setMostrarCargaAsociaciones(false);
+        setMostrarTablaAsociaciones(true);
+      })
+      .catch((err) => alert(err));
+  };
+  const buscarProgramasCadena = (event) => {
+    event.preventDefault();
+    buscarProgramas();
+  };
+
+  const buscarCampanasStandalone = () => {
+    let fechaHoy = "",
+      fecha = new Date();
+
+    fechaHoy =
+      fecha.getDate() +
+      "-" +
+      parseInt(fecha.getMonth() + 1) +
+      "-" +
+      fecha.getFullYear();
+    setMostrarTablaAsociaciones(false);
+    setMostrarCargaAsociaciones(true);
+    api
+      .post("filtrarCampanas", {
+        cadena: asociacionCadena,
+        estado: asociacionEstado,
+        tipo: "1",
+        fechaHoy: fechaHoy,
+        fechaVigenciaIni: "",
+        fechaVigenciaFin: "",
+        propietario: usuarioLogueado["idCuenta"],
+      })
+      .then((res) => res.data)
+      .then((data) => {
+        console.log(data);
+        setAsociacionesBusqueda(data);
+        setMostrarCargaAsociaciones(false);
+        setMostrarTablaAsociaciones(true);
+      })
+      .catch((err) => alert(err));
+  };
+  const buscarCampanasStandaloneCadena = (event) => {
+    event.preventDefault();
+    buscarCampanasStandalone();
+  };
+
+  const buscarCampanasPrograma = () => {
+    let fechaHoy = "",
+      fecha = new Date();
+
+    fechaHoy =
+      fecha.getDate() +
+      "-" +
+      parseInt(fecha.getMonth() + 1) +
+      "-" +
+      fecha.getFullYear();
+    setMostrarTablaAsociaciones(false);
+    setMostrarCargaAsociaciones(true);
+    api
+      .post("filtrarCampanas", {
+        cadena: asociacionCadena,
+        estado: asociacionEstado,
+        tipo: "0",
+        fechaHoy: fechaHoy,
+        fechaVigenciaIni: "",
+        fechaVigenciaFin: "",
+        propietario: usuarioLogueado["idCuenta"],
+      })
+      .then((res) => res.data)
+      .then((data) => {
+        console.log(data);
+        setAsociacionesBusqueda(data);
+        setMostrarCargaAsociaciones(false);
+        setMostrarTablaAsociaciones(true);
+      })
+      .catch((err) => alert(err));
+  };
+  const buscarCampanasProgramaCadena = (event) => {
+    event.preventDefault();
+    buscarCampanasPrograma();
+  };
+
+  const buscarCorreos = () => {
+    let fechaHoy = "",
+      fecha = new Date();
+
+    fechaHoy =
+      fecha.getDate() +
+      "-" +
+      parseInt(fecha.getMonth() + 1) +
+      "-" +
+      fecha.getFullYear();
+    setMostrarTablaAsociaciones(false);
+    setMostrarCargaAsociaciones(true);
+    api
+      .post("filtrarRecursos", {
+        cadena: asociacionCadena,
+        estado: asociacionEstado,
+        tipo: "0",
+        fechaHoy: fechaHoy,
+        fechaVigenciaIni: "",
+        fechaVigenciaFin: "",
+        propietario: usuarioLogueado["idCuenta"],
+      })
+      .then((res) => res.data)
+      .then((data) => {
+        console.log(data);
+        setAsociacionesBusqueda(data);
+        setMostrarCargaAsociaciones(false);
+        setMostrarTablaAsociaciones(true);
+      })
+      .catch((err) => alert(err));
+  };
+  const buscarCorreosCadena = (event) => {
+    event.preventDefault();
+    buscarCorreos();
+  };
+
+  const buscarPublicaciones = () => {
+    let fechaHoy = "",
+      fecha = new Date();
+
+    fechaHoy =
+      fecha.getDate() +
+      "-" +
+      parseInt(fecha.getMonth() + 1) +
+      "-" +
+      fecha.getFullYear();
+    setMostrarTablaAsociaciones(false);
+    setMostrarCargaAsociaciones(true);
+    api
+      .post("filtrarRecursos", {
+        cadena: asociacionCadena,
+        estado: asociacionEstado,
+        tipo: "1",
+        fechaHoy: fechaHoy,
+        fechaVigenciaIni: "",
+        fechaVigenciaFin: "",
+        propietario: usuarioLogueado["idCuenta"],
+      })
+      .then((res) => res.data)
+      .then((data) => {
+        console.log(data);
+        setAsociacionesBusqueda(data);
+        setMostrarCargaAsociaciones(false);
+        setMostrarTablaAsociaciones(true);
+      })
+      .catch((err) => alert(err));
+  };
+  const buscarPublicacionesCadena = (event) => {
+    event.preventDefault();
+    buscarPublicaciones();
+  };
+
+  const buscarPaginas = () => {
+    let fechaHoy = "",
+      fecha = new Date();
+
+    fechaHoy =
+      fecha.getDate() +
+      "-" +
+      parseInt(fecha.getMonth() + 1) +
+      "-" +
+      fecha.getFullYear();
+    setMostrarTablaAsociaciones(false);
+    setMostrarCargaAsociaciones(true);
+    api
+      .post("filtrarRecursos", {
+        cadena: asociacionCadena,
+        estado: asociacionEstado,
+        tipo: "2",
+        fechaHoy: fechaHoy,
+        fechaVigenciaIni: "",
+        fechaVigenciaFin: "",
+        propietario: usuarioLogueado["idCuenta"],
+      })
+      .then((res) => res.data)
+      .then((data) => {
+        console.log(data);
+        setAsociacionesBusqueda(data);
+        setMostrarCargaAsociaciones(false);
+        setMostrarTablaAsociaciones(true);
+      })
+      .catch((err) => alert(err));
+  };
+  const buscarPaginasCadena = (event) => {
+    event.preventDefault();
+    buscarPaginas();
+  };
 
   const handleClose = () => setShow(false);
   const handleShow = () => {
     if (nombre == "") alert("Ingrese el nombre del indicador");
-    // else {
-    //   if (estado == "") alert("Ingrese el estado del contacto");
-    //   else {
-    //     if (correosNoDisponibles.includes(String(correo)))
-    //       alert(
-    //         "El correo del contacto ya ha sido registrado, ingrese otro correo"
-    //       );
-    //     else setShow(true);
-    //   }
-    // }
-  };
-  const handleBuscarEmpresas = () => setMostrarBuscarEmpresas(true);
+    else {
+      let abreviaturas = [];
+      let variablesEmpleadas = [];
+      let operaciones = ["+", "-", "*", "/", "^", "(", ")"];
+      for (let index = 0; index < variables.length; index++) {
+        const element = variables[index];
+        abreviaturas.push(element["abreviatura"]);
+      }
+      const elementos = formula.trim().split(" ");
+      let formulaCambio = "";
 
-  // const handleAgregarDirecciones = () => {
-  //   for (let index = 0; index < direcciones.length; index++) {
-  //     const element = direcciones[index];
-  //     if (element["direccion"] == nuevaDireccion) return;
-  //   }
-  //   setDirecciones([
-  //     ...direcciones,
-  //     { direccion: nuevaDireccion, principal: false },
-  //   ]);
-  // };
+      console.log(elementos);
+      for (let index = 0; index < elementos.length; index++) {
+        const element = elementos[index];
+        if (!abreviaturas.includes(element) && !operaciones.includes(element)) {
+          setSintaxis(false);
+          alert(
+            "La fórmula incluye términos que no son variables u operadores"
+          );
+        } else if (abreviaturas.includes(element)) {
+          variablesEmpleadas.push(element);
+          formulaCambio = formulaCambio + "1";
+        } else if (operaciones.includes(element)) {
+          formulaCambio = formulaCambio + element;
+        }
+      }
+
+      try {
+        eval(formulaCambio);
+      } catch (e) {
+        setSintaxis(false);
+        alert("La fórmula no puede ser evaluada");
+      }
+
+      setSintaxis(true);
+      setShow(true);
+    }
+  };
 
   const handleAgregarVariables =
-    (id, nombre, aspecto, tipo, automatizacion) => () => {
+    (id, nombre, tipo, automatica, abreviatura) => () => {
       for (let index = 0; index < variables.length; index++) {
         const element = variables[index];
         if (element["id"] == id) return;
@@ -69,51 +365,38 @@ const CrearIndicador = () => {
         {
           id: id,
           nombre: nombre,
-          aspecto: aspecto,
           tipo: tipo,
-          automatizacion: automatizacion,
+          automatica: automatica,
+          abreviatura: abreviatura,
         },
       ]);
     };
 
   const handleEliminarVariables = (id) => () => {
     setVariables((prev) => prev.filter((el) => el.id !== id));
-    //console.log(event.target.value);
+  };
+
+  const handleChangeTipo = (event) => {
+    setTipo(event.target.value);
+    setMostrarBuscarAsociaciones(false);
+    setMostrarTablaAsociaciones(false);
+    setMostrarCargaAsociaciones(false);
+    setAsociacionCadena("");
+    setAsociacionEstado("");
+    setAsociaciones([]);
+    setAsociacionesBusqueda([]);
   };
 
   const handleChangeAutomatizado = (event) => {
-    //console.log(event.target.value);
-    //console.log("cambio a");
-    //console.log(!calificado);
     setAutomatizado(!automatizado);
-    //setNombreCompleto(event.target.value);
   };
 
-  // const handleChangeNuevaRed = (event) => {
-  //   //console.log(event.target.value);
-  //   //const elemento = document.getElementById('redSocialNueva');
-  //   setNuevaRed({redSocial: "", nombreUsuario: event.target.value});
-  // };
-
-  // const handleChangeDireccionPrincipal = (event) => {
-  //   const elemento = document.getElementById('direccionPrincipal');
-  //   console.log("esta es la principal");
-  //   console.log(elemento.value);
-  //   setDireccionPrincipal(elemento.value);
-  // };
-
   const buscarVariables = () => {
-    //console.log("esto es la cadena")
     setMostrarTablaVariables(true);
     api
       .post("filtrarVariables", {
-        // cadena: cadenaBuscarEmpresa,
-        // tipo: "",
-        // fechaCreacionIni: "",
-        // fechaCreacionFin: "",
-        // fechaModificacionIni: "",
-        // fechaModificacionFin: "",
-        // propietario: usuarioLogueado["idCuenta"],
+        cadena: variableCadena,
+        tipo: variableTipo,
       })
       .then((res) => res.data)
       .then((data) => {
@@ -128,82 +411,61 @@ const CrearIndicador = () => {
     buscarVariables();
   };
 
-  const handleAsignarEmpresa = (id, nombre) => () => {
-    setEmpresa({ id: id, nombre: nombre });
-    //console.log(event.target.value);
+  const handleAgregarEnFormula = (event) => {
+    setFormula(formula + event.target.value + " ");
+    event.target.value = "";
+  };
+
+  const comprobarSintaxis = () => {
+    let abreviaturas = [];
+    let variablesEmpleadas = [];
+    let operaciones = ["+", "-", "*", "/", "^", "(", ")"];
+    for (let index = 0; index < variables.length; index++) {
+      const element = variables[index];
+      abreviaturas.push(element["abreviatura"]);
+    }
+    const elementos = formula.trim().split(" ");
+    let formulaCambio = "";
+
+    console.log(elementos);
+    for (let index = 0; index < elementos.length; index++) {
+      const element = elementos[index];
+      if (!abreviaturas.includes(element) && !operaciones.includes(element)) {
+        setSintaxis(false);
+        alert("La fórmula incluye términos que no son variables u operadores");
+      } else if (abreviaturas.includes(element)) {
+        variablesEmpleadas.push(element);
+        formulaCambio = formulaCambio + "1";
+      } else if (operaciones.includes(element)) {
+        formulaCambio = formulaCambio + element;
+      }
+    }
+
+    try {
+      eval(formulaCambio);
+    } catch (e) {
+      setSintaxis(false);
+      alert("La fórmula no puede ser evaluada");
+    }
+
+    setSintaxis(true);
   };
 
   const guardarIndicador = () => {
-    //console.log("esto es la cadena")
-    //asignar principal direcciones
-    // let direccionesGuardar = direcciones;
-    // const elementoDir = document.getElementById("direccionPrincipal");
-    // if (elementoDir.value != "") {
-    //   const elementsDir = elementoDir.value.split("&&");
-    //   setDireccionPrincipal({
-    //     pais: elementsDir[0],
-    //     estado: elementsDir[1],
-    //     ciudad: elementsDir[2],
-    //     direccion: elementsDir[3],
-    //   });
-    //   console.log("dir principal");
-    //   console.log(elementoDir.value);
-    //   for (let index = 0; index < direcciones.length; index++) {
-    //     const element = direcciones[index];
-    //     direccionesGuardar[index]["principal"] = false;
-    //     if (
-    //       element["pais"] == elementsDir[0] &&
-    //       element["estado"] == elementsDir[1] &&
-    //       element["ciudad"] == elementsDir[2] &&
-    //       element["direccion"] == elementsDir[3]
-    //     ) {
-    //       console.log("encontro principal de dir");
-    //       direccionesGuardar[index]["principal"] = true;
-    //     }
-    //   }
-    // } else {
-    //   setDireccionPrincipal({});
-    //   for (let index = 0; index < direcciones.length; index++) {
-    //     direccionesGuardar[index]["principal"] = false;
-    //   }
-    // }
-
-    // //asignar principal telefono
-    // let telefonosGuardar = telefonos;
-    // const elementoTel = document.getElementById("telefonoPrincipal");
-    // setTelefonoPrincipal(elementoTel.value);
-    // for (let index = 0; index < telefonos.length; index++) {
-    //   const element = telefonos[index];
-    //   telefonosGuardar[index]["principal"] = false;
-    //   if (element["numero"] == elementoTel.value) {
-    //     console.log("encontro principal de tel");
-    //     telefonosGuardar[index]["principal"] = true;
-    //   }
-    // }
-    // let empresasCargar = [];
-    // if (empresa["id"] != 0)
-    //   empresasCargar = [{
-    //     empresa: empresa["id"],
-    //   }];
     let cuerpo = {
       idIndicador: 0,
       nombre: nombre,
-      //   calificado: calificado,
-      //   estado: estado,
-      //   propietario: usuarioLogueado["idCuenta"], //falta
-      //   telefonos: telefonosGuardar,
-      //   direcciones: direccionesGuardar,
-      //   correo: {
-      //     direccion: correo,
-      //   },
-      //   redes: redes,
-      //   empresas: empresasCargar,
-      //   actividades: [],
+      descripcion: descripcion,
+      formula: formula,
+      tipo: tipo,
+      automatica: automatica,
+      calculoAutomatico: automatizado,
+      propietario: usuarioLogueado["idCuenta"],
+      variables: variables,
+      asociaciones: asociaciones,
     };
     console.log("cuerpo a subir");
     console.log(cuerpo);
-    //setShow(false);
-
     api
       .post("registrarIndicador", cuerpo)
       .then((res) => res.data)
@@ -214,22 +476,6 @@ const CrearIndicador = () => {
           pathname: "/indicadores",
           state: { indicadorGuardado: true },
         });
-      })
-      .catch((err) => alert(err));
-  };
-
-  const cargarCorreosNoDisponibles = (idCuenta) => {
-    console.log("este es el idCuenta");
-    console.log(idCuenta);
-    api
-      .post("correosNoDisponibles", {
-        tipo: "1",
-        propietario: idCuenta,
-      })
-      .then((res) => res.data)
-      .then((data) => {
-        console.log(data);
-        setCorreosNoDisponibles(data);
       })
       .catch((err) => alert(err));
   };
@@ -313,7 +559,22 @@ const CrearIndicador = () => {
                           Asociado a
                         </label>
                         <div className="col-sm-12">
-                          <Form.Control type="text" value={asociado} />
+                          <select
+                            className="form-control"
+                            value={tipo}
+                            onChange={handleChangeTipo}
+                          >
+                            <option value="" disabled selected hidden>
+                              Seleccionar asociación
+                            </option>
+                            <option value={"0"}>Plan</option>
+                            <option value={"1"}>Programa</option>
+                            <option value={"2"}>Campaña stand-alone</option>
+                            <option value={"3"}>Campaña de programa</option>
+                            <option value={"4"}>Correo</option>
+                            <option value={"5"}>Publicación</option>
+                            <option value={"6"}>Página web</option>
+                          </select>
                         </div>
                       </Form.Group>
                     </div>
@@ -359,132 +620,58 @@ const CrearIndicador = () => {
 
                   <div className="row">
                     <div className="col-md-12">
-                      <Form.Group className="row">
-                        <label className="col-sm-8 col-form-label">
+                      <Form.Group>
+                        <label className="col-sm-7 col-form-label">
                           Variables
                         </label>
-                      </Form.Group>
-
-                      {variables.map(({ id, nombre, aspecto, tipo }) => (
-                        <div key={id} className="row">
-                          <div className="col-md-12">
-                            <Form.Group>
-                              <label
-                                className="col-sm-12"
-                                style={{ display: "flex" }}
-                              >
-                                {nombre + aspecto + tipo}
-                                <button
-                                  type="button"
-                                  style={{ marginLeft: "auto" }}
-                                >
-                                  <i
-                                    className="mdi mdi-delete"
-                                    style={{ color: "black" }}
-                                    onClick={handleEliminarVariables(id)}
-                                  ></i>
-                                </button>
-                              </label>
-                            </Form.Group>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="row">
-                    <div className="col-md-12">
-                      <Form.Group>
-                        <div className="search-field col-sm-12">
-                          <form
-                            className="d-flex align-items-center h-100"
-                            onSubmit={buscarVariablesCadena}
-                          >
-                            <div className="input-group">
-                              <div className="input-group-prepend bg-white">
-                                <i className="input-group-text border-0 mdi mdi-magnify"></i>
-                              </div>
-                              <input
-                                type="text"
-                                className="form-control bg-white border-0"
-                                placeholder="Nombre"
-                                //onChange={handleChangeCadenaVariable}
-                              />
-                            </div>
-                            <select
-                              className="form-control col-sm-11"
-                              //onChange={handleChangeBuscarFechas}
-                            >
-                              <option value="" disabled selected hidden>
-                                Aspecto
-                              </option>
-                              <option value={0}>Plan</option>
-                              <option value={1}>Estrategia</option>
-                              <option value={2}>Campaña</option>
-                              <option value={3}>Recurso</option>
-                            </select>
-                            <select
-                              className="form-control col-sm-11"
-                              //onChange={handleChangeBuscarFechas}
-                            >
-                              <option value="" disabled selected hidden>
-                                Tipo
-                              </option>
-                              <option value={0}>Programa</option>
-                              <option value={1}>Campaña stand-alone</option>
-                            </select>
-                            <button
-                              type="button"
-                              className="btn btn-primary"
-                              onClick={buscarVariables}
-                            >
-                              Buscar
-                            </button>
-                          </form>
-                        </div>
+                        <button
+                          type="button"
+                          className="btn btn-link float-sm-right"
+                          onClick={() =>
+                            setMostrarBuscarVariables(!mostrarBuscarVariables)
+                          }
+                        >
+                          Buscar variables
+                        </button>
                       </Form.Group>
                     </div>
                   </div>
-                  <div className="row">
-                    <div className="col-md-12">
-                      <Form.Group>
-                        <div className="col-sm-12">
-                          <div className="table-responsive">
-                            {mostrarTablaVariables && (
+                  {variables.length == 0 ? (
+                    <Form.Group>
+                      <label className="col-sm-12 col-form-label">
+                        No se han registrado variables
+                      </label>
+                    </Form.Group>
+                  ) : (
+                    <div className="row">
+                      <div className="col-md-12">
+                        <Form.Group>
+                          <div className="col-sm-12">
+                            <div className="table-responsive">
                               <table className="table">
                                 <thead>
                                   <tr>
                                     <th>Nombre</th>
-                                    <th>Aspecto - Tipo</th>
+                                    <th>Tipo</th>
                                     <th>Automatización habilitada</th>
                                     <th></th>
                                   </tr>
                                 </thead>
                                 <tbody>
-                                  {variablesBusqueda.map((variable) => (
-                                    <tr
-                                      key={
-                                        String(variable["id"]) + " - busqueda"
-                                      }
-                                    >
+                                  {variables.map((variable) => (
+                                    <tr key={variable["id"]}>
                                       <td>{variable["nombre"]}</td>
-                                      <td>
-                                        {variable["aspecto"] + variable["tipo"]}
-                                      </td>
-                                      <td>{variable["automatizacion"]}</td>
+                                      <td>{variable["tipo"]}</td>
+                                      <td>{variable["automatica"]}</td>
                                       <td>
                                         <button
                                           type="button"
-                                          onClick={handleAgregarVariables(
-                                            variable["id"],
-                                            variable["nombre"],
-                                            variable["aspecto"],
-                                            variable["tipo"],
-                                            variable["automatizacion"]
+                                          onClick={handleEliminarVariables(
+                                            variable["id"]
                                           )}
                                         >
                                           <i
-                                            className="mdi mdi-plus"
+                                            className="mdi mdi-delete"
                                             style={{ color: "black" }}
                                           ></i>
                                         </button>
@@ -493,13 +680,1543 @@ const CrearIndicador = () => {
                                   ))}
                                 </tbody>
                               </table>
-                            )}
+                            </div>
                           </div>
+                        </Form.Group>
+                      </div>
+                    </div>
+                  )}
+
+                  {mostrarBuscarVariables && (
+                    <div>
+                      <div className="row">
+                        <div className="col-md-7">
+                          <Form.Group>
+                            <div className="search-field col-sm-12">
+                              <form
+                                className="d-flex align-items-center h-100"
+                                onSubmit={buscarVariablesCadena}
+                              >
+                                <div className="input-group">
+                                  <div className="input-group-prepend bg-white">
+                                    <i className="input-group-text border-0 mdi mdi-magnify"></i>
+                                  </div>
+                                  <input
+                                    type="text"
+                                    className="form-control bg-white border-0"
+                                    placeholder="Nombre"
+                                    value={variableCadena}
+                                    onChange={({ target }) =>
+                                      setVariableCadena(target.value)
+                                    }
+                                  />
+                                </div>
+                              </form>
+                            </div>
+                          </Form.Group>
+                        </div>
+
+                        <div className="col-md-4">
+                          <Form.Group>
+                            <select
+                              className="form-control col-sm-11"
+                              onChange={({ target }) =>
+                                setVariableTipo(target.value)
+                              }
+                            >
+                              <option value="" disabled selected hidden>
+                                Tipo
+                              </option>
+                              <option value={""}>Todos</option>
+                              <option value={"0"}>Plan</option>
+                              <option value={"1"}>Programa</option>
+                              <option value={"2"}>Campaña stand-alone</option>
+                              <option value={"3"}>Campaña de programa</option>
+                              <option value={"4"}>Correo</option>
+                              <option value={"5"}>Publicación</option>
+                              <option value={"6"}>Página web</option>
+                            </select>
+                          </Form.Group>
+                        </div>
+
+                        <div className="col-md-1">
+                          <Form.Group>
+                            <button
+                              type="button"
+                              className="btn btn-primary"
+                              onClick={buscarVariables}
+                            >
+                              Buscar
+                            </button>
+                          </Form.Group>
+                        </div>
+                      </div>
+                      <div className="row">
+                        <div className="col-md-12">
+                          <Form.Group>
+                            <div className="col-sm-12">
+                              <div className="table-responsive">
+                                {mostrarTablaVariables && (
+                                  <table className="table">
+                                    <thead>
+                                      <tr>
+                                        <th>Nombre</th>
+                                        <th>Tipo</th>
+                                        <th>Automatización habilitada</th>
+                                        <th></th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {variablesBusqueda.map((variable) => (
+                                        <tr
+                                          key={
+                                            String(variable["id"]) +
+                                            " - busqueda"
+                                          }
+                                        >
+                                          <td>{variable["nombre"]}</td>
+                                          <td>{variable["tipo"]}</td>
+                                          <td>{variable["automatica"]}</td>
+                                          <td>
+                                            <button
+                                              type="button"
+                                              onClick={handleAgregarVariables(
+                                                variable["id"],
+                                                variable["nombre"],
+                                                variable["tipo"],
+                                                variable["automatica"],
+                                                variable["abreviatura"]
+                                              )}
+                                            >
+                                              <i
+                                                className="mdi mdi-plus"
+                                                style={{ color: "black" }}
+                                              ></i>
+                                            </button>
+                                          </td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                )}
+                              </div>
+                            </div>
+                          </Form.Group>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="row">
+                    <div className="col-md-6">
+                      <Form.Group>
+                        <label className="col-sm-12 col-form-label">
+                          Agregar variable a la fórmula
+                        </label>
+                        <div className="col-sm-12">
+                          <select
+                            className="form-control"
+                            onChange={handleAgregarEnFormula}
+                          >
+                            <option value={""} disabled selected hidden>
+                              Seleccionar variable
+                            </option>
+                            {variables.map(({ nombre, abreviatura }) => (
+                              <option value={abreviatura}>{nombre}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </Form.Group>
+                    </div>
+                    <div className="col-md-6">
+                      <Form.Group>
+                        <label className="col-sm-12 col-form-label">
+                          Agregar operador a la fórmula
+                        </label>
+                        <div className="col-sm-12">
+                          <select
+                            className="form-control"
+                            onChange={handleAgregarEnFormula}
+                          >
+                            <option value={""} disabled selected hidden>
+                              Seleccionar operador
+                            </option>
+                            <option value={"+"}>+</option>
+                            <option value={"-"}>-</option>
+                            <option value={"*"}>*</option>
+                            <option value={"/"}>/</option>
+                            <option value={"^"}>^</option>
+                            <option value={"("}>{"("}</option>
+                            <option value={")"}>{")"}</option>
+                          </select>
+                        </div>
+                      </Form.Group>
+                    </div>
+                  </div>
+                  <div className="row">
+                    <div className="col-md-12">
+                      <Form.Group>
+                        <label className="col-sm-12 col-form-label">
+                          Fórmula de cálculo
+                        </label>
+                        <div className="col-sm-12">
+                          <Form.Control
+                            type="text"
+                            value={formula}
+                            onChange={({ target }) => setFormula(target.value)}
+                          />
                         </div>
                       </Form.Group>
                     </div>
                   </div>
 
+                  <div className="row">
+                    <div className="col-md-4">
+                      <Form.Group>
+                        <button
+                          type="button"
+                          className="btn btn-primary"
+                          onClick={comprobarSintaxis}
+                        >
+                          Comprobar sintáxis
+                        </button>
+                      </Form.Group>
+                    </div>
+                    <div className="col-md-8">
+                      <Form.Group>
+                        <label>
+                          <span className="icon-bg">
+                            <i
+                              className="mdi mdi-alert-circle-outline"
+                              style={{ color: "#E4A11B" }}
+                            ></i>
+                          </span>
+                          <span>
+                            La fórmula solo puede contener abreviaturas de las
+                            variables y operadores separados por espacios
+                          </span>
+                        </label>
+                      </Form.Group>
+                    </div>
+                  </div>
+                  <div className="row">
+                    <div className="col-md-12">
+                      <Form.Group>
+                        <label className="col-sm-12 col-form-label">
+                          Asignaciones
+                        </label>
+                      </Form.Group>
+                    </div>
+                  </div>
+                  {tipo == "0" && (
+                    <div>
+                      <div className="row">
+                        <div className="col-md-12">
+                          <Form.Group>
+                            <label className="col-sm-7 col-form-label">
+                              Planes
+                            </label>
+                            <button
+                              type="button"
+                              className="btn btn-link float-sm-right"
+                              onClick={() =>
+                                setMostrarBuscarAsociaciones(
+                                  !mostrarBuscarAsociaciones
+                                )
+                              }
+                            >
+                              Buscar planes
+                            </button>
+                          </Form.Group>
+                          {asociaciones.length == 0 ? (
+                            <Form.Group>
+                              <label className="col-sm-12 col-form-label">
+                                No se han registrado planes
+                              </label>
+                            </Form.Group>
+                          ) : (
+                            <Form.Group>
+                              <div className="table-responsive">
+                                <table className="table">
+                                  <thead>
+                                    <tr>
+                                      <th>Descripción</th>
+                                      <th>Estado</th>
+                                      <th></th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {asociaciones.map((asociacion) => (
+                                      <tr key={asociacion["id"]}>
+                                        <td>{asociacion["descripcion"]}</td>
+                                        <td>{asociacion["estado"]}</td>
+                                        <td>
+                                          <button
+                                            style={{ marginLeft: "auto" }}
+                                            type="button"
+                                          >
+                                            <i
+                                              className="mdi mdi-delete"
+                                              style={{ color: "black" }}
+                                              onClick={handleEliminarAsociaciones(
+                                                asociacion["id"]
+                                              )}
+                                            ></i>
+                                          </button>
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </Form.Group>
+                          )}
+                        </div>
+                      </div>
+
+                      {mostrarBuscarAsociaciones && (
+                        <div>
+                          <div className="row">
+                            <div className="col-md-7">
+                              <Form.Group>
+                                <div className="search-field col-sm-12">
+                                  <form
+                                    className="d-flex align-items-center h-100"
+                                    onSubmit={buscarPlanesCadena}
+                                  >
+                                    <div className="input-group">
+                                      <div className="input-group-prepend bg-white">
+                                        <i className="input-group-text border-0 mdi mdi-magnify"></i>
+                                      </div>
+                                      <input
+                                        type="text"
+                                        className="form-control bg-white border-0"
+                                        placeholder="Descripción"
+                                        value={asociacionCadena}
+                                        onChange={({ target }) =>
+                                          setAsociacionCadena(target.value)
+                                        }
+                                      />
+                                    </div>
+                                  </form>
+                                </div>
+                              </Form.Group>
+                            </div>
+
+                            <div className="col-md-2">
+                              <Form.Group>
+                                <select
+                                  className="form-control col-sm-11"
+                                  onChange={({ target }) =>
+                                    setAsociacionEstado(target.value)
+                                  }
+                                >
+                                  <option value="" disabled selected hidden>
+                                    Estado
+                                  </option>
+                                  <option value={""}>Todos los estados</option>
+                                  <option value={"0"}>No vigente</option>
+                                  <option value={"1"}>Vigente</option>
+                                </select>
+                              </Form.Group>
+                            </div>
+
+                            <div className="col-md-1">
+                              <Form.Group>
+                                <button
+                                  type="button"
+                                  className="btn btn-primary"
+                                  onClick={buscarPlanes}
+                                >
+                                  Buscar
+                                </button>
+                              </Form.Group>
+                            </div>
+                          </div>
+                          <div className="row">
+                            <div className="col-md-12">
+                              <Form.Group>
+                                {mostrarCargaAsociaciones && (
+                                  <div className="row h-100">
+                                    <div className="col-sm-12 my-auto">
+                                      <div className="circle-loader"></div>
+                                    </div>
+                                  </div>
+                                )}
+                                {mostrarTablaAsociaciones && (
+                                  <div className="table-responsive">
+                                    <table className="table">
+                                      <thead>
+                                        <tr>
+                                          <th>Descripción</th>
+                                          <th>Estado</th>
+                                          <th></th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {asociacionesBusqueda.map(
+                                          (asociacion) => (
+                                            <tr key={asociacion["id"]}>
+                                              <td>
+                                                {asociacion["descripcion"]}
+                                              </td>
+                                              <td>{asociacion["estado"]}</td>
+                                              <td>
+                                                <button
+                                                  style={{
+                                                    marginLeft: "auto",
+                                                  }}
+                                                  type="button"
+                                                >
+                                                  <i
+                                                    className="mdi mdi-plus"
+                                                    style={{
+                                                      color: "black",
+                                                    }}
+                                                    onClick={handleAgregarAsociaciones(
+                                                      asociacion["id"],
+                                                      asociacion["descripcion"],
+                                                      asociacion["estado"]
+                                                    )}
+                                                  ></i>
+                                                </button>
+                                              </td>
+                                            </tr>
+                                          )
+                                        )}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                )}
+                              </Form.Group>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {tipo == "1" && (
+                    <div>
+                      <div className="row">
+                        <div className="col-md-12">
+                          <Form.Group>
+                            <label className="col-sm-7 col-form-label">
+                              Programas
+                            </label>
+                            <button
+                              type="button"
+                              className="btn btn-link float-sm-right"
+                              onClick={() =>
+                                setMostrarBuscarAsociaciones(
+                                  !mostrarBuscarAsociaciones
+                                )
+                              }
+                            >
+                              Buscar programas
+                            </button>
+                          </Form.Group>
+                          {asociaciones.length == 0 ? (
+                            <Form.Group>
+                              <label className="col-sm-12 col-form-label">
+                                No se han registrado programas
+                              </label>
+                            </Form.Group>
+                          ) : (
+                            <Form.Group>
+                              <div className="table-responsive">
+                                <table className="table">
+                                  <thead>
+                                    <tr>
+                                      <th>Descripción</th>
+                                      <th>Estado</th>
+                                      <th></th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {asociaciones.map((asociacion) => (
+                                      <tr key={asociacion["id"]}>
+                                        <td>{asociacion["descripcion"]}</td>
+                                        <td>{asociacion["estado"]}</td>
+                                        <td>
+                                          <button
+                                            style={{ marginLeft: "auto" }}
+                                            type="button"
+                                          >
+                                            <i
+                                              className="mdi mdi-delete"
+                                              style={{ color: "black" }}
+                                              onClick={handleEliminarAsociaciones(
+                                                asociacion["id"]
+                                              )}
+                                            ></i>
+                                          </button>
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </Form.Group>
+                          )}
+                        </div>
+                      </div>
+
+                      {mostrarBuscarAsociaciones && (
+                        <div>
+                          <div className="row">
+                            <div className="col-md-7">
+                              <Form.Group>
+                                <div className="search-field col-sm-12">
+                                  <form
+                                    className="d-flex align-items-center h-100"
+                                    onSubmit={buscarProgramasCadena}
+                                  >
+                                    <div className="input-group">
+                                      <div className="input-group-prepend bg-white">
+                                        <i className="input-group-text border-0 mdi mdi-magnify"></i>
+                                      </div>
+                                      <input
+                                        type="text"
+                                        className="form-control bg-white border-0"
+                                        placeholder="Descripción"
+                                        value={asociacionCadena}
+                                        onChange={({ target }) =>
+                                          setAsociacionCadena(target.value)
+                                        }
+                                      />
+                                    </div>
+                                  </form>
+                                </div>
+                              </Form.Group>
+                            </div>
+
+                            <div className="col-md-2">
+                              <Form.Group>
+                                <select
+                                  className="form-control col-sm-11"
+                                  onChange={({ target }) =>
+                                    setAsociacionEstado(target.value)
+                                  }
+                                >
+                                  <option value="" disabled selected hidden>
+                                    Estado
+                                  </option>
+                                  <option value={""}>Todos los estados</option>
+                                  <option value={"0"}>No vigente</option>
+                                  <option value={"1"}>Vigente</option>
+                                </select>
+                              </Form.Group>
+                            </div>
+
+                            <div className="col-md-1">
+                              <Form.Group>
+                                <button
+                                  type="button"
+                                  className="btn btn-primary"
+                                  onClick={buscarProgramas}
+                                >
+                                  Buscar
+                                </button>
+                              </Form.Group>
+                            </div>
+                          </div>
+                          <div className="row">
+                            <div className="col-md-12">
+                              <Form.Group>
+                                {mostrarCargaAsociaciones && (
+                                  <div className="row h-100">
+                                    <div className="col-sm-12 my-auto">
+                                      <div className="circle-loader"></div>
+                                    </div>
+                                  </div>
+                                )}
+                                {mostrarTablaAsociaciones && (
+                                  <div className="table-responsive">
+                                    <table className="table">
+                                      <thead>
+                                        <tr>
+                                          <th>Descripción</th>
+                                          <th>Estado</th>
+                                          <th></th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {asociacionesBusqueda.map(
+                                          (asociacion) => (
+                                            <tr key={asociacion["id"]}>
+                                              <td>
+                                                {asociacion["descripcion"]}
+                                              </td>
+                                              <td>{asociacion["estado"]}</td>
+                                              <td>
+                                                <button
+                                                  style={{
+                                                    marginLeft: "auto",
+                                                  }}
+                                                  type="button"
+                                                >
+                                                  <i
+                                                    className="mdi mdi-plus"
+                                                    style={{
+                                                      color: "black",
+                                                    }}
+                                                    onClick={handleAgregarAsociaciones(
+                                                      asociacion["id"],
+                                                      asociacion["descripcion"],
+                                                      asociacion["estado"]
+                                                    )}
+                                                  ></i>
+                                                </button>
+                                              </td>
+                                            </tr>
+                                          )
+                                        )}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                )}
+                              </Form.Group>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {tipo == "2" && (
+                    <div>
+                      <div className="row">
+                        <div className="col-md-12">
+                          <Form.Group>
+                            <label className="col-sm-7 col-form-label">
+                              Campañas stand-alone
+                            </label>
+                            <button
+                              type="button"
+                              className="btn btn-link float-sm-right"
+                              onClick={() =>
+                                setMostrarBuscarAsociaciones(
+                                  !mostrarBuscarAsociaciones
+                                )
+                              }
+                            >
+                              Buscar campañas
+                            </button>
+                          </Form.Group>
+                          {asociaciones.length == 0 ? (
+                            <Form.Group>
+                              <label className="col-sm-12 col-form-label">
+                                No se han registrado campañas
+                              </label>
+                            </Form.Group>
+                          ) : (
+                            <Form.Group>
+                              <div className="table-responsive">
+                                <table className="table">
+                                  <thead>
+                                    <tr>
+                                      <th>Descripción</th>
+                                      <th>Estado</th>
+                                      <th></th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {asociaciones.map((asociacion) => (
+                                      <tr key={asociacion["id"]}>
+                                        <td>{asociacion["descripcion"]}</td>
+                                        <td>{asociacion["estado"]}</td>
+                                        <td>
+                                          <button
+                                            style={{ marginLeft: "auto" }}
+                                            type="button"
+                                          >
+                                            <i
+                                              className="mdi mdi-delete"
+                                              style={{ color: "black" }}
+                                              onClick={handleEliminarAsociaciones(
+                                                asociacion["id"]
+                                              )}
+                                            ></i>
+                                          </button>
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </Form.Group>
+                          )}
+                        </div>
+                      </div>
+
+                      {mostrarBuscarAsociaciones && (
+                        <div>
+                          <div className="row">
+                            <div className="col-md-7">
+                              <Form.Group>
+                                <div className="search-field col-sm-12">
+                                  <form
+                                    className="d-flex align-items-center h-100"
+                                    onSubmit={buscarCampanasStandaloneCadena}
+                                  >
+                                    <div className="input-group">
+                                      <div className="input-group-prepend bg-white">
+                                        <i className="input-group-text border-0 mdi mdi-magnify"></i>
+                                      </div>
+                                      <input
+                                        type="text"
+                                        className="form-control bg-white border-0"
+                                        placeholder="Descripción"
+                                        value={asociacionCadena}
+                                        onChange={({ target }) =>
+                                          setAsociacionCadena(target.value)
+                                        }
+                                      />
+                                    </div>
+                                  </form>
+                                </div>
+                              </Form.Group>
+                            </div>
+
+                            <div className="col-md-2">
+                              <Form.Group>
+                                <select
+                                  className="form-control col-sm-11"
+                                  onChange={({ target }) =>
+                                    setAsociacionEstado(target.value)
+                                  }
+                                >
+                                  <option value="" disabled selected hidden>
+                                    Estado
+                                  </option>
+                                  <option value={""}>Todos los estados</option>
+                                  <option value={"0"}>No vigente</option>
+                                  <option value={"1"}>Vigente</option>
+                                </select>
+                              </Form.Group>
+                            </div>
+
+                            <div className="col-md-1">
+                              <Form.Group>
+                                <button
+                                  type="button"
+                                  className="btn btn-primary"
+                                  onClick={buscarCampanasStandalone}
+                                >
+                                  Buscar
+                                </button>
+                              </Form.Group>
+                            </div>
+                          </div>
+                          <div className="row">
+                            <div className="col-md-12">
+                              <Form.Group>
+                                {mostrarCargaAsociaciones && (
+                                  <div className="row h-100">
+                                    <div className="col-sm-12 my-auto">
+                                      <div className="circle-loader"></div>
+                                    </div>
+                                  </div>
+                                )}
+                                {mostrarTablaAsociaciones && (
+                                  <div className="table-responsive">
+                                    <table className="table">
+                                      <thead>
+                                        <tr>
+                                          <th>Descripción</th>
+                                          <th>Estado</th>
+                                          <th></th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {asociacionesBusqueda.map(
+                                          (asociacion) => (
+                                            <tr key={asociacion["id"]}>
+                                              <td>
+                                                {asociacion["descripcion"]}
+                                              </td>
+                                              <td>{asociacion["estado"]}</td>
+                                              <td>
+                                                <button
+                                                  style={{
+                                                    marginLeft: "auto",
+                                                  }}
+                                                  type="button"
+                                                >
+                                                  <i
+                                                    className="mdi mdi-plus"
+                                                    style={{
+                                                      color: "black",
+                                                    }}
+                                                    onClick={handleAgregarAsociaciones(
+                                                      asociacion["id"],
+                                                      asociacion["descripcion"],
+                                                      asociacion["estado"]
+                                                    )}
+                                                  ></i>
+                                                </button>
+                                              </td>
+                                            </tr>
+                                          )
+                                        )}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                )}
+                              </Form.Group>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {tipo == "3" && (
+                    <div>
+                      <div className="row">
+                        <div className="col-md-12">
+                          <Form.Group>
+                            <label className="col-sm-7 col-form-label">
+                              Campañas de programa
+                            </label>
+                            <button
+                              type="button"
+                              className="btn btn-link float-sm-right"
+                              onClick={() =>
+                                setMostrarBuscarAsociaciones(
+                                  !mostrarBuscarAsociaciones
+                                )
+                              }
+                            >
+                              Buscar campañas
+                            </button>
+                          </Form.Group>
+                          {asociaciones.length == 0 ? (
+                            <Form.Group>
+                              <label className="col-sm-12 col-form-label">
+                                No se han registrado campañas
+                              </label>
+                            </Form.Group>
+                          ) : (
+                            <Form.Group>
+                              <div className="table-responsive">
+                                <table className="table">
+                                  <thead>
+                                    <tr>
+                                      <th>Descripción</th>
+                                      <th>Estado</th>
+                                      <th></th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {asociaciones.map((asociacion) => (
+                                      <tr key={asociacion["id"]}>
+                                        <td>{asociacion["descripcion"]}</td>
+                                        <td>{asociacion["estado"]}</td>
+                                        <td>
+                                          <button
+                                            style={{ marginLeft: "auto" }}
+                                            type="button"
+                                          >
+                                            <i
+                                              className="mdi mdi-delete"
+                                              style={{ color: "black" }}
+                                              onClick={handleEliminarAsociaciones(
+                                                asociacion["id"]
+                                              )}
+                                            ></i>
+                                          </button>
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </Form.Group>
+                          )}
+                        </div>
+                      </div>
+
+                      {mostrarBuscarAsociaciones && (
+                        <div>
+                          <div className="row">
+                            <div className="col-md-7">
+                              <Form.Group>
+                                <div className="search-field col-sm-12">
+                                  <form
+                                    className="d-flex align-items-center h-100"
+                                    onSubmit={buscarCampanasProgramaCadena}
+                                  >
+                                    <div className="input-group">
+                                      <div className="input-group-prepend bg-white">
+                                        <i className="input-group-text border-0 mdi mdi-magnify"></i>
+                                      </div>
+                                      <input
+                                        type="text"
+                                        className="form-control bg-white border-0"
+                                        placeholder="Descripción"
+                                        value={asociacionCadena}
+                                        onChange={({ target }) =>
+                                          setAsociacionCadena(target.value)
+                                        }
+                                      />
+                                    </div>
+                                  </form>
+                                </div>
+                              </Form.Group>
+                            </div>
+
+                            <div className="col-md-2">
+                              <Form.Group>
+                                <select
+                                  className="form-control col-sm-11"
+                                  onChange={({ target }) =>
+                                    setAsociacionEstado(target.value)
+                                  }
+                                >
+                                  <option value="" disabled selected hidden>
+                                    Estado
+                                  </option>
+                                  <option value={""}>Todos los estados</option>
+                                  <option value={"0"}>No vigente</option>
+                                  <option value={"1"}>Vigente</option>
+                                </select>
+                              </Form.Group>
+                            </div>
+
+                            <div className="col-md-1">
+                              <Form.Group>
+                                <button
+                                  type="button"
+                                  className="btn btn-primary"
+                                  onClick={buscarCampanasPrograma}
+                                >
+                                  Buscar
+                                </button>
+                              </Form.Group>
+                            </div>
+                          </div>
+                          <div className="row">
+                            <div className="col-md-12">
+                              <Form.Group>
+                                {mostrarCargaAsociaciones && (
+                                  <div className="row h-100">
+                                    <div className="col-sm-12 my-auto">
+                                      <div className="circle-loader"></div>
+                                    </div>
+                                  </div>
+                                )}
+                                {mostrarTablaAsociaciones && (
+                                  <div className="table-responsive">
+                                    <table className="table">
+                                      <thead>
+                                        <tr>
+                                          <th>Descripción</th>
+                                          <th>Estado</th>
+                                          <th></th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {asociacionesBusqueda.map(
+                                          (asociacion) => (
+                                            <tr key={asociacion["id"]}>
+                                              <td>
+                                                {asociacion["descripcion"]}
+                                              </td>
+                                              <td>{asociacion["estado"]}</td>
+                                              <td>
+                                                <button
+                                                  style={{
+                                                    marginLeft: "auto",
+                                                  }}
+                                                  type="button"
+                                                >
+                                                  <i
+                                                    className="mdi mdi-plus"
+                                                    style={{
+                                                      color: "black",
+                                                    }}
+                                                    onClick={handleAgregarAsociaciones(
+                                                      asociacion["id"],
+                                                      asociacion["descripcion"],
+                                                      asociacion["estado"]
+                                                    )}
+                                                  ></i>
+                                                </button>
+                                              </td>
+                                            </tr>
+                                          )
+                                        )}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                )}
+                              </Form.Group>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {tipo == "4" && (
+                    <div>
+                      <div className="row">
+                        <div className="col-md-12">
+                          <Form.Group>
+                            <label className="col-sm-7 col-form-label">
+                              Correos
+                            </label>
+                            <button
+                              type="button"
+                              className="btn btn-link float-sm-right"
+                              onClick={() =>
+                                setMostrarBuscarAsociaciones(
+                                  !mostrarBuscarAsociaciones
+                                )
+                              }
+                            >
+                              Buscar correos
+                            </button>
+                          </Form.Group>
+                          {asociaciones.length == 0 ? (
+                            <Form.Group>
+                              <label className="col-sm-12 col-form-label">
+                                No se han registrado correos
+                              </label>
+                            </Form.Group>
+                          ) : (
+                            <Form.Group>
+                              <div className="table-responsive">
+                                <table className="table">
+                                  <thead>
+                                    <tr>
+                                      <th>Descripción</th>
+                                      <th>Estado</th>
+                                      <th></th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {asociaciones.map((asociacion) => (
+                                      <tr key={asociacion["id"]}>
+                                        <td>{asociacion["descripcion"]}</td>
+                                        <td>{asociacion["estado"]}</td>
+                                        <td>
+                                          <button
+                                            style={{ marginLeft: "auto" }}
+                                            type="button"
+                                          >
+                                            <i
+                                              className="mdi mdi-delete"
+                                              style={{ color: "black" }}
+                                              onClick={handleEliminarAsociaciones(
+                                                asociacion["id"]
+                                              )}
+                                            ></i>
+                                          </button>
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </Form.Group>
+                          )}
+                        </div>
+                      </div>
+
+                      {mostrarBuscarAsociaciones && (
+                        <div>
+                          <div className="row">
+                            <div className="col-md-7">
+                              <Form.Group>
+                                <div className="search-field col-sm-12">
+                                  <form
+                                    className="d-flex align-items-center h-100"
+                                    onSubmit={buscarCorreosCadena}
+                                  >
+                                    <div className="input-group">
+                                      <div className="input-group-prepend bg-white">
+                                        <i className="input-group-text border-0 mdi mdi-magnify"></i>
+                                      </div>
+                                      <input
+                                        type="text"
+                                        className="form-control bg-white border-0"
+                                        placeholder="Descripción"
+                                        value={asociacionCadena}
+                                        onChange={({ target }) =>
+                                          setAsociacionCadena(target.value)
+                                        }
+                                      />
+                                    </div>
+                                  </form>
+                                </div>
+                              </Form.Group>
+                            </div>
+
+                            <div className="col-md-2">
+                              <Form.Group>
+                                <select
+                                  className="form-control col-sm-11"
+                                  onChange={({ target }) =>
+                                    setAsociacionEstado(target.value)
+                                  }
+                                >
+                                  <option value="" disabled selected hidden>
+                                    Estado
+                                  </option>
+                                  <option value={""}>Todos los estados</option>
+                                  <option value={"0"}>No vigente</option>
+                                  <option value={"1"}>Vigente</option>
+                                </select>
+                              </Form.Group>
+                            </div>
+
+                            <div className="col-md-1">
+                              <Form.Group>
+                                <button
+                                  type="button"
+                                  className="btn btn-primary"
+                                  onClick={buscarCorreos}
+                                >
+                                  Buscar
+                                </button>
+                              </Form.Group>
+                            </div>
+                          </div>
+                          <div className="row">
+                            <div className="col-md-12">
+                              <Form.Group>
+                                {mostrarCargaAsociaciones && (
+                                  <div className="row h-100">
+                                    <div className="col-sm-12 my-auto">
+                                      <div className="circle-loader"></div>
+                                    </div>
+                                  </div>
+                                )}
+                                {mostrarTablaAsociaciones && (
+                                  <div className="table-responsive">
+                                    <table className="table">
+                                      <thead>
+                                        <tr>
+                                          <th>Descripción</th>
+                                          <th>Estado</th>
+                                          <th></th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {asociacionesBusqueda.map(
+                                          (asociacion) => (
+                                            <tr key={asociacion["id"]}>
+                                              <td>
+                                                {asociacion["descripcion"]}
+                                              </td>
+                                              <td>{asociacion["estado"]}</td>
+                                              <td>
+                                                <button
+                                                  style={{
+                                                    marginLeft: "auto",
+                                                  }}
+                                                  type="button"
+                                                >
+                                                  <i
+                                                    className="mdi mdi-plus"
+                                                    style={{
+                                                      color: "black",
+                                                    }}
+                                                    onClick={handleAgregarAsociaciones(
+                                                      asociacion["id"],
+                                                      asociacion["descripcion"],
+                                                      asociacion["estado"]
+                                                    )}
+                                                  ></i>
+                                                </button>
+                                              </td>
+                                            </tr>
+                                          )
+                                        )}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                )}
+                              </Form.Group>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {tipo == "5" && (
+                    <div>
+                      <div className="row">
+                        <div className="col-md-12">
+                          <Form.Group>
+                            <label className="col-sm-7 col-form-label">
+                              Publicaciones
+                            </label>
+                            <button
+                              type="button"
+                              className="btn btn-link float-sm-right"
+                              onClick={() =>
+                                setMostrarBuscarAsociaciones(
+                                  !mostrarBuscarAsociaciones
+                                )
+                              }
+                            >
+                              Buscar publicaciones
+                            </button>
+                          </Form.Group>
+                          {asociaciones.length == 0 ? (
+                            <Form.Group>
+                              <label className="col-sm-12 col-form-label">
+                                No se han registrado publicaciones
+                              </label>
+                            </Form.Group>
+                          ) : (
+                            <Form.Group>
+                              <div className="table-responsive">
+                                <table className="table">
+                                  <thead>
+                                    <tr>
+                                      <th>Descripción</th>
+                                      <th>Estado</th>
+                                      <th></th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {asociaciones.map((asociacion) => (
+                                      <tr key={asociacion["id"]}>
+                                        <td>{asociacion["descripcion"]}</td>
+                                        <td>{asociacion["estado"]}</td>
+                                        <td>
+                                          <button
+                                            style={{ marginLeft: "auto" }}
+                                            type="button"
+                                          >
+                                            <i
+                                              className="mdi mdi-delete"
+                                              style={{ color: "black" }}
+                                              onClick={handleEliminarAsociaciones(
+                                                asociacion["id"]
+                                              )}
+                                            ></i>
+                                          </button>
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </Form.Group>
+                          )}
+                        </div>
+                      </div>
+
+                      {mostrarBuscarAsociaciones && (
+                        <div>
+                          <div className="row">
+                            <div className="col-md-7">
+                              <Form.Group>
+                                <div className="search-field col-sm-12">
+                                  <form
+                                    className="d-flex align-items-center h-100"
+                                    onSubmit={buscarPublicacionesCadena}
+                                  >
+                                    <div className="input-group">
+                                      <div className="input-group-prepend bg-white">
+                                        <i className="input-group-text border-0 mdi mdi-magnify"></i>
+                                      </div>
+                                      <input
+                                        type="text"
+                                        className="form-control bg-white border-0"
+                                        placeholder="Descripción"
+                                        value={asociacionCadena}
+                                        onChange={({ target }) =>
+                                          setAsociacionCadena(target.value)
+                                        }
+                                      />
+                                    </div>
+                                  </form>
+                                </div>
+                              </Form.Group>
+                            </div>
+
+                            <div className="col-md-2">
+                              <Form.Group>
+                                <select
+                                  className="form-control col-sm-11"
+                                  onChange={({ target }) =>
+                                    setAsociacionEstado(target.value)
+                                  }
+                                >
+                                  <option value="" disabled selected hidden>
+                                    Estado
+                                  </option>
+                                  <option value={""}>Todos los estados</option>
+                                  <option value={"0"}>No vigente</option>
+                                  <option value={"1"}>Vigente</option>
+                                </select>
+                              </Form.Group>
+                            </div>
+
+                            <div className="col-md-1">
+                              <Form.Group>
+                                <button
+                                  type="button"
+                                  className="btn btn-primary"
+                                  onClick={buscarPublicaciones}
+                                >
+                                  Buscar
+                                </button>
+                              </Form.Group>
+                            </div>
+                          </div>
+                          <div className="row">
+                            <div className="col-md-12">
+                              <Form.Group>
+                                {mostrarCargaAsociaciones && (
+                                  <div className="row h-100">
+                                    <div className="col-sm-12 my-auto">
+                                      <div className="circle-loader"></div>
+                                    </div>
+                                  </div>
+                                )}
+                                {mostrarTablaAsociaciones && (
+                                  <div className="table-responsive">
+                                    <table className="table">
+                                      <thead>
+                                        <tr>
+                                          <th>Descripción</th>
+                                          <th>Estado</th>
+                                          <th></th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {asociacionesBusqueda.map(
+                                          (asociacion) => (
+                                            <tr key={asociacion["id"]}>
+                                              <td>
+                                                {asociacion["descripcion"]}
+                                              </td>
+                                              <td>{asociacion["estado"]}</td>
+                                              <td>
+                                                <button
+                                                  style={{
+                                                    marginLeft: "auto",
+                                                  }}
+                                                  type="button"
+                                                >
+                                                  <i
+                                                    className="mdi mdi-plus"
+                                                    style={{
+                                                      color: "black",
+                                                    }}
+                                                    onClick={handleAgregarAsociaciones(
+                                                      asociacion["id"],
+                                                      asociacion["descripcion"],
+                                                      asociacion["estado"]
+                                                    )}
+                                                  ></i>
+                                                </button>
+                                              </td>
+                                            </tr>
+                                          )
+                                        )}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                )}
+                              </Form.Group>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {tipo == "6" && (
+                    <div>
+                      <div className="row">
+                        <div className="col-md-12">
+                          <Form.Group>
+                            <label className="col-sm-7 col-form-label">
+                              Página web
+                            </label>
+                            <button
+                              type="button"
+                              className="btn btn-link float-sm-right"
+                              onClick={() =>
+                                setMostrarBuscarAsociaciones(
+                                  !mostrarBuscarAsociaciones
+                                )
+                              }
+                            >
+                              Buscar páginas
+                            </button>
+                          </Form.Group>
+                          {asociaciones.length == 0 ? (
+                            <Form.Group>
+                              <label className="col-sm-12 col-form-label">
+                                No se han registrado páginas
+                              </label>
+                            </Form.Group>
+                          ) : (
+                            <Form.Group>
+                              <div className="table-responsive">
+                                <table className="table">
+                                  <thead>
+                                    <tr>
+                                      <th>Descripción</th>
+                                      <th>Estado</th>
+                                      <th></th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {asociaciones.map((asociacion) => (
+                                      <tr key={asociacion["id"]}>
+                                        <td>{asociacion["descripcion"]}</td>
+                                        <td>{asociacion["estado"]}</td>
+                                        <td>
+                                          <button
+                                            style={{ marginLeft: "auto" }}
+                                            type="button"
+                                          >
+                                            <i
+                                              className="mdi mdi-delete"
+                                              style={{ color: "black" }}
+                                              onClick={handleEliminarAsociaciones(
+                                                asociacion["id"]
+                                              )}
+                                            ></i>
+                                          </button>
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </Form.Group>
+                          )}
+                        </div>
+                      </div>
+
+                      {mostrarBuscarAsociaciones && (
+                        <div>
+                          <div className="row">
+                            <div className="col-md-7">
+                              <Form.Group>
+                                <div className="search-field col-sm-12">
+                                  <form
+                                    className="d-flex align-items-center h-100"
+                                    onSubmit={buscarPaginasCadena}
+                                  >
+                                    <div className="input-group">
+                                      <div className="input-group-prepend bg-white">
+                                        <i className="input-group-text border-0 mdi mdi-magnify"></i>
+                                      </div>
+                                      <input
+                                        type="text"
+                                        className="form-control bg-white border-0"
+                                        placeholder="Descripción"
+                                        value={asociacionCadena}
+                                        onChange={({ target }) =>
+                                          setAsociacionCadena(target.value)
+                                        }
+                                      />
+                                    </div>
+                                  </form>
+                                </div>
+                              </Form.Group>
+                            </div>
+
+                            <div className="col-md-2">
+                              <Form.Group>
+                                <select
+                                  className="form-control col-sm-11"
+                                  onChange={({ target }) =>
+                                    setAsociacionEstado(target.value)
+                                  }
+                                >
+                                  <option value="" disabled selected hidden>
+                                    Estado
+                                  </option>
+                                  <option value={""}>Todos los estados</option>
+                                  <option value={"0"}>No vigente</option>
+                                  <option value={"1"}>Vigente</option>
+                                </select>
+                              </Form.Group>
+                            </div>
+
+                            <div className="col-md-1">
+                              <Form.Group>
+                                <button
+                                  type="button"
+                                  className="btn btn-primary"
+                                  onClick={buscarPaginas}
+                                >
+                                  Buscar
+                                </button>
+                              </Form.Group>
+                            </div>
+                          </div>
+                          <div className="row">
+                            <div className="col-md-12">
+                              <Form.Group>
+                                {mostrarCargaAsociaciones && (
+                                  <div className="row h-100">
+                                    <div className="col-sm-12 my-auto">
+                                      <div className="circle-loader"></div>
+                                    </div>
+                                  </div>
+                                )}
+                                {mostrarTablaAsociaciones && (
+                                  <div className="table-responsive">
+                                    <table className="table">
+                                      <thead>
+                                        <tr>
+                                          <th>Descripción</th>
+                                          <th>Estado</th>
+                                          <th></th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {asociacionesBusqueda.map(
+                                          (asociacion) => (
+                                            <tr key={asociacion["id"]}>
+                                              <td>
+                                                {asociacion["descripcion"]}
+                                              </td>
+                                              <td>{asociacion["estado"]}</td>
+                                              <td>
+                                                <button
+                                                  style={{
+                                                    marginLeft: "auto",
+                                                  }}
+                                                  type="button"
+                                                >
+                                                  <i
+                                                    className="mdi mdi-plus"
+                                                    style={{
+                                                      color: "black",
+                                                    }}
+                                                    onClick={handleAgregarAsociaciones(
+                                                      asociacion["id"],
+                                                      asociacion["descripcion"],
+                                                      asociacion["estado"]
+                                                    )}
+                                                  ></i>
+                                                </button>
+                                              </td>
+                                            </tr>
+                                          )
+                                        )}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                )}
+                              </Form.Group>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                   <div className="row">
                     <div className="col-md-6">
                       <Link className="nav-link" to="/indicadores">

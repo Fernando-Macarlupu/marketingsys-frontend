@@ -123,7 +123,7 @@ const Campanas = () => {
     }
   };
 
-  const handleEliminarCampanas = (id) => () => {
+  const handleEliminarCampanas = (id) => {
     setCampanas((prev) => prev.filter((el) => el.id !== id));
     //console.log(event.target.value);
   };
@@ -134,7 +134,7 @@ const Campanas = () => {
       .then((res) => res.data)
       .then((data) => {
         console.log(data);
-        //handleEliminarEmpresas(empresaEliminar);
+        handleEliminarCampanas(campanaEliminar);
         setShow(false);
       })
       .catch((err) => alert(err));

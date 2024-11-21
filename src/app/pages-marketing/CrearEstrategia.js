@@ -8,6 +8,15 @@ import bsCustomFileInput from "bs-custom-file-input";
 const CrearEstrategia = () => {
   const history = useHistory();
   const [show, setShow] = useState(false);
+  const [mostrarListaDetalle, setMostrarListaDetalle] = useState(false);
+  const [mostrarBuscarListas, setMostrarBuscarListas] = useState(false);
+  const [mostrarBuscarIndicadores, setMostrarBuscarIndicadores] =
+    useState(false);
+  const [mostrarBuscarCampanas, setMostrarBuscarCampanas] = useState(false);
+  const [mostrarBuscarRecursos, setMostrarBuscarRecursos] = useState(false);
+  const [mostrarBuscarParticipantes, setMostrarBuscarParticipantes] =
+    useState(false);
+
   const [mostrarCargaDatos, setMostrarCargaDatos] = useState(false);
   const [mostrarDatos, setMostrarDatos] = useState(true);
 
@@ -43,6 +52,17 @@ const CrearEstrategia = () => {
   const [estrategias, setEstrategias] = useState([]);
   const [estrategiasBusqueda, setEstrategiasBusqueda] = useState([]);
 
+  const [listaCadena, setListaCadena] = useState("");
+  const [listaId, setListaId] = useState(0);
+  const [listaFiltros, setListaFiltros] = useState([]);
+  const [listaFiltrosBusqueda, setListaFiltrosBusqueda] = useState([]);
+  const [listaElementos, setListaElementos] = useState([]);
+  const [listaIdBusqueda, setListaIdBusqueda] = useState(0);
+  const [listaElementosBusqueda, setListaElementosBusqueda] = useState([]);
+  const [listasBusqueda, setListasBusqueda] = useState([]);
+  const [mostrarTablaListas, setMostrarTablaListas] = useState(false);
+  const [mostrarCargaListas, setMostrarCargaListas] = useState(false);
+
   const [campanaCadena, setCampanaCadena] = useState("");
   const [campanaTipo, setCampanaTipo] = useState("0");
   const [campanaEstado, setCampanaEstado] = useState("");
@@ -58,6 +78,12 @@ const CrearEstrategia = () => {
   const [recursosBusqueda, setRecursosBusqueda] = useState([]);
   const [mostrarTablaRecursos, setMostrarTablaRecursos] = useState(false);
   const [mostrarCargaRecursos, setMostrarCargaRecursos] = useState(false);
+
+  const [contactos, setContactos] = useState([]);
+  const [cadenaBuscarContacto, setCadenaBuscarContacto] = useState("");
+  const [contactosBusqueda, setContactosBusqueda] = useState([]);
+  const [mostrarTablaContactos, setMostrarTablaContactos] = useState(false);
+  const [mostrarCargaContactos, setMostrarCargaContactos] = useState(false);
 
   const [usuarioLogueado, setUsuarioLogueado] = useState({});
 
@@ -115,7 +141,7 @@ const CrearEstrategia = () => {
   };
 
   const handleAgregarIndicadores =
-    (id, nombre, aspecto, tipo, automatizacion) => () => {
+    (id, nombre, aspecto, tipo, calculoAutomatico) => () => {
       for (let index = 0; index < indicadores.length; index++) {
         const element = indicadores[index];
         if (element["id"] == id) return;
@@ -127,14 +153,109 @@ const CrearEstrategia = () => {
           nombre: nombre,
           aspecto: aspecto,
           tipo: tipo,
-          automatizacion: automatizacion,
+          calculoAutomatico: calculoAutomatico,
+          valor: 0.0,
         },
       ]);
     };
 
+  const handleValorIndicadores = (event, id) => () => {
+    const indicadoresLista = [];
+    for (let index = 0; index < indicadores.length; index++) {
+      const element = indicadores[index];
+      if (element["id"] == id) element["valor"] = event.target.value;
+      indicadoresLista.push(element);
+    }
+    setIndicadores(indicadoresLista);
+  };
+
   const handleEliminarIndicadores = (id) => () => {
     console.log("se va a eliminar");
     setIndicadores((prev) => prev.filter((el) => el.id !== id));
+    //console.log(event.target.value);
+  };
+
+  const handleAsignarLista = () => {
+    setListaId(listaIdBusqueda);
+    setListaFiltros(listaFiltrosBusqueda);
+    setListaElementos(listaElementosBusqueda);
+    setMostrarListaDetalle(false);
+  };
+
+  const asignarTargetParticipantes = () => {
+    const contactosLista = [];
+    const idsParticipantes = [];
+    for (let index = 0; index < contactos.length; index++) {
+      const element = contactos[index];
+      idsParticipantes.push(element["id"]);
+      contactosLista.push(element);
+    }
+    for (let index = 0; index < listaElementos.length; index++) {
+      const element = listaElementos[index];
+      if (!idsParticipantes.includes(element["id"])) {
+        contactosLista.push(element);
+      }
+    }
+    setContactos(contactosLista);
+  };
+
+  const handleVerDetalleLista = (id) => () => {
+    console.log("hizo el ver detalle");
+    api
+      .get(`detalleLista/${id}`)
+      .then((res) => res.data)
+      .then((data) => {
+        console.log("finalizo el ver detalle");
+        console.log(data);
+        setListaIdBusqueda(id);
+        setListaFiltrosBusqueda(data["filtros"]);
+        setListaElementosBusqueda(data["elementos"]);
+        setMostrarListaDetalle(true);
+      })
+      .catch((err) => alert(err));
+  };
+
+  const handleEliminarLeads = (id) => () => {
+    console.log("se va a eliminar");
+    setListaElementos((prev) => prev.filter((el) => el.id !== id));
+    //console.log(event.target.value);
+  };
+
+  const mostrarFiltros = (propiedad, evaluacion, valorEvaluacion, nombre) => {
+    let respuesta = "";
+    respuesta += nombre + " - ";
+    if (evaluacion == "0") respuesta += "Igual - ";
+    else if (evaluacion == "1") respuesta += "Menor - ";
+    else if (evaluacion == "2") respuesta += "Mayor - ";
+    else if (evaluacion == "3") respuesta += "Menor o igual - ";
+    else if (evaluacion == "4") respuesta += "Mayor o igual - ";
+    else if (evaluacion == "5") respuesta += "Contiene - ";
+
+    if (
+      propiedad == "calificado" ||
+      propiedad == "empresa" ||
+      propiedad == "contacto"
+    ) {
+      if (valorEvaluacion == "0") respuesta += "No";
+      else respuesta += "Sí";
+    } else if (propiedad == "estado") {
+      if (valorEvaluacion == "0") respuesta += "Suscriptor";
+      else if (valorEvaluacion == "1") respuesta += "Lead";
+      else if (valorEvaluacion == "2") respuesta += "Oportunidad";
+      else if (valorEvaluacion == "3") respuesta += "Cliente";
+    } else if (propiedad == "tipo") {
+      if (valorEvaluacion == "0") respuesta += "Cliente potencial";
+      else if (valorEvaluacion == "1") respuesta += "Socio";
+      else if (valorEvaluacion == "2") respuesta += "Revendedor";
+      else if (valorEvaluacion == "3") respuesta += "Proveedor";
+    } else if (propiedad == "servicioRed") {
+      if (valorEvaluacion == "0") respuesta += "Facebook";
+      else if (valorEvaluacion == "1") respuesta += "Linkedin";
+      else if (valorEvaluacion == "2") respuesta += "Instagram";
+    } else {
+      respuesta += valorEvaluacion;
+    }
+    return respuesta;
     //console.log(event.target.value);
   };
 
@@ -179,28 +300,6 @@ const CrearEstrategia = () => {
   const handleEliminarRecursos = (id) => () => {
     console.log("se va a eliminar");
     setRecursos((prev) => prev.filter((el) => el.id !== id));
-    //console.log(event.target.value);
-  };
-
-  const handleAgregarEstrategias = (id, descripcion, tipo, estado) => () => {
-    for (let index = 0; index < estrategias.length; index++) {
-      const element = estrategias[index];
-      if (element["id"] == id) return;
-    }
-    setEstrategias([
-      ...estrategias,
-      {
-        id: id,
-        descripcion: descripcion,
-        tipo: tipo,
-        estado: estado,
-      },
-    ]);
-  };
-
-  const handleEliminarEstrategias = (id) => () => {
-    console.log("se va a eliminar");
-    setEstrategias((prev) => prev.filter((el) => el.id !== id));
     //console.log(event.target.value);
   };
 
@@ -255,42 +354,34 @@ const CrearEstrategia = () => {
     buscarIndicadores();
   };
 
-  const buscarEstrategias = () => {
+  const buscarListas = () => {
     //console.log("esto es la cadena")
-    let fechaHoy = "",
-      fecha = new Date();
-
-    fechaHoy =
-      fecha.getDate() +
-      "-" +
-      parseInt(fecha.getMonth() + 1) +
-      "-" +
-      fecha.getFullYear();
-    setMostrarTablaEstrategias(false);
-    setMostrarCargaEstrategias(true);
+    setMostrarTablaListas(false);
+    setMostrarCargaListas(true);
     api
-      .post("filtrarEstrategias", {
-        cadena: estrategiaCadena,
-        tipo: estrategiaTipo,
-        estado: estrategiaEstado,
-        fechaHoy: fechaHoy,
-        fechaVigenciaIni: "",
-        fechaVigenciaFin: "",
+      .post("filtrarListas", {
+        cadena: listaCadena,
+        tipo: "",
+        objeto: "0",
+        fechaCreacionIni: "",
+        fechaCreacionFin: "",
+        fechaModificacionIni: "",
+        fechaModificacionFin: "",
         propietario: usuarioLogueado["idCuenta"],
       })
       .then((res) => res.data)
       .then((data) => {
         console.log(data);
-        setEstrategiasBusqueda(data);
-        setMostrarCargaEstrategias(false);
-        setMostrarTablaEstrategias(true);
+        setListasBusqueda(data);
+        setMostrarCargaListas(false);
+        setMostrarTablaListas(true);
       })
       .catch((err) => alert(err));
   };
 
-  const buscarEstrategiasCadena = (event) => {
+  const buscarListasCadena = (event) => {
     event.preventDefault();
-    buscarEstrategias();
+    buscarListas();
   };
 
   const buscarCampanas = () => {
@@ -369,6 +460,47 @@ const CrearEstrategia = () => {
     buscarRecursos();
   };
 
+  const buscarContactos = () => {
+    setMostrarTablaContactos(false);
+    setMostrarCargaContactos(true);
+    api
+      .post("filtrarContactos", {
+        cadena: cadenaBuscarContacto,
+        estado: "",
+        fechaCreacionIni: "",
+        fechaCreacionFin: "",
+        fechaModificacionIni: "",
+        fechaModificacionFin: "",
+        propietario: usuarioLogueado["idCuenta"],
+      })
+      .then((res) => res.data)
+      .then((data) => {
+        console.log(data);
+        setContactosBusqueda(data);
+        setMostrarCargaContactos(false);
+        setMostrarTablaContactos(true);
+      })
+      .catch((err) => alert(err));
+  };
+
+  const buscarContactosCadena = (event) => {
+    event.preventDefault();
+    buscarContactos();
+  };
+
+  const handleAgregarContactos = (contacto) => () => {
+    for (let index = 0; index < contactos.length; index++) {
+      const element = contactos[index];
+      if (element["id"] == contacto["id"]) return;
+    }
+    setContactos([...contactos, contacto]);
+  };
+
+  const handleEliminarContactos = (id) => () => {
+    setContactos((prev) => prev.filter((el) => el.id !== id));
+    //console.log(event.target.value);
+  };
+
   const guardarEstrategia = () => {
     let fechaVigenciaIni = "",
       fechaVigenciaFin = "";
@@ -390,7 +522,6 @@ const CrearEstrategia = () => {
         finVigencia.getFullYear();
     }
 
-    
     let cuerpo = {
       idEstrategia: 0,
       idCampana: 0,
@@ -407,6 +538,8 @@ const CrearEstrategia = () => {
       estrategias: estrategias,
       leads: 0,
       contactos: [],
+      campanas: campanas,
+      recursos: recursos
     };
     console.log("cuerpo a subir");
     console.log(cuerpo);
@@ -416,36 +549,35 @@ const CrearEstrategia = () => {
 
     if (tipo == "0") {
       api
-      .post("registrarEstrategia", cuerpo)
-      .then((res) => res.data)
-      .then((data) => {
-        console.log(data);
-        setMostrarCargaDatos(false);
-        setMostrarDatos(true);
-        setShow(false);
-        history.push({
-          pathname: "/estrategias",
-          state: { estrategiaGuardada: true },
-        });
-      })
-      .catch((err) => alert(err));
+        .post("registrarEstrategia", cuerpo)
+        .then((res) => res.data)
+        .then((data) => {
+          console.log(data);
+          setMostrarCargaDatos(false);
+          setMostrarDatos(true);
+          setShow(false);
+          history.push({
+            pathname: "/estrategias",
+            state: { estrategiaGuardada: true },
+          });
+        })
+        .catch((err) => alert(err));
     } else if (tipo == "1") {
       api
-      .post("registrarCampana", cuerpo)
-      .then((res) => res.data)
-      .then((data) => {
-        console.log(data);
-        setMostrarCargaDatos(false);
-        setMostrarDatos(true);
-        setShow(false);
-        history.push({
-          pathname: "/estrategias",
-          state: { estrategiaGuardada: true },
-        });
-      })
-      .catch((err) => alert(err));
+        .post("registrarCampana", cuerpo)
+        .then((res) => res.data)
+        .then((data) => {
+          console.log(data);
+          setMostrarCargaDatos(false);
+          setMostrarDatos(true);
+          setShow(false);
+          history.push({
+            pathname: "/estrategias",
+            state: { estrategiaGuardada: true },
+          });
+        })
+        .catch((err) => alert(err));
     }
-    
   };
 
   useEffect(() => {
@@ -557,15 +689,15 @@ const CrearEstrategia = () => {
                               Tipo
                             </label>
                             <div className="col-sm-12">
-                            <select
-                              className="form-control"
-                              onChange={handleChangeTipoEstrategia}
-                            >
-                              <option value={"0"} selected>
-                                Programa
-                              </option>
-                              <option value={"1"}>Campaña stand-alone</option>
-                            </select>
+                              <select
+                                className="form-control"
+                                onChange={handleChangeTipoEstrategia}
+                              >
+                                <option value={"0"} selected>
+                                  Programa
+                                </option>
+                                <option value={"1"}>Campaña stand-alone</option>
+                              </select>
                             </div>
                           </Form.Group>
                         </div>
@@ -744,55 +876,205 @@ const CrearEstrategia = () => {
                           </Form.Group>
                         </div>
                       </div>
-                      <div className="justify-content-between align-items-center tab-transparent">
-                        <Tabs defaultActiveKey="Indicadores" className="nav">
-                          <Tab eventKey="Indicadores" title="Indicadores">
-                            <div className="row">
-                              <div className="col-md-12">
-                                <Form.Group>
-                                  <label className="col-sm-12 col-form-label">
-                                    Indicadores
-                                  </label>
-                                </Form.Group>
-                                {indicadores.length == 0 ? (
-                                  <Form.Group>
-                                    <label className="col-sm-12 col-form-label">
-                                      No se han registrado indicadores
-                                    </label>
-                                  </Form.Group>
-                                ) : (
+
+                      <div className="row">
+                        <div className="col-md-12">
+                          <Form.Group>
+                            <label className="col-sm-7 col-form-label">
+                              Target
+                            </label>
+                            <button
+                              type="button"
+                              className="btn btn-link float-sm-right"
+                              onClick={() =>
+                                setMostrarBuscarListas(!mostrarBuscarListas)
+                              }
+                            >
+                              Buscar listas
+                            </button>
+                          </Form.Group>
+                        </div>
+                      </div>
+
+                      <div className="row">
+                        <div className="col-md-12">
+                          {listaFiltros.length == 0 ? (
+                            ""
+                          ) : (
+                            <Form.Group>
+                              <label className="col-sm-12 col-form-label">
+                                Filtros
+                              </label>
+                              {listaFiltros.map(
+                                ({
+                                  propiedad,
+                                  evaluacion,
+                                  valorEvaluacion,
+                                  nombre,
+                                }) => (
+                                  <div
+                                    className="row"
+                                    key={
+                                      propiedad + evaluacion + valorEvaluacion
+                                    }
+                                  >
+                                    <div className="col-md-12">
+                                      <Form.Group>
+                                        <label
+                                          className="col-sm-12"
+                                          style={{ display: "flex" }}
+                                        >
+                                          {mostrarFiltros(
+                                            propiedad,
+                                            evaluacion,
+                                            valorEvaluacion,
+                                            nombre
+                                          )}
+                                        </label>
+                                      </Form.Group>
+                                    </div>
+                                  </div>
+                                )
+                              )}
+                            </Form.Group>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="row">
+                        <div className="col-md-12">
+                          {listaElementos.length == 0 ? (
+                            <Form.Group>
+                              <label className="col-sm-12 col-form-label">
+                                No se han registrado targets
+                              </label>
+                            </Form.Group>
+                          ) : (
+                            <Form.Group>
+                              <div className="table-responsive">
+                                <table className="table">
+                                  <thead>
+                                    <tr>
+                                      <th>Nombre completo</th>
+                                      <th>Estado</th>
+                                      <th>Correo</th>
+                                      <th>Empresa</th>
+                                      <th></th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {listaElementos.map((elemento) => (
+                                      <tr key={elemento["id"]}>
+                                        <td>
+                                          {elemento["persona__nombreCompleto"]}
+                                        </td>
+                                        <td>{elemento["estado"]}</td>
+                                        <td>{elemento["correo"]}</td>
+                                        <td>{elemento["empresa"]}</td>
+                                        <td>
+                                          <button
+                                            style={{ marginLeft: "auto" }}
+                                            type="button"
+                                          >
+                                            <i
+                                              className="mdi mdi-delete"
+                                              style={{ color: "black" }}
+                                              onClick={handleEliminarLeads(
+                                                elemento["id"]
+                                              )}
+                                            ></i>
+                                          </button>
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </Form.Group>
+                          )}
+                        </div>
+                      </div>
+
+                      {mostrarBuscarListas && (
+                        <div>
+                          <div className="row">
+                            <div className="col-md-11">
+                              <Form.Group>
+                                <div className="search-field col-sm-8">
+                                  <form
+                                    className="d-flex align-items-center h-100"
+                                    onSubmit={buscarListasCadena}
+                                  >
+                                    <div className="input-group">
+                                      <div className="input-group-prepend bg-white">
+                                        <i className="input-group-text border-0 mdi mdi-magnify"></i>
+                                      </div>
+                                      <input
+                                        type="text"
+                                        className="form-control bg-white border-0"
+                                        placeholder="Nombre"
+                                        value={listaCadena}
+                                        onChange={({ target }) =>
+                                          setListaCadena(target.value)
+                                        }
+                                      />
+                                    </div>
+                                  </form>
+                                </div>
+                              </Form.Group>
+                            </div>
+
+                            <div className="col-md-1">
+                              <Form.Group>
+                                <button
+                                  type="button"
+                                  className="btn btn-primary"
+                                  onClick={buscarListas}
+                                >
+                                  Buscar
+                                </button>
+                              </Form.Group>
+                            </div>
+                          </div>
+                          <div className="row">
+                            <div className="col-md-12">
+                              <Form.Group>
+                                {mostrarCargaListas && (
+                                  <div className="row h-100">
+                                    <div className="col-sm-12 my-auto">
+                                      <div className="circle-loader"></div>
+                                    </div>
+                                  </div>
+                                )}
+                                {mostrarTablaListas && (
                                   <div className="table-responsive">
                                     <table className="table">
                                       <thead>
                                         <tr>
                                           <th>Nombre</th>
-                                          <th>Aspecto-Tipo</th>
-                                          <th>Automatización</th>
+                                          <th>Objeto</th>
+                                          <th>Tipo</th>
                                           <th></th>
                                         </tr>
                                       </thead>
                                       <tbody>
-                                        {indicadores.map((indicador) => (
-                                          <tr key={indicador["id"]}>
-                                            <td>{indicador["nombre"]}</td>
-                                            <td>
-                                              {indicador["aspecto"] +
-                                                " - " +
-                                                indicador["tipo"]}
-                                            </td>
-                                            <td>
-                                              {indicador["automatizacion"]}
-                                            </td>
+                                        {listasBusqueda.map((lista) => (
+                                          <tr key={lista["id"]}>
+                                            <td>{lista["nombre"]}</td>
+                                            <td>{lista["objeto"]}</td>
+                                            <td>{lista["tipo"]}</td>
                                             <td>
                                               <button
-                                                style={{ marginLeft: "auto" }}
+                                                style={{
+                                                  marginLeft: "auto",
+                                                }}
                                                 type="button"
                                               >
                                                 <i
-                                                  className="mdi mdi-delete"
+                                                  className="mdi mdi-eye"
                                                   style={{ color: "black" }}
-                                                  onClick={handleEliminarIndicadores(
-                                                    indicador["id"]
+                                                  onClick={handleVerDetalleLista(
+                                                    lista["id"]
                                                   )}
                                                 ></i>
                                               </button>
@@ -803,97 +1085,40 @@ const CrearEstrategia = () => {
                                     </table>
                                   </div>
                                 )}
-                              </div>
+                              </Form.Group>
                             </div>
-
-                            <div className="row">
-                              <div className="col-md-6">
-                                <Form.Group>
-                                  <div className="search-field col-sm-12">
-                                    <form
-                                      className="d-flex align-items-center h-100"
-                                      onSubmit={buscarIndicadoresCadena}
-                                    >
-                                      <div className="input-group">
-                                        <div className="input-group-prepend bg-white">
-                                          <i className="input-group-text border-0 mdi mdi-magnify"></i>
-                                        </div>
-                                        <input
-                                          type="text"
-                                          className="form-control bg-white border-0"
-                                          placeholder="Nombre"
-                                          value={indicadorCadena}
-                                          onChange={({ target }) =>
-                                            setIndicadorCadena(target.value)
-                                          }
-                                        />
-                                      </div>
-                                    </form>
-                                  </div>
-                                </Form.Group>
-                              </div>
-
-                              <div className="col-md-3">
-                                <Form.Group>
-                                  <select
-                                    className="form-control col-sm-11"
-                                    onChange={handleChangeAspectoVariable}
-                                  >
-                                    <option value="" disabled selected hidden>
-                                      Aspecto
-                                    </option>
-                                    <option value={""}>
-                                      Todos los aspectos
-                                    </option>
-                                    <option value={"0"}>Plan</option>
-                                    <option value={"1"}>Estrategia</option>
-                                    <option value={"2"}>Campaña</option>
-                                    <option value={"3"}>Recurso</option>
-                                  </select>
-                                </Form.Group>
-                              </div>
-
-                              <div className="col-md-2">
-                                <Form.Group>
-                                  <select
-                                    className="form-control col-sm-11"
-                                    onChange={({ target }) =>
-                                      setTipoIndicador(target.value)
-                                    }
-                                  >
-                                    {opcionesTipoVariable.map(
-                                      ({ id, nombre }) => (
-                                        <option value={id}>{nombre}</option>
-                                      )
-                                    )}
-                                  </select>
-                                </Form.Group>
-                              </div>
-
-                              <div className="col-md-1">
-                                <Form.Group>
-                                  <button
-                                    type="button"
-                                    className="btn btn-primary"
-                                    onClick={buscarIndicadores}
-                                  >
-                                    Buscar
-                                  </button>
-                                </Form.Group>
-                              </div>
-                            </div>
-
+                          </div>
+                        </div>
+                      )}
+                      <div className="justify-content-between align-items-center tab-transparent">
+                        <Tabs defaultActiveKey="Indicadores" className="nav">
+                          <Tab eventKey="Indicadores" title="Indicadores">
                             <div className="row">
                               <div className="col-md-12">
                                 <Form.Group>
-                                  {mostrarCargaIndicadores && (
-                                    <div className="row h-100">
-                                      <div className="col-sm-12 my-auto">
-                                        <div className="circle-loader"></div>
-                                      </div>
-                                    </div>
-                                  )}
-                                  {mostrarTablaIndicadores && (
+                                  <label className="col-sm-7 col-form-label">
+                                    Indicadores
+                                  </label>
+                                  <button
+                                    type="button"
+                                    className="btn btn-link float-sm-right"
+                                    onClick={() =>
+                                      setMostrarBuscarIndicadores(
+                                        !mostrarBuscarIndicadores
+                                      )
+                                    }
+                                  >
+                                    Buscar indicadores
+                                  </button>
+                                </Form.Group>
+                                {indicadores.length == 0 ? (
+                                  <Form.Group>
+                                    <label className="col-sm-12 col-form-label">
+                                      No se han registrado indicadores
+                                    </label>
+                                  </Form.Group>
+                                ) : (
+                                  <Form.Group>
                                     <div className="table-responsive">
                                       <table className="table">
                                         <thead>
@@ -901,84 +1126,36 @@ const CrearEstrategia = () => {
                                             <th>Nombre</th>
                                             <th>Aspecto-Tipo</th>
                                             <th>Automatización</th>
+                                            <th>Valor</th>
                                             <th></th>
                                           </tr>
                                         </thead>
                                         <tbody>
-                                          {indicadoresBusqueda.map(
-                                            (indicador) => (
-                                              <tr key={indicador["id"]}>
-                                                <td>{indicador["nombre"]}</td>
-                                                <td>
-                                                  {indicador["aspecto"] +
-                                                    " - " +
-                                                    indicador["tipo"]}
-                                                </td>
-                                                <td>
-                                                  {indicador["automatizacion"]}
-                                                </td>
-                                                <td>
-                                                  <button
-                                                    type="button"
-                                                    onClick={handleAgregarIndicadores(
-                                                      indicador["id"],
-                                                      indicador["nombre"],
-                                                      indicador["aspecto"],
-                                                      indicador["tipo"],
-                                                      indicador[
-                                                        "automatizacion"
-                                                      ]
-                                                    )}
-                                                  >
-                                                    <i
-                                                      className="mdi mdi-plus"
-                                                      style={{ color: "black" }}
-                                                    ></i>
-                                                  </button>
-                                                </td>
-                                              </tr>
-                                            )
-                                          )}
-                                        </tbody>
-                                      </table>
-                                    </div>
-                                  )}
-                                </Form.Group>
-                              </div>
-                            </div>
-                          </Tab>
-                          {tipo == "0" ? (
-                            <Tab eventKey="Detalle" title="Campañas">
-                              <div className="row">
-                                <div className="col-md-12">
-                                  <Form.Group>
-                                    <label className="col-sm-12 col-form-label">
-                                      Campañas
-                                    </label>
-                                  </Form.Group>
-                                  {campanas.length == 0 ? (
-                                    <Form.Group>
-                                      <label className="col-sm-12 col-form-label">
-                                        No se han registrado campañas
-                                      </label>
-                                    </Form.Group>
-                                  ) : (
-                                    <div className="table-responsive">
-                                      <table className="table">
-                                        <thead>
-                                          <tr>
-                                            <th>Descripción</th>
-                                            <th>Estado</th>
-                                            <th>Tipo</th>
-                                            <th></th>
-                                          </tr>
-                                        </thead>
-                                        <tbody>
-                                          {campanas.map((campana) => (
-                                            <tr key={campana["id"]}>
-                                              <td>{campana["descripcion"]}</td>
-                                              <td>{campana["tipo"]}</td>
-                                              <td>{campana["estado"]}</td>
+                                          {indicadores.map((indicador) => (
+                                            <tr key={indicador["id"]}>
+                                              <td>{indicador["nombre"]}</td>
+                                              <td>
+                                                {indicador["aspecto"] +
+                                                  " - " +
+                                                  indicador["tipo"]}
+                                              </td>
+                                              <td>
+                                                {indicador["calculoAutomatico"]}
+                                              </td>
+                                              <td>
+                                                <input
+                                                  type={"number"}
+                                                  placeholder="Agregar valor"
+                                                  className="form-control"
+                                                  onChange={(event) =>
+                                                    handleValorIndicadores(
+                                                      event,
+                                                      indicador["id"]
+                                                    )
+                                                  }
+                                                  value={indicador["valor"]}
+                                                />
+                                              </td>
                                               <td>
                                                 <button
                                                   style={{ marginLeft: "auto" }}
@@ -987,8 +1164,8 @@ const CrearEstrategia = () => {
                                                   <i
                                                     className="mdi mdi-delete"
                                                     style={{ color: "black" }}
-                                                    onClick={handleEliminarCampanas(
-                                                      campana["id"]
+                                                    onClick={handleEliminarIndicadores(
+                                                      indicador["id"]
                                                     )}
                                                   ></i>
                                                 </button>
@@ -998,38 +1175,269 @@ const CrearEstrategia = () => {
                                         </tbody>
                                       </table>
                                     </div>
+                                  </Form.Group>
+                                )}
+                              </div>
+                            </div>
+
+                            {mostrarBuscarIndicadores && (
+                              <div>
+                                <div className="row">
+                                  <div className="col-md-6">
+                                    <Form.Group>
+                                      <div className="search-field col-sm-12">
+                                        <form
+                                          className="d-flex align-items-center h-100"
+                                          onSubmit={buscarIndicadoresCadena}
+                                        >
+                                          <div className="input-group">
+                                            <div className="input-group-prepend bg-white">
+                                              <i className="input-group-text border-0 mdi mdi-magnify"></i>
+                                            </div>
+                                            <input
+                                              type="text"
+                                              className="form-control bg-white border-0"
+                                              placeholder="Nombre"
+                                              value={indicadorCadena}
+                                              onChange={({ target }) =>
+                                                setIndicadorCadena(target.value)
+                                              }
+                                            />
+                                          </div>
+                                        </form>
+                                      </div>
+                                    </Form.Group>
+                                  </div>
+
+                                  <div className="col-md-3">
+                                    <Form.Group>
+                                      <select
+                                        className="form-control col-sm-11"
+                                        onChange={handleChangeAspectoVariable}
+                                      >
+                                        <option
+                                          value=""
+                                          disabled
+                                          selected
+                                          hidden
+                                        >
+                                          Aspecto
+                                        </option>
+                                        <option value={""}>
+                                          Todos los aspectos
+                                        </option>
+                                        <option value={"0"}>Plan</option>
+                                        <option value={"1"}>Estrategia</option>
+                                        <option value={"2"}>Campaña</option>
+                                        <option value={"3"}>Recurso</option>
+                                      </select>
+                                    </Form.Group>
+                                  </div>
+
+                                  <div className="col-md-2">
+                                    <Form.Group>
+                                      <select
+                                        className="form-control col-sm-11"
+                                        onChange={({ target }) =>
+                                          setTipoIndicador(target.value)
+                                        }
+                                      >
+                                        {opcionesTipoVariable.map(
+                                          ({ id, nombre }) => (
+                                            <option value={id}>{nombre}</option>
+                                          )
+                                        )}
+                                      </select>
+                                    </Form.Group>
+                                  </div>
+
+                                  <div className="col-md-1">
+                                    <Form.Group>
+                                      <button
+                                        type="button"
+                                        className="btn btn-primary"
+                                        onClick={buscarIndicadores}
+                                      >
+                                        Buscar
+                                      </button>
+                                    </Form.Group>
+                                  </div>
+                                </div>
+                                <div className="row">
+                                  <div className="col-md-12">
+                                    <Form.Group>
+                                      {mostrarCargaIndicadores && (
+                                        <div className="row h-100">
+                                          <div className="col-sm-12 my-auto">
+                                            <div className="circle-loader"></div>
+                                          </div>
+                                        </div>
+                                      )}
+                                      {mostrarTablaIndicadores && (
+                                        <div className="table-responsive">
+                                          <table className="table">
+                                            <thead>
+                                              <tr>
+                                                <th>Nombre</th>
+                                                <th>Aspecto-Tipo</th>
+                                                <th>Automatización</th>
+                                                <th></th>
+                                              </tr>
+                                            </thead>
+                                            <tbody>
+                                              {indicadoresBusqueda.map(
+                                                (indicador) => (
+                                                  <tr key={indicador["id"]}>
+                                                    <td>
+                                                      {indicador["nombre"]}
+                                                    </td>
+                                                    <td>
+                                                      {indicador["aspecto"] +
+                                                        " - " +
+                                                        indicador["tipo"]}
+                                                    </td>
+                                                    <td>
+                                                      {
+                                                        indicador[
+                                                          "calculoAutomatico"
+                                                        ]
+                                                      }
+                                                    </td>
+                                                    <td>
+                                                      <button
+                                                        type="button"
+                                                        onClick={handleAgregarIndicadores(
+                                                          indicador["id"],
+                                                          indicador["nombre"],
+                                                          indicador["aspecto"],
+                                                          indicador["tipo"],
+                                                          indicador[
+                                                            "calculoAutomatico"
+                                                          ]
+                                                        )}
+                                                      >
+                                                        <i
+                                                          className="mdi mdi-plus"
+                                                          style={{
+                                                            color: "black",
+                                                          }}
+                                                        ></i>
+                                                      </button>
+                                                    </td>
+                                                  </tr>
+                                                )
+                                              )}
+                                            </tbody>
+                                          </table>
+                                        </div>
+                                      )}
+                                    </Form.Group>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </Tab>
+                          {tipo == "0" && (
+                            <Tab eventKey="Detalle" title="Campañas">
+                              <div className="row">
+                                <div className="col-md-12">
+                                  <Form.Group>
+                                    <label className="col-sm-7 col-form-label">
+                                      Campañas
+                                    </label>
+                                    <button
+                                      type="button"
+                                      className="btn btn-link float-sm-right"
+                                      onClick={() =>
+                                        setMostrarBuscarCampanas(
+                                          !mostrarBuscarCampanas
+                                        )
+                                      }
+                                    >
+                                      Buscar campañas
+                                    </button>
+                                  </Form.Group>
+                                  {campanas.length == 0 ? (
+                                    <Form.Group>
+                                      <label className="col-sm-12 col-form-label">
+                                        No se han registrado campañas
+                                      </label>
+                                    </Form.Group>
+                                  ) : (
+                                    <Form.Group>
+                                      <div className="table-responsive">
+                                        <table className="table">
+                                          <thead>
+                                            <tr>
+                                              <th>Descripción</th>
+                                              <th>Tipo</th>
+                                              <th>Estado</th>
+                                              <th></th>
+                                            </tr>
+                                          </thead>
+                                          <tbody>
+                                            {campanas.map((campana) => (
+                                              <tr key={campana["id"]}>
+                                                <td>
+                                                  {campana["descripcion"]}
+                                                </td>
+                                                <td>{campana["tipo"]}</td>
+                                                <td>{campana["estado"]}</td>
+                                                <td>
+                                                  <button
+                                                    style={{
+                                                      marginLeft: "auto",
+                                                    }}
+                                                    type="button"
+                                                  >
+                                                    <i
+                                                      className="mdi mdi-delete"
+                                                      style={{ color: "black" }}
+                                                      onClick={handleEliminarCampanas(
+                                                        campana["id"]
+                                                      )}
+                                                    ></i>
+                                                  </button>
+                                                </td>
+                                              </tr>
+                                            ))}
+                                          </tbody>
+                                        </table>
+                                      </div>
+                                    </Form.Group>
                                   )}
                                 </div>
                               </div>
-
-                              <div className="row">
-                                <div className="col-md-7">
-                                  <Form.Group>
-                                    <div className="search-field col-sm-12">
-                                      <form
-                                        className="d-flex align-items-center h-100"
-                                        onSubmit={buscarCampanasCadena}
-                                      >
-                                        <div className="input-group">
-                                          <div className="input-group-prepend bg-white">
-                                            <i className="input-group-text border-0 mdi mdi-magnify"></i>
-                                          </div>
-                                          <input
-                                            type="text"
-                                            className="form-control bg-white border-0"
-                                            placeholder="Descripción"
-                                            value={campanaCadena}
-                                            onChange={({ target }) =>
-                                              setCampanaCadena(target.value)
-                                            }
-                                          />
+                              {mostrarBuscarCampanas && (
+                                <div>
+                                  <div className="row">
+                                    <div className="col-md-7">
+                                      <Form.Group>
+                                        <div className="search-field col-sm-12">
+                                          <form
+                                            className="d-flex align-items-center h-100"
+                                            onSubmit={buscarCampanasCadena}
+                                          >
+                                            <div className="input-group">
+                                              <div className="input-group-prepend bg-white">
+                                                <i className="input-group-text border-0 mdi mdi-magnify"></i>
+                                              </div>
+                                              <input
+                                                type="text"
+                                                className="form-control bg-white border-0"
+                                                placeholder="Descripción"
+                                                value={campanaCadena}
+                                                onChange={({ target }) =>
+                                                  setCampanaCadena(target.value)
+                                                }
+                                              />
+                                            </div>
+                                          </form>
                                         </div>
-                                      </form>
+                                      </Form.Group>
                                     </div>
-                                  </Form.Group>
-                                </div>
 
-                                {/* <div className="col-md-2">
+                                    {/* <div className="col-md-2">
                                 <Form.Group>
                                   <select
                                     className="form-control col-sm-11"
@@ -1049,105 +1457,133 @@ const CrearEstrategia = () => {
                                 </Form.Group>
                               </div> */}
 
-                                <div className="col-md-4">
-                                  <Form.Group>
-                                    <select
-                                      className="form-control col-sm-8"
-                                      onChange={({ target }) =>
-                                        setCampanaEstado(target.value)
-                                      }
-                                    >
-                                      <option value="" disabled selected hidden>
-                                        Estado
-                                      </option>
-                                      <option value={""}>
-                                        Todos los estados
-                                      </option>
-                                      <option value={"0"}>No vigente</option>
-                                      <option value={"1"}>Vigente</option>
-                                    </select>
-                                  </Form.Group>
-                                </div>
+                                    <div className="col-md-4">
+                                      <Form.Group>
+                                        <select
+                                          className="form-control col-sm-8"
+                                          onChange={({ target }) =>
+                                            setCampanaEstado(target.value)
+                                          }
+                                        >
+                                          <option
+                                            value=""
+                                            disabled
+                                            selected
+                                            hidden
+                                          >
+                                            Estado
+                                          </option>
+                                          <option value={""}>
+                                            Todos los estados
+                                          </option>
+                                          <option value={"0"}>
+                                            No vigente
+                                          </option>
+                                          <option value={"1"}>Vigente</option>
+                                        </select>
+                                      </Form.Group>
+                                    </div>
 
-                                <div className="col-md-1">
-                                  <Form.Group>
-                                    <button
-                                      type="button"
-                                      className="btn btn-primary"
-                                      onClick={buscarCampanas}
-                                    >
-                                      Buscar
-                                    </button>
-                                  </Form.Group>
+                                    <div className="col-md-1">
+                                      <Form.Group>
+                                        <button
+                                          type="button"
+                                          className="btn btn-primary"
+                                          onClick={buscarCampanas}
+                                        >
+                                          Buscar
+                                        </button>
+                                      </Form.Group>
+                                    </div>
+                                  </div>
+                                  <div className="row">
+                                    <div className="col-md-12">
+                                      <Form.Group>
+                                        {mostrarCargaCampanas && (
+                                          <div className="row h-100">
+                                            <div className="col-sm-12 my-auto">
+                                              <div className="circle-loader"></div>
+                                            </div>
+                                          </div>
+                                        )}
+                                        {mostrarTablaCampanas && (
+                                          <div className="table-responsive">
+                                            <table className="table">
+                                              <thead>
+                                                <tr>
+                                                  <th>Descripción</th>
+                                                  <th>Tipo</th>
+                                                  <th>Estado</th>
+                                                  <th></th>
+                                                </tr>
+                                              </thead>
+                                              <tbody>
+                                                {campanasBusqueda.map(
+                                                  (campana) => (
+                                                    <tr key={campana["id"]}>
+                                                      <td>
+                                                        {campana["descripcion"]}
+                                                      </td>
+                                                      <td>{campana["tipo"]}</td>
+                                                      <td>
+                                                        {campana["estado"]}
+                                                      </td>
+                                                      <td>
+                                                        <button
+                                                          style={{
+                                                            marginLeft: "auto",
+                                                          }}
+                                                          type="button"
+                                                        >
+                                                          <i
+                                                            className="mdi mdi-plus"
+                                                            style={{
+                                                              color: "black",
+                                                            }}
+                                                            onClick={handleAgregarCampanas(
+                                                              campana["id"],
+                                                              campana[
+                                                                "descripcion"
+                                                              ],
+                                                              campana["tipo"],
+                                                              campana["estado"]
+                                                            )}
+                                                          ></i>
+                                                        </button>
+                                                      </td>
+                                                    </tr>
+                                                  )
+                                                )}
+                                              </tbody>
+                                            </table>
+                                          </div>
+                                        )}
+                                      </Form.Group>
+                                    </div>
+                                  </div>
                                 </div>
-                              </div>
-
-                              <div className="row">
-                                <div className="col-md-12">
-                                  <Form.Group>
-                                    {mostrarCargaCampanas && (
-                                      <div className="row h-100">
-                                        <div className="col-sm-12 my-auto">
-                                          <div className="circle-loader"></div>
-                                        </div>
-                                      </div>
-                                    )}
-                                    {mostrarTablaCampanas && (
-                                      <div className="table-responsive">
-                                        <table className="table">
-                                          <thead>
-                                            <tr>
-                                              <th>Descripción</th>
-                                              <th>Tipo</th>
-                                              <th>Estado</th>
-                                              <th></th>
-                                            </tr>
-                                          </thead>
-                                          <tbody>
-                                            {campanasBusqueda.map((campana) => (
-                                              <tr key={campana["id"]}>
-                                                <td>
-                                                  {campana["descripcion"]}
-                                                </td>
-                                                <td>{campana["tipo"]}</td>
-                                                <td>{campana["estado"]}</td>
-                                                <td>
-                                                  <button
-                                                    style={{
-                                                      marginLeft: "auto",
-                                                    }}
-                                                    type="button"
-                                                  >
-                                                    <i
-                                                      className="mdi mdi-delete"
-                                                      style={{ color: "black" }}
-                                                      onClick={handleAgregarCampanas(
-                                                        campana["id"],
-                                                        campana["descripcion"],
-                                                        campana["tipo"],
-                                                        campana["estado"]
-                                                      )}
-                                                    ></i>
-                                                  </button>
-                                                </td>
-                                              </tr>
-                                            ))}
-                                          </tbody>
-                                        </table>
-                                      </div>
-                                    )}
-                                  </Form.Group>
-                                </div>
-                              </div>
+                              )}
                             </Tab>
-                          ) : (
+                          )}
+                          {tipo == "1" && (
                             <Tab eventKey="Detalle" title="Recursos">
                               <div className="row">
                                 <div className="col-md-12">
                                   <Form.Group>
-                                    <label className="col-sm-12 col-form-label">
+                                    <label className="col-sm-7 col-form-label">
                                       Recursos
                                     </label>
+                                    <button
+                                      type="button"
+                                      className="btn btn-link float-sm-right"
+                                      onClick={() =>
+                                        setMostrarBuscarRecursos(
+                                          !mostrarBuscarRecursos
+                                        )
+                                      }
+                                    >
+                                      Buscar recursos
+                                    </button>
                                   </Form.Group>
                                   {recursos.length == 0 ? (
                                     <Form.Group>
@@ -1156,137 +1592,7 @@ const CrearEstrategia = () => {
                                       </label>
                                     </Form.Group>
                                   ) : (
-                                    <div className="table-responsive">
-                                      <table className="table">
-                                        <thead>
-                                          <tr>
-                                            <th>Descripción</th>
-                                            <th>Estado</th>
-                                            <th>Tipo</th>
-                                            <th></th>
-                                          </tr>
-                                        </thead>
-                                        <tbody>
-                                          {recursos.map((recurso) => (
-                                            <tr key={recurso["id"]}>
-                                              <td>{recurso["descripcion"]}</td>
-                                              <td>{recurso["tipo"]}</td>
-                                              <td>{recurso["estado"]}</td>
-                                              <td>
-                                                <button
-                                                  style={{ marginLeft: "auto" }}
-                                                  type="button"
-                                                >
-                                                  <i
-                                                    className="mdi mdi-delete"
-                                                    style={{ color: "black" }}
-                                                    onClick={handleEliminarRecursos(
-                                                      recurso["id"]
-                                                    )}
-                                                  ></i>
-                                                </button>
-                                              </td>
-                                            </tr>
-                                          ))}
-                                        </tbody>
-                                      </table>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-
-                              <div className="row">
-                                <div className="col-md-7">
-                                  <Form.Group>
-                                    <div className="search-field col-sm-12">
-                                      <form
-                                        className="d-flex align-items-center h-100"
-                                        onSubmit={buscarRecursosCadena}
-                                      >
-                                        <div className="input-group">
-                                          <div className="input-group-prepend bg-white">
-                                            <i className="input-group-text border-0 mdi mdi-magnify"></i>
-                                          </div>
-                                          <input
-                                            type="text"
-                                            className="form-control bg-white border-0"
-                                            placeholder="Descripción"
-                                            value={recursoCadena}
-                                            onChange={({ target }) =>
-                                              setRecursoCadena(target.value)
-                                            }
-                                          />
-                                        </div>
-                                      </form>
-                                    </div>
-                                  </Form.Group>
-                                </div>
-
-                                <div className="col-md-2">
-                                  <Form.Group>
-                                    <select
-                                      className="form-control col-sm-11"
-                                      onChange={({ target }) =>
-                                        setRecursoTipo(target.value)
-                                      }
-                                    >
-                                      <option value="" disabled selected hidden>
-                                        Tipo
-                                      </option>
-                                      <option value={""}>
-                                        Todos los tipos
-                                      </option>
-                                      <option value={"0"}>Correo</option>
-                                      <option value={"1"}>Publicación</option>
-                                      <option value={"2"}>Página web</option>
-                                    </select>
-                                  </Form.Group>
-                                </div>
-
-                                <div className="col-md-2">
-                                  <Form.Group>
-                                    <select
-                                      className="form-control col-sm-11"
-                                      onChange={({ target }) =>
-                                        setRecursoEstado(target.value)
-                                      }
-                                    >
-                                      <option value="" disabled selected hidden>
-                                        Estado
-                                      </option>
-                                      <option value={""}>
-                                        Todos los estados
-                                      </option>
-                                      <option value={"0"}>No vigente</option>
-                                      <option value={"1"}>Vigente</option>
-                                    </select>
-                                  </Form.Group>
-                                </div>
-
-                                <div className="col-md-1">
-                                  <Form.Group>
-                                    <button
-                                      type="button"
-                                      className="btn btn-primary"
-                                      onClick={buscarRecursos}
-                                    >
-                                      Buscar
-                                    </button>
-                                  </Form.Group>
-                                </div>
-                              </div>
-
-                              <div className="row">
-                                <div className="col-md-12">
-                                  <Form.Group>
-                                    {mostrarCargaRecursos && (
-                                      <div className="row h-100">
-                                        <div className="col-sm-12 my-auto">
-                                          <div className="circle-loader"></div>
-                                        </div>
-                                      </div>
-                                    )}
-                                    {mostrarTablaRecursos && (
+                                    <Form.Group>
                                       <div className="table-responsive">
                                         <table className="table">
                                           <thead>
@@ -1298,7 +1604,7 @@ const CrearEstrategia = () => {
                                             </tr>
                                           </thead>
                                           <tbody>
-                                            {recursosBusqueda.map((recurso) => (
+                                            {recursos.map((recurso) => (
                                               <tr key={recurso["id"]}>
                                                 <td>
                                                   {recurso["descripcion"]}
@@ -1315,11 +1621,8 @@ const CrearEstrategia = () => {
                                                     <i
                                                       className="mdi mdi-delete"
                                                       style={{ color: "black" }}
-                                                      onClick={handleAgregarRecursos(
-                                                        recurso["id"],
-                                                        recurso["descripcion"],
-                                                        recurso["tipo"],
-                                                        recurso["estado"]
+                                                      onClick={handleEliminarRecursos(
+                                                        recurso["id"]
                                                       )}
                                                     ></i>
                                                   </button>
@@ -1329,10 +1632,376 @@ const CrearEstrategia = () => {
                                           </tbody>
                                         </table>
                                       </div>
-                                    )}
-                                  </Form.Group>
+                                    </Form.Group>
+                                  )}
                                 </div>
                               </div>
+                              {mostrarBuscarRecursos && (
+                                <div>
+                                  <div className="row">
+                                    <div className="col-md-7">
+                                      <Form.Group>
+                                        <div className="search-field col-sm-12">
+                                          <form
+                                            className="d-flex align-items-center h-100"
+                                            onSubmit={buscarRecursosCadena}
+                                          >
+                                            <div className="input-group">
+                                              <div className="input-group-prepend bg-white">
+                                                <i className="input-group-text border-0 mdi mdi-magnify"></i>
+                                              </div>
+                                              <input
+                                                type="text"
+                                                className="form-control bg-white border-0"
+                                                placeholder="Descripción"
+                                                value={recursoCadena}
+                                                onChange={({ target }) =>
+                                                  setRecursoCadena(target.value)
+                                                }
+                                              />
+                                            </div>
+                                          </form>
+                                        </div>
+                                      </Form.Group>
+                                    </div>
+
+                                    <div className="col-md-2">
+                                      <Form.Group>
+                                        <select
+                                          className="form-control col-sm-11"
+                                          onChange={({ target }) =>
+                                            setRecursoTipo(target.value)
+                                          }
+                                        >
+                                          <option
+                                            value=""
+                                            disabled
+                                            selected
+                                            hidden
+                                          >
+                                            Tipo
+                                          </option>
+                                          <option value={""}>
+                                            Todos los tipos
+                                          </option>
+                                          <option value={"0"}>Correo</option>
+                                          <option value={"1"}>
+                                            Publicación
+                                          </option>
+                                          <option value={"2"}>
+                                            Página web
+                                          </option>
+                                        </select>
+                                      </Form.Group>
+                                    </div>
+
+                                    <div className="col-md-2">
+                                      <Form.Group>
+                                        <select
+                                          className="form-control col-sm-11"
+                                          onChange={({ target }) =>
+                                            setRecursoEstado(target.value)
+                                          }
+                                        >
+                                          <option
+                                            value=""
+                                            disabled
+                                            selected
+                                            hidden
+                                          >
+                                            Estado
+                                          </option>
+                                          <option value={""}>
+                                            Todos los estados
+                                          </option>
+                                          <option value={"0"}>
+                                            No vigente
+                                          </option>
+                                          <option value={"1"}>Vigente</option>
+                                        </select>
+                                      </Form.Group>
+                                    </div>
+
+                                    <div className="col-md-1">
+                                      <Form.Group>
+                                        <button
+                                          type="button"
+                                          className="btn btn-primary"
+                                          onClick={buscarRecursos}
+                                        >
+                                          Buscar
+                                        </button>
+                                      </Form.Group>
+                                    </div>
+                                  </div>
+                                  <div className="row">
+                                    <div className="col-md-12">
+                                      <Form.Group>
+                                        {mostrarCargaRecursos && (
+                                          <div className="row h-100">
+                                            <div className="col-sm-12 my-auto">
+                                              <div className="circle-loader"></div>
+                                            </div>
+                                          </div>
+                                        )}
+                                        {mostrarTablaRecursos && (
+                                          <div className="table-responsive">
+                                            <table className="table">
+                                              <thead>
+                                                <tr>
+                                                  <th>Descripción</th>
+                                                  <th>Tipo</th>
+                                                  <th>Estado</th>
+                                                  <th></th>
+                                                </tr>
+                                              </thead>
+                                              <tbody>
+                                                {recursosBusqueda.map(
+                                                  (recurso) => (
+                                                    <tr key={recurso["id"]}>
+                                                      <td>
+                                                        {recurso["descripcion"]}
+                                                      </td>
+                                                      <td>{recurso["tipo"]}</td>
+                                                      <td>
+                                                        {recurso["estado"]}
+                                                      </td>
+                                                      <td>
+                                                        <button
+                                                          style={{
+                                                            marginLeft: "auto",
+                                                          }}
+                                                          type="button"
+                                                        >
+                                                          <i
+                                                            className="mdi mdi-plus"
+                                                            style={{
+                                                              color: "black",
+                                                            }}
+                                                            onClick={handleAgregarRecursos(
+                                                              recurso["id"],
+                                                              recurso[
+                                                                "descripcion"
+                                                              ],
+                                                              recurso["tipo"],
+                                                              recurso["estado"]
+                                                            )}
+                                                          ></i>
+                                                        </button>
+                                                      </td>
+                                                    </tr>
+                                                  )
+                                                )}
+                                              </tbody>
+                                            </table>
+                                          </div>
+                                        )}
+                                      </Form.Group>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </Tab>
+                          )}
+                          {tipo == "1" && (
+                            <Tab eventKey="Participantes" title="Participantes">
+                              <div className="row">
+                                <div className="col-md-12">
+                                  <Form.Group>
+                                    <label className="col-sm-7 col-form-label">
+                                      Participantes
+                                    </label>
+                                    <button
+                                      type="button"
+                                      className="btn btn-link float-sm-right"
+                                      onClick={() =>
+                                        setMostrarBuscarParticipantes(
+                                          !mostrarBuscarParticipantes
+                                        )
+                                      }
+                                    >
+                                      Buscar participantes
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className="btn btn-link float-sm-right"
+                                      onClick={asignarTargetParticipantes}
+                                    >
+                                      Agregar desde target
+                                    </button>
+                                  </Form.Group>
+                                  {contactos.length == 0 ? (
+                                    <Form.Group>
+                                      <label className="col-sm-12 col-form-label">
+                                        No se han registrado participantes
+                                      </label>
+                                    </Form.Group>
+                                  ) : (
+                                    <Form.Group>
+                                      <div className="table-responsive">
+                                        <table className="table">
+                                          <thead>
+                                            <tr>
+                                              <th>Nombre completo</th>
+                                              <th>Estado</th>
+                                              <th>Correo</th>
+                                              <th>Empresa</th>
+                                              <th></th>
+                                            </tr>
+                                          </thead>
+                                          <tbody>
+                                            {contactos.map((contacto) => (
+                                              <tr key={contacto["id"]}>
+                                                <td>
+                                                  {
+                                                    contacto[
+                                                      "persona__nombreCompleto"
+                                                    ]
+                                                  }
+                                                </td>
+                                                <td>{contacto["estado"]}</td>
+                                                <td>{contacto["correo"]}</td>
+                                                <td>{contacto["empresa"]}</td>
+                                                <td>
+                                                  <button
+                                                    style={{
+                                                      marginLeft: "auto",
+                                                    }}
+                                                    type="button"
+                                                  >
+                                                    <i
+                                                      className="mdi mdi-delete"
+                                                      style={{ color: "black" }}
+                                                      onClick={handleEliminarContactos(
+                                                        contacto["id"]
+                                                      )}
+                                                    ></i>
+                                                  </button>
+                                                </td>
+                                              </tr>
+                                            ))}
+                                          </tbody>
+                                        </table>
+                                      </div>
+                                    </Form.Group>
+                                  )}
+                                </div>
+                              </div>
+                              {mostrarBuscarParticipantes && (
+                                <div>
+                                  <div className="row">
+                                    <div className="col-md-11">
+                                      <Form.Group>
+                                        <div className="search-field col-sm-12">
+                                          <form
+                                            className="d-flex align-items-center h-100"
+                                            onSubmit={buscarContactosCadena}
+                                          >
+                                            <div className="input-group">
+                                              <div className="input-group-prepend bg-white">
+                                                <i className="input-group-text border-0 mdi mdi-magnify"></i>
+                                              </div>
+                                              <input
+                                                type="text"
+                                                className="form-control bg-white border-0"
+                                                placeholder="Nombres, apellidos o correo"
+                                                value={cadenaBuscarContacto}
+                                                onChange={({ target }) =>
+                                                  setCadenaBuscarContacto(
+                                                    target.value
+                                                  )
+                                                }
+                                              />
+                                            </div>
+                                          </form>
+                                        </div>
+                                      </Form.Group>
+                                    </div>
+
+                                    <div className="col-md-1">
+                                      <Form.Group>
+                                        <button
+                                          type="button"
+                                          className="btn btn-primary"
+                                          onClick={buscarContactos}
+                                        >
+                                          Buscar
+                                        </button>
+                                      </Form.Group>
+                                    </div>
+                                  </div>
+                                  <div className="row">
+                                    <div className="col-md-12">
+                                      <Form.Group>
+                                        {mostrarCargaContactos && (
+                                          <div className="row h-100">
+                                            <div className="col-sm-12 my-auto">
+                                              <div className="circle-loader"></div>
+                                            </div>
+                                          </div>
+                                        )}
+                                        {mostrarTablaContactos && (
+                                          <div className="table-responsive">
+                                            <table className="table">
+                                              <thead>
+                                                <tr>
+                                                  <th>Nombre completo</th>
+                                                  <th>Estado</th>
+                                                  <th>Correo</th>
+                                                  <th>Empresa</th>
+                                                  <th></th>
+                                                </tr>
+                                              </thead>
+                                              <tbody>
+                                                {contactosBusqueda.map(
+                                                  (contacto) => (
+                                                    <tr key={contacto["id"]}>
+                                                      <td>
+                                                        {
+                                                          contacto[
+                                                            "persona__nombreCompleto"
+                                                          ]
+                                                        }
+                                                      </td>
+                                                      <td>
+                                                        {contacto["estado"]}
+                                                      </td>
+                                                      <td>
+                                                        {contacto["correo"]}
+                                                      </td>
+                                                      <td>
+                                                        {contacto["empresa"]}
+                                                      </td>
+                                                      <td>
+                                                        <button
+                                                          style={{
+                                                            marginLeft: "auto",
+                                                          }}
+                                                          type="button"
+                                                        >
+                                                          <i
+                                                            className="mdi mdi-plus"
+                                                            style={{
+                                                              color: "black",
+                                                            }}
+                                                            onClick={handleAgregarContactos(
+                                                              contacto
+                                                            )}
+                                                          ></i>
+                                                        </button>
+                                                      </td>
+                                                    </tr>
+                                                  )
+                                                )}
+                                              </tbody>
+                                            </table>
+                                          </div>
+                                        )}
+                                      </Form.Group>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
                             </Tab>
                           )}
                         </Tabs>
@@ -1387,6 +2056,71 @@ const CrearEstrategia = () => {
 
               <button className="btn btn-primary" onClick={guardarEstrategia}>
                 Guardar
+              </button>
+            </Modal.Footer>
+          </Modal>
+          <Modal
+            show={mostrarListaDetalle}
+            onHide={() => setMostrarListaDetalle(false)}
+          >
+            <Modal.Header closeButton>
+              <Modal.Title>
+                <h4 className="card-title" style={{ color: "#000000" }}>
+                  Detalle de lista
+                </h4>
+              </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <div className="row">
+                <div className="col-md-12">
+                  <Form.Group className="row">
+                    <label className="col-sm-8 col-form-label">
+                      Detalle de lista
+                    </label>
+                    <div className="col-sm-4">
+                      <button
+                        type="button"
+                        className="btn btn-link float-sm-right"
+                        onClick={handleAsignarLista}
+                      >
+                        Asignar lista
+                      </button>
+                    </div>
+                  </Form.Group>
+                </div>
+              </div>
+
+              <div className="row">
+                <div className="table-responsive">
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <th>Nombre completo</th>
+                        <th>Estado</th>
+                        <th>Correo</th>
+                        <th>Empresa</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {listaElementosBusqueda.map((elemento) => (
+                        <tr key={elemento["id"]}>
+                          <td>{elemento["persona__nombreCompleto"]}</td>
+                          <td>{elemento["estado"]}</td>
+                          <td>{elemento["correo"]}</td>
+                          <td>{elemento["empresa"]}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </Modal.Body>
+            <Modal.Footer>
+              <button
+                className="btn btn-outline-primary"
+                onClick={() => setMostrarListaDetalle(false)}
+              >
+                Cancelar
               </button>
             </Modal.Footer>
           </Modal>

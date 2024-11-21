@@ -40,6 +40,8 @@ const CrearCampana= lazy(() => import("./pages-marketing/CrearCampana"));
 const CrearRecurso= lazy(() => import("./pages-marketing/CrearRecurso"));
 const CrearFlujo= lazy(() => import("./pages-marketing/CrearFlujo"));
 const CrearOportunidad= lazy(() => import("./pages-marketing/CrearOportunidad"));
+const CrearReporte = lazy(() => import("./pages-marketing/CrearReporte"));
+const CrearDashboard = lazy(() => import("./pages-marketing/CrearDashboard"));
 
 const DetalleIndicador= lazy(() => import("./pages-marketing/DetalleIndicador"));
 const DetallePlan= lazy(() => import("./pages-marketing/DetallePlan"));
@@ -90,6 +92,8 @@ const AppRoutes = () => {
     <Suspense fallback={<Spinner />}>
       <Switch>
         <Route path="/iniciarSesion" component={IniciarSesion} />
+
+
         
         <Route path="/dashboard" component={Dashboard} />
 
@@ -139,6 +143,9 @@ const AppRoutes = () => {
         <Route path="/detalleOportunidad" component={DetalleOportunidad} />
 
         <Route path="/informes" component={Informes} />
+
+        <Route path="/crearReporte" component={CrearReporte} />
+        <Route path="/crearDashboard" component={CrearDashboard} />
 
         <Route path="/eventos" component={Eventos} />
 

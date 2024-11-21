@@ -149,7 +149,7 @@ const Flujos = () => {
 
   const handleClose = () => setShow(false);
 
-  const handleEliminarFlujos = (id) => () => {
+  const handleEliminarFlujos = (id) => {
     setFlujos((prev) => prev.filter((el) => el.id !== id));
     //console.log(event.target.value);
   };
@@ -160,7 +160,7 @@ const Flujos = () => {
       .then((res) => res.data)
       .then((data) => {
         console.log(data);
-        //handleEliminarContactos(contactoEliminar);
+        handleEliminarFlujos(flujoEliminar);
         setShow(false);
       })
       .catch((err) => alert(err));

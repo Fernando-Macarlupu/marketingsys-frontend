@@ -128,7 +128,7 @@ const Estrategias = () => {
     }
   };
 
-  const handleEliminarEstrategias = (id) => () => {
+  const handleEliminarEstrategias = (id) => {
     setEstrategias((prev) => prev.filter((el) => el.id !== id));
     //console.log(event.target.value);
   };
@@ -140,7 +140,7 @@ const Estrategias = () => {
         .then((res) => res.data)
         .then((data) => {
           console.log(data);
-          //handleEliminarEmpresas(empresaEliminar);
+          handleEliminarEstrategias(estrategiaEliminar);
           setShow(false);
         })
         .catch((err) => alert(err));

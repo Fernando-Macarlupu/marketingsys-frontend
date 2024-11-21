@@ -28,7 +28,7 @@ const Register = () => {
       nombreUsuario: nombreUsuario,
       contrasena: contrasena,
       redes: [],
-      correos: [{servicio: "", direccion: correo}],
+      correos: [{servicio: "", direccion: correo, contrasena: ""}],
       esAdministrador: true,
       foto: "",
       rol: "",

@@ -11,6 +11,8 @@ const Listas = () => {
   const [show, setShow] = useState(false);
   const [mostrarTabla, setMostrarTabla] = useState(false);
   const [mostrarCarga, setMostrarCarga] = useState(false);
+  const [objeto, setObjeto] = useState("");
+  const [tipo, setTipo] = useState("");
 
   const [usuarioLogueado, setUsuarioLogueado] = useState({});
   const [startDateCreate, setStartDateCreate] = useState(new Date());
@@ -103,6 +105,8 @@ const Listas = () => {
     api
       .post("filtrarListas", {
         cadena: cadena,
+        objeto: objeto,
+        tipo: tipo,
         fechaCreacionIni: fechaCreacionIni,
         fechaCreacionFin: fechaCreacionFin,
         fechaModificacionIni: fechaModificacionIni,
@@ -149,7 +153,7 @@ const Listas = () => {
 
   const handleClose = () => setShow(false);
 
-  const handleEliminarListas = (id) => () => {
+  const handleEliminarListas = (id) => {
     setListas((prev) => prev.filter((el) => el.id !== id));
     //console.log(event.target.value);
   };
@@ -160,7 +164,7 @@ const Listas = () => {
       .then((res) => res.data)
       .then((data) => {
         console.log(data);
-        //handleEliminarContactos(contactoEliminar);
+        handleEliminarListas(listaEliminar);
         setShow(false);
       })
       .catch((err) => alert(err));
@@ -313,10 +317,11 @@ const Listas = () => {
             <Form.Group className="row">
               <select
                 className="form-control col-sm-10"
-                //onChange={handleChangeTipo}
+                onChange={({ target }) =>
+                  setObjeto(target.value)}
               >
                 <option value="" disabled selected hidden>
-                  Ojbeto de lista
+                  Objeto de lista
                 </option>
                 <option value={""}>Todos los objetos</option>
                 <option value={"0"}>Contacto</option>
@@ -328,7 +333,8 @@ const Listas = () => {
             <Form.Group className="row">
               <select
                 className="form-control col-sm-10"
-                //onChange={handleChangeTipo}
+                onChange={({ target }) =>
+                  setTipo(target.value)}
               >
                 <option value="" disabled selected hidden>
                   Tipo de lista

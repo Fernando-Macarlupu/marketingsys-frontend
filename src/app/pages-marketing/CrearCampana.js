@@ -10,6 +10,11 @@ const CrearCampana = () => {
   const [show, setShow] = useState(false);
   const [mostrarCargaDatos, setMostrarCargaDatos] = useState(false);
   const [mostrarDatos, setMostrarDatos] = useState(true);
+  const [mostrarListaDetalle, setMostrarListaDetalle] = useState(false);
+  const [mostrarBuscarListas, setMostrarBuscarListas] = useState(false);
+
+  const [mostrarBuscarIndicadores, setMostrarBuscarIndicadores] =
+    useState(false);
 
   const [mostrarTablaIndicadores, setMostrarTablaIndicadores] = useState(false);
   const [mostrarCargaIndicadores, setMostrarCargaIndicadores] = useState(false);
@@ -47,13 +52,16 @@ const CrearCampana = () => {
   const [estrategiaEstado, setEstrategiaEstado] = useState("");
   const [estrategias, setEstrategias] = useState([]);
 
-  const [campanaCadena, setCampanaCadena] = useState("");
-  const [campanaTipo, setCampanaTipo] = useState("0");
-  const [campanaEstado, setCampanaEstado] = useState("");
-  const [campanas, setCampanas] = useState([]);
-  const [campanasBusqueda, setCampanasBusqueda] = useState([]);
-  const [mostrarTablaCampanas, setMostrarTablaCampanas] = useState(false);
-  const [mostrarCargaCampanas, setMostrarCargaCampanas] = useState(false);
+  const [listaCadena, setListaCadena] = useState("");
+  const [listaId, setListaId] = useState(0);
+  const [listaFiltros, setListaFiltros] = useState([]);
+  const [listaFiltrosBusqueda, setListaFiltrosBusqueda] = useState([]);
+  const [listaElementos, setListaElementos] = useState([]);
+  const [listaIdBusqueda, setListaIdBusqueda] = useState(0);
+  const [listaElementosBusqueda, setListaElementosBusqueda] = useState([]);
+  const [listasBusqueda, setListasBusqueda] = useState([]);
+  const [mostrarTablaListas, setMostrarTablaListas] = useState(false);
+  const [mostrarCargaListas, setMostrarCargaListas] = useState(false);
 
   const [recursoCadena, setRecursoCadena] = useState("");
   const [recursoTipo, setRecursoTipo] = useState("");
@@ -62,6 +70,14 @@ const CrearCampana = () => {
   const [recursosBusqueda, setRecursosBusqueda] = useState([]);
   const [mostrarTablaRecursos, setMostrarTablaRecursos] = useState(false);
   const [mostrarCargaRecursos, setMostrarCargaRecursos] = useState(false);
+
+  const [contactos, setContactos] = useState([]);
+  const [cadenaBuscarContacto, setCadenaBuscarContacto] = useState("");
+  const [contactosBusqueda, setContactosBusqueda] = useState([]);
+  const [mostrarTablaContactos, setMostrarTablaContactos] = useState(false);
+  const [mostrarCargaContactos, setMostrarCargaContactos] = useState(false);
+  const [mostrarBuscarParticipantes, setMostrarBuscarParticipantes] =
+    useState(false);
 
   const [usuarioLogueado, setUsuarioLogueado] = useState({});
 
@@ -170,8 +186,122 @@ const CrearCampana = () => {
     //console.log(event.target.value);
   };
 
+  const buscarListas = () => {
+    //console.log("esto es la cadena")
+    setMostrarTablaListas(false);
+    setMostrarCargaListas(true);
+    api
+      .post("filtrarListas", {
+        cadena: listaCadena,
+        tipo: "",
+        objeto: "0",
+        fechaCreacionIni: "",
+        fechaCreacionFin: "",
+        fechaModificacionIni: "",
+        fechaModificacionFin: "",
+        propietario: usuarioLogueado["idCuenta"],
+      })
+      .then((res) => res.data)
+      .then((data) => {
+        console.log(data);
+        setListasBusqueda(data);
+        setMostrarCargaListas(false);
+        setMostrarTablaListas(true);
+      })
+      .catch((err) => alert(err));
+  };
+
+  const buscarListasCadena = (event) => {
+    event.preventDefault();
+    buscarListas();
+  };
+
+  const handleAsignarLista = () => {
+    setListaId(listaIdBusqueda);
+    setListaFiltros(listaFiltrosBusqueda);
+    setListaElementos(listaElementosBusqueda);
+    setMostrarListaDetalle(false);
+  };
+
+  const asignarTargetParticipantes = () => {
+    const contactosLista = [];
+    const idsParticipantes = [];
+    for (let index = 0; index < contactos.length; index++) {
+      const element = contactos[index];
+      idsParticipantes.push(element["id"]);
+      contactosLista.push(element);
+    }
+    for (let index = 0; index < listaElementos.length; index++) {
+      const element = listaElementos[index];
+      if (!idsParticipantes.includes(element["id"])) {
+        contactosLista.push(element);
+      }
+    }
+    setContactos(contactosLista);
+  };
+
+  const handleVerDetalleLista = (id) => () => {
+    console.log("hizo el ver detalle");
+    api
+      .get(`detalleLista/${id}`)
+      .then((res) => res.data)
+      .then((data) => {
+        console.log("finalizo el ver detalle");
+        console.log(data);
+        setListaIdBusqueda(id);
+        setListaFiltrosBusqueda(data["filtros"]);
+        setListaElementosBusqueda(data["elementos"]);
+        setMostrarListaDetalle(true);
+      })
+      .catch((err) => alert(err));
+  };
+
+  const handleEliminarLeads = (id) => () => {
+    console.log("se va a eliminar");
+    setListaElementos((prev) => prev.filter((el) => el.id !== id));
+    //console.log(event.target.value);
+  };
+
+  const mostrarFiltros = (propiedad, evaluacion, valorEvaluacion, nombre) => {
+    let respuesta = "";
+    respuesta += nombre + " - ";
+    if (evaluacion == "0") respuesta += "Igual - ";
+    else if (evaluacion == "1") respuesta += "Menor - ";
+    else if (evaluacion == "2") respuesta += "Mayor - ";
+    else if (evaluacion == "3") respuesta += "Menor o igual - ";
+    else if (evaluacion == "4") respuesta += "Mayor o igual - ";
+    else if (evaluacion == "5") respuesta += "Contiene - ";
+
+    if (
+      propiedad == "calificado" ||
+      propiedad == "empresa" ||
+      propiedad == "contacto"
+    ) {
+      if (valorEvaluacion == "0") respuesta += "No";
+      else respuesta += "Sí";
+    } else if (propiedad == "estado") {
+      if (valorEvaluacion == "0") respuesta += "Suscriptor";
+      else if (valorEvaluacion == "1") respuesta += "Lead";
+      else if (valorEvaluacion == "2") respuesta += "Oportunidad";
+      else if (valorEvaluacion == "3") respuesta += "Cliente";
+    } else if (propiedad == "tipo") {
+      if (valorEvaluacion == "0") respuesta += "Cliente potencial";
+      else if (valorEvaluacion == "1") respuesta += "Socio";
+      else if (valorEvaluacion == "2") respuesta += "Revendedor";
+      else if (valorEvaluacion == "3") respuesta += "Proveedor";
+    } else if (propiedad == "servicioRed") {
+      if (valorEvaluacion == "0") respuesta += "Facebook";
+      else if (valorEvaluacion == "1") respuesta += "Linkedin";
+      else if (valorEvaluacion == "2") respuesta += "Instagram";
+    } else {
+      respuesta += valorEvaluacion;
+    }
+    return respuesta;
+    //console.log(event.target.value);
+  };
+
   const handleAgregarIndicadores =
-    (id, nombre, aspecto, tipo, automatizacion) => () => {
+    (id, nombre, aspecto, tipo, calculoAutomatico) => () => {
       for (let index = 0; index < indicadores.length; index++) {
         const element = indicadores[index];
         if (element["id"] == id) return;
@@ -183,36 +313,25 @@ const CrearCampana = () => {
           nombre: nombre,
           aspecto: aspecto,
           tipo: tipo,
-          automatizacion: automatizacion,
+          calculoAutomatico: calculoAutomatico,
+          valor: 0.0,
         },
       ]);
     };
 
+  const handleValorIndicadores = (event, id) => () => {
+    const indicadoresLista = [];
+    for (let index = 0; index < indicadores.length; index++) {
+      const element = indicadores[index];
+      if (element["id"] == id) element["valor"] = event.target.value;
+      indicadoresLista.push(element);
+    }
+    setIndicadores(indicadoresLista);
+  };
+
   const handleEliminarIndicadores = (id) => () => {
     console.log("se va a eliminar");
     setIndicadores((prev) => prev.filter((el) => el.id !== id));
-    //console.log(event.target.value);
-  };
-
-  const handleAgregarCampanas = (id, descripcion, tipo, estado) => () => {
-    for (let index = 0; index < campanas.length; index++) {
-      const element = campanas[index];
-      if (element["id"] == id) return;
-    }
-    setCampanas([
-      ...campanas,
-      {
-        id: id,
-        descripcion: descripcion,
-        tipo: tipo,
-        estado: estado,
-      },
-    ]);
-  };
-
-  const handleEliminarCampanas = (id) => () => {
-    console.log("se va a eliminar");
-    setCampanas((prev) => prev.filter((el) => el.id !== id));
     //console.log(event.target.value);
   };
 
@@ -235,28 +354,6 @@ const CrearCampana = () => {
   const handleEliminarRecursos = (id) => () => {
     console.log("se va a eliminar");
     setRecursos((prev) => prev.filter((el) => el.id !== id));
-    //console.log(event.target.value);
-  };
-
-  const handleAgregarEstrategias = (id, descripcion, tipo, estado) => () => {
-    for (let index = 0; index < estrategias.length; index++) {
-      const element = estrategias[index];
-      if (element["id"] == id) return;
-    }
-    setEstrategias([
-      ...estrategias,
-      {
-        id: id,
-        descripcion: descripcion,
-        tipo: tipo,
-        estado: estado,
-      },
-    ]);
-  };
-
-  const handleEliminarEstrategias = (id) => () => {
-    console.log("se va a eliminar");
-    setEstrategias((prev) => prev.filter((el) => el.id !== id));
     //console.log(event.target.value);
   };
 
@@ -309,44 +406,6 @@ const CrearCampana = () => {
   const buscarIndicadoresCadena = (event) => {
     event.preventDefault();
     buscarIndicadores();
-  };
-
-  const buscarCampanas = () => {
-    //console.log("esto es la cadena")
-    let fechaHoy = "",
-      fecha = new Date();
-
-    fechaHoy =
-      fecha.getDate() +
-      "-" +
-      parseInt(fecha.getMonth() + 1) +
-      "-" +
-      fecha.getFullYear();
-    setMostrarTablaCampanas(false);
-    setMostrarCargaCampanas(true);
-    api
-      .post("filtrarCampanas", {
-        cadena: campanaCadena,
-        tipo: campanaTipo,
-        estado: campanaEstado,
-        fechaHoy: fechaHoy,
-        fechaVigenciaIni: "",
-        fechaVigenciaFin: "",
-        propietario: usuarioLogueado["idCuenta"],
-      })
-      .then((res) => res.data)
-      .then((data) => {
-        console.log(data);
-        setCampanasBusqueda(data);
-        setMostrarCargaCampanas(false);
-        setMostrarTablaCampanas(true);
-      })
-      .catch((err) => alert(err));
-  };
-
-  const buscarCampanasCadena = (event) => {
-    event.preventDefault();
-    buscarCampanas();
   };
 
   const buscarRecursos = () => {
@@ -409,7 +468,7 @@ const CrearCampana = () => {
     }
 
     let cuerpo = {
-        idCampana: 0,
+      idCampana: 0,
       idEstrategia: estrategia.id,
       idPlan: plan.id,
       tipo: tipo, //0: de programa, 1: stand-alone
@@ -424,6 +483,7 @@ const CrearCampana = () => {
       estrategias: estrategias,
       leads: 0,
       contactos: [],
+      recursos: recursos,
     };
     console.log("cuerpo a subir");
     console.log(cuerpo);
@@ -497,6 +557,47 @@ const CrearCampana = () => {
       setOpcionesTipoVariable(recursoOpciones);
   };
 
+  const buscarContactos = () => {
+    setMostrarTablaContactos(false);
+    setMostrarCargaContactos(true);
+    api
+      .post("filtrarContactos", {
+        cadena: cadenaBuscarContacto,
+        estado: "",
+        fechaCreacionIni: "",
+        fechaCreacionFin: "",
+        fechaModificacionIni: "",
+        fechaModificacionFin: "",
+        propietario: usuarioLogueado["idCuenta"],
+      })
+      .then((res) => res.data)
+      .then((data) => {
+        console.log(data);
+        setContactosBusqueda(data);
+        setMostrarCargaContactos(false);
+        setMostrarTablaContactos(true);
+      })
+      .catch((err) => alert(err));
+  };
+
+  const buscarContactosCadena = (event) => {
+    event.preventDefault();
+    buscarContactos();
+  };
+
+  const handleAgregarContactos = (contacto) => () => {
+    for (let index = 0; index < contactos.length; index++) {
+      const element = contactos[index];
+      if (element["id"] == contacto["id"]) return;
+    }
+    setContactos([...contactos, contacto]);
+  };
+
+  const handleEliminarContactos = (id) => () => {
+    setContactos((prev) => prev.filter((el) => el.id !== id));
+    //console.log(event.target.value);
+  };
+
   return (
     <>
       {mostrarCargaDatos && (
@@ -553,15 +654,16 @@ const CrearCampana = () => {
                               Tipo
                             </label>
                             <div className="col-sm-12">
-                            <select
-                              className="form-control"
-                              onChange={handleChangeTipoEstrategia}
-                            >
-                              <option value={"0"} selected>
-                                Campaña de programa
-                              </option>
-                              <option value={"1"}>Campaña stand-alone</option>
-                            </select></div>
+                              <select
+                                className="form-control"
+                                onChange={handleChangeTipoEstrategia}
+                              >
+                                <option value={"0"} selected>
+                                  Campaña de programa
+                                </option>
+                                <option value={"1"}>Campaña stand-alone</option>
+                              </select>
+                            </div>
                           </Form.Group>
                         </div>
                         <div className="col-md-6">
@@ -684,46 +786,94 @@ const CrearCampana = () => {
                               )}
                             </Form.Group>
                           )}
+
+                          {mostrarBuscarPlanes && (
+                            <Form.Group className="row">
+                              <div className="col-sm-12">
+                                <div className="table-responsive">
+                                  {mostrarTablaPlanes && (
+                                    <table className="table">
+                                      <thead>
+                                        <tr>
+                                          <th>Descripción</th>
+                                          <th>Estado</th>
+                                          <th></th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {planesBusqueda.map((estrategia) => (
+                                          <tr key={estrategia["id"]}>
+                                            <td>{estrategia["descripcion"]}</td>
+                                            <td>{estrategia["estado"]}</td>
+                                            <td>
+                                              <button
+                                                type="button"
+                                                onClick={handleAsignarPlan(
+                                                  estrategia["id"],
+                                                  estrategia["descripcion"],
+                                                  estrategia["estado"]
+                                                )}
+                                              >
+                                                <i
+                                                  className="mdi mdi-plus"
+                                                  style={{ color: "black" }}
+                                                ></i>
+                                              </button>
+                                            </td>
+                                          </tr>
+                                        ))}
+                                      </tbody>
+                                    </table>
+                                  )}
+                                </div>
+                              </div>
+                            </Form.Group>
+                          )}
+
                           {mostrarBuscarEstrategias && (
                             <Form.Group className="row">
                               <div className="col-sm-12">
                                 <div className="table-responsive">
                                   {mostrarTablaEstrategias && (
                                     <table className="table">
-                                    <thead>
-                                      <tr>
-                                        <th>Descripción</th>
-                                        <th>Tipo</th>
-                                        <th>Estado</th>
-                                        <th></th>
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      {estrategiasBusqueda.map((estrategia) => (
-                                        <tr key={estrategia["id"]}>
-                                          <td>{estrategia["descripcion"]}</td>
-                                          <td>{estrategia["tipo"]}</td>
-                                          <td>{estrategia["estado"]}</td>
-                                          <td>
-                                            <button
-                                              type="button"
-                                              onClick={handleAsignarEstrategia(
-                                                estrategia["id"],
-                                                estrategia["descripcion"],
-                                                estrategia["tipo"],
-                                                estrategia["estado"]
-                                              )}
-                                            >
-                                              <i
-                                                className="mdi mdi-plus"
-                                                style={{ color: "black" }}
-                                              ></i>
-                                            </button>
-                                          </td>
+                                      <thead>
+                                        <tr>
+                                          <th>Descripción</th>
+                                          <th>Tipo</th>
+                                          <th>Estado</th>
+                                          <th></th>
                                         </tr>
-                                      ))}
-                                    </tbody>
-                                  </table>
+                                      </thead>
+                                      <tbody>
+                                        {estrategiasBusqueda.map(
+                                          (estrategia) => (
+                                            <tr key={estrategia["id"]}>
+                                              <td>
+                                                {estrategia["descripcion"]}
+                                              </td>
+                                              <td>{estrategia["tipo"]}</td>
+                                              <td>{estrategia["estado"]}</td>
+                                              <td>
+                                                <button
+                                                  type="button"
+                                                  onClick={handleAsignarEstrategia(
+                                                    estrategia["id"],
+                                                    estrategia["descripcion"],
+                                                    estrategia["tipo"],
+                                                    estrategia["estado"]
+                                                  )}
+                                                >
+                                                  <i
+                                                    className="mdi mdi-plus"
+                                                    style={{ color: "black" }}
+                                                  ></i>
+                                                </button>
+                                              </td>
+                                            </tr>
+                                          )
+                                        )}
+                                      </tbody>
+                                    </table>
                                   )}
                                 </div>
                               </div>
@@ -803,6 +953,221 @@ const CrearCampana = () => {
                           </Form.Group>
                         </div>
                       </div>
+
+                      <div className="row">
+                        <div className="col-md-12">
+                          <Form.Group>
+                            <label className="col-sm-7 col-form-label">
+                              Target
+                            </label>
+                            <button
+                              type="button"
+                              className="btn btn-link float-sm-right"
+                              onClick={() =>
+                                setMostrarBuscarListas(!mostrarBuscarListas)
+                              }
+                            >
+                              Buscar listas
+                            </button>
+                          </Form.Group>
+                        </div>
+                      </div>
+
+                      <div className="row">
+                        <div className="col-md-12">
+                          {listaFiltros.length == 0 ? (
+                            ""
+                          ) : (
+                            <Form.Group>
+                              <label className="col-sm-12 col-form-label">
+                                Filtros
+                              </label>
+                              {listaFiltros.map(
+                                ({
+                                  propiedad,
+                                  evaluacion,
+                                  valorEvaluacion,
+                                  nombre,
+                                }) => (
+                                  <div
+                                    className="row"
+                                    key={
+                                      propiedad + evaluacion + valorEvaluacion
+                                    }
+                                  >
+                                    <div className="col-md-12">
+                                      <Form.Group>
+                                        <label
+                                          className="col-sm-12"
+                                          style={{ display: "flex" }}
+                                        >
+                                          {mostrarFiltros(
+                                            propiedad,
+                                            evaluacion,
+                                            valorEvaluacion,
+                                            nombre
+                                          )}
+                                        </label>
+                                      </Form.Group>
+                                    </div>
+                                  </div>
+                                )
+                              )}
+                            </Form.Group>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="row">
+                        <div className="col-md-12">
+                          {listaElementos.length == 0 ? (
+                            <Form.Group>
+                              <label className="col-sm-12 col-form-label">
+                                No se han registrado targets
+                              </label>
+                            </Form.Group>
+                          ) : (
+                            <Form.Group>
+                              <div className="table-responsive">
+                                <table className="table">
+                                  <thead>
+                                    <tr>
+                                      <th>Nombre completo</th>
+                                      <th>Estado</th>
+                                      <th>Correo</th>
+                                      <th>Empresa</th>
+                                      <th></th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {listaElementos.map((elemento) => (
+                                      <tr key={elemento["id"]}>
+                                        <td>
+                                          {elemento["persona__nombreCompleto"]}
+                                        </td>
+                                        <td>{elemento["estado"]}</td>
+                                        <td>{elemento["correo"]}</td>
+                                        <td>{elemento["empresa"]}</td>
+                                        <td>
+                                          <button
+                                            style={{ marginLeft: "auto" }}
+                                            type="button"
+                                          >
+                                            <i
+                                              className="mdi mdi-delete"
+                                              style={{ color: "black" }}
+                                              onClick={handleEliminarLeads(
+                                                elemento["id"]
+                                              )}
+                                            ></i>
+                                          </button>
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </Form.Group>
+                          )}
+                        </div>
+                      </div>
+
+                      {mostrarBuscarListas && (
+                        <div>
+                          <div className="row">
+                            <div className="col-md-11">
+                              <Form.Group>
+                                <div className="search-field col-sm-8">
+                                  <form
+                                    className="d-flex align-items-center h-100"
+                                    onSubmit={buscarListasCadena}
+                                  >
+                                    <div className="input-group">
+                                      <div className="input-group-prepend bg-white">
+                                        <i className="input-group-text border-0 mdi mdi-magnify"></i>
+                                      </div>
+                                      <input
+                                        type="text"
+                                        className="form-control bg-white border-0"
+                                        placeholder="Nombre"
+                                        value={listaCadena}
+                                        onChange={({ target }) =>
+                                          setListaCadena(target.value)
+                                        }
+                                      />
+                                    </div>
+                                  </form>
+                                </div>
+                              </Form.Group>
+                            </div>
+
+                            <div className="col-md-1">
+                              <Form.Group>
+                                <button
+                                  type="button"
+                                  className="btn btn-primary"
+                                  onClick={buscarListas}
+                                >
+                                  Buscar
+                                </button>
+                              </Form.Group>
+                            </div>
+                          </div>
+                          <div className="row">
+                            <div className="col-md-12">
+                              <Form.Group>
+                                {mostrarCargaListas && (
+                                  <div className="row h-100">
+                                    <div className="col-sm-12 my-auto">
+                                      <div className="circle-loader"></div>
+                                    </div>
+                                  </div>
+                                )}
+                                {mostrarTablaListas && (
+                                  <div className="table-responsive">
+                                    <table className="table">
+                                      <thead>
+                                        <tr>
+                                          <th>Nombre</th>
+                                          <th>Objeto</th>
+                                          <th>Tipo</th>
+                                          <th></th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {listasBusqueda.map((lista) => (
+                                          <tr key={lista["id"]}>
+                                            <td>{lista["nombre"]}</td>
+                                            <td>{lista["objeto"]}</td>
+                                            <td>{lista["tipo"]}</td>
+                                            <td>
+                                              <button
+                                                style={{
+                                                  marginLeft: "auto",
+                                                }}
+                                                type="button"
+                                              >
+                                                <i
+                                                  className="mdi mdi-eye"
+                                                  style={{ color: "black" }}
+                                                  onClick={handleVerDetalleLista(
+                                                    lista["id"]
+                                                  )}
+                                                ></i>
+                                              </button>
+                                            </td>
+                                          </tr>
+                                        ))}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                )}
+                              </Form.Group>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
                       <div className="justify-content-between align-items-center tab-transparent">
                         <Tabs defaultActiveKey="Indicadores" className="nav">
                           <Tab eventKey="Indicadores" title="Indicadores">
@@ -827,6 +1192,7 @@ const CrearCampana = () => {
                                           <th>Nombre</th>
                                           <th>Aspecto-Tipo</th>
                                           <th>Automatización</th>
+                                          <th>Valor</th>
                                           <th></th>
                                         </tr>
                                       </thead>
@@ -840,7 +1206,21 @@ const CrearCampana = () => {
                                                 indicador["tipo"]}
                                             </td>
                                             <td>
-                                              {indicador["automatizacion"]}
+                                              {indicador["calculoAutomatico"]}
+                                            </td>
+                                            <td>
+                                              <input
+                                                type={"number"}
+                                                placeholder="Agregar valor"
+                                                className="form-control"
+                                                onChange={(event) =>
+                                                  handleValorIndicadores(
+                                                    event,
+                                                    indicador["id"]
+                                                  )
+                                                }
+                                                value={indicador["valor"]}
+                                              />
                                             </td>
                                             <td>
                                               <button
@@ -974,7 +1354,11 @@ const CrearCampana = () => {
                                                     indicador["tipo"]}
                                                 </td>
                                                 <td>
-                                                  {indicador["automatizacion"]}
+                                                  {
+                                                    indicador[
+                                                      "calculoAutomatico"
+                                                    ]
+                                                  }
                                                 </td>
                                                 <td>
                                                   <button
@@ -985,7 +1369,7 @@ const CrearCampana = () => {
                                                       indicador["aspecto"],
                                                       indicador["tipo"],
                                                       indicador[
-                                                        "automatizacion"
+                                                        "calculoAutomatico"
                                                       ]
                                                     )}
                                                   >
@@ -1026,8 +1410,8 @@ const CrearCampana = () => {
                                       <thead>
                                         <tr>
                                           <th>Descripción</th>
-                                          <th>Estado</th>
                                           <th>Tipo</th>
+                                          <th>Estado</th>
                                           <th></th>
                                         </tr>
                                       </thead>
@@ -1174,7 +1558,7 @@ const CrearCampana = () => {
                                                   type="button"
                                                 >
                                                   <i
-                                                    className="mdi mdi-delete"
+                                                    className="mdi mdi-plus"
                                                     style={{ color: "black" }}
                                                     onClick={handleAgregarRecursos(
                                                       recurso["id"],
@@ -1194,6 +1578,203 @@ const CrearCampana = () => {
                                 </Form.Group>
                               </div>
                             </div>
+                          </Tab>
+                          <Tab eventKey="Participantes" title="Participantes">
+                            <div className="row">
+                              <div className="col-md-12">
+                                <Form.Group>
+                                  <label className="col-sm-7 col-form-label">
+                                    Participantes
+                                  </label>
+                                  <button
+                                    type="button"
+                                    className="btn btn-link float-sm-right"
+                                    onClick={() =>
+                                      setMostrarBuscarParticipantes(
+                                        !mostrarBuscarParticipantes
+                                      )
+                                    }
+                                  >
+                                    Buscar participantes
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="btn btn-link float-sm-right"
+                                    onClick={asignarTargetParticipantes}
+                                  >
+                                    Agregar desde target
+                                  </button>
+                                </Form.Group>
+                                {contactos.length == 0 ? (
+                                  <Form.Group>
+                                    <label className="col-sm-12 col-form-label">
+                                      No se han registrado participantes
+                                    </label>
+                                  </Form.Group>
+                                ) : (
+                                  <Form.Group>
+                                    <div className="table-responsive">
+                                      <table className="table">
+                                        <thead>
+                                          <tr>
+                                            <th>Nombre completo</th>
+                                            <th>Estado</th>
+                                            <th>Correo</th>
+                                            <th>Empresa</th>
+                                            <th></th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          {contactos.map((contacto) => (
+                                            <tr key={contacto["id"]}>
+                                              <td>
+                                                {
+                                                  contacto[
+                                                    "persona__nombreCompleto"
+                                                  ]
+                                                }
+                                              </td>
+                                              <td>{contacto["estado"]}</td>
+                                              <td>{contacto["correo"]}</td>
+                                              <td>{contacto["empresa"]}</td>
+                                              <td>
+                                                <button
+                                                  style={{ marginLeft: "auto" }}
+                                                  type="button"
+                                                >
+                                                  <i
+                                                    className="mdi mdi-delete"
+                                                    style={{ color: "black" }}
+                                                    onClick={handleEliminarContactos(
+                                                      contacto["id"]
+                                                    )}
+                                                  ></i>
+                                                </button>
+                                              </td>
+                                            </tr>
+                                          ))}
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                  </Form.Group>
+                                )}
+                              </div>
+                            </div>
+                            {mostrarBuscarParticipantes && (
+                              <div>
+                                <div className="row">
+                                  <div className="col-md-11">
+                                    <Form.Group>
+                                      <div className="search-field col-sm-12">
+                                        <form
+                                          className="d-flex align-items-center h-100"
+                                          onSubmit={buscarContactosCadena}
+                                        >
+                                          <div className="input-group">
+                                            <div className="input-group-prepend bg-white">
+                                              <i className="input-group-text border-0 mdi mdi-magnify"></i>
+                                            </div>
+                                            <input
+                                              type="text"
+                                              className="form-control bg-white border-0"
+                                              placeholder="Nombres, apellidos o correo"
+                                              value={cadenaBuscarContacto}
+                                              onChange={({ target }) =>
+                                                setCadenaBuscarContacto(
+                                                  target.value
+                                                )
+                                              }
+                                            />
+                                          </div>
+                                        </form>
+                                      </div>
+                                    </Form.Group>
+                                  </div>
+
+                                  <div className="col-md-1">
+                                    <Form.Group>
+                                      <button
+                                        type="button"
+                                        className="btn btn-primary"
+                                        onClick={buscarContactos}
+                                      >
+                                        Buscar
+                                      </button>
+                                    </Form.Group>
+                                  </div>
+                                </div>
+                                <div className="row">
+                                  <div className="col-md-12">
+                                    <Form.Group>
+                                      {mostrarCargaContactos && (
+                                        <div className="row h-100">
+                                          <div className="col-sm-12 my-auto">
+                                            <div className="circle-loader"></div>
+                                          </div>
+                                        </div>
+                                      )}
+                                      {mostrarTablaContactos && (
+                                        <div className="table-responsive">
+                                          <table className="table">
+                                            <thead>
+                                              <tr>
+                                                <th>Nombre completo</th>
+                                                <th>Estado</th>
+                                                <th>Correo</th>
+                                                <th>Empresa</th>
+                                                <th></th>
+                                              </tr>
+                                            </thead>
+                                            <tbody>
+                                              {contactosBusqueda.map(
+                                                (contacto) => (
+                                                  <tr key={contacto["id"]}>
+                                                    <td>
+                                                      {
+                                                        contacto[
+                                                          "persona__nombreCompleto"
+                                                        ]
+                                                      }
+                                                    </td>
+                                                    <td>
+                                                      {contacto["estado"]}
+                                                    </td>
+                                                    <td>
+                                                      {contacto["correo"]}
+                                                    </td>
+                                                    <td>
+                                                      {contacto["empresa"]}
+                                                    </td>
+                                                    <td>
+                                                      <button
+                                                        style={{
+                                                          marginLeft: "auto",
+                                                        }}
+                                                        type="button"
+                                                      >
+                                                        <i
+                                                          className="mdi mdi-plus"
+                                                          style={{
+                                                            color: "black",
+                                                          }}
+                                                          onClick={handleAgregarContactos(
+                                                            contacto
+                                                          )}
+                                                        ></i>
+                                                      </button>
+                                                    </td>
+                                                  </tr>
+                                                )
+                                              )}
+                                            </tbody>
+                                          </table>
+                                        </div>
+                                      )}
+                                    </Form.Group>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
                           </Tab>
                         </Tabs>
                       </div>
@@ -1247,6 +1828,71 @@ const CrearCampana = () => {
 
               <button className="btn btn-primary" onClick={guardarCampana}>
                 Guardar
+              </button>
+            </Modal.Footer>
+          </Modal>
+          <Modal
+            show={mostrarListaDetalle}
+            onHide={() => setMostrarListaDetalle(false)}
+          >
+            <Modal.Header closeButton>
+              <Modal.Title>
+                <h4 className="card-title" style={{ color: "#000000" }}>
+                  Detalle de lista
+                </h4>
+              </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <div className="row">
+                <div className="col-md-12">
+                  <Form.Group className="row">
+                    <label className="col-sm-8 col-form-label">
+                      Detalle de lista
+                    </label>
+                    <div className="col-sm-4">
+                      <button
+                        type="button"
+                        className="btn btn-link float-sm-right"
+                        onClick={handleAsignarLista}
+                      >
+                        Asignar lista
+                      </button>
+                    </div>
+                  </Form.Group>
+                </div>
+              </div>
+
+              <div className="row">
+                <div className="table-responsive">
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <th>Nombre completo</th>
+                        <th>Estado</th>
+                        <th>Correo</th>
+                        <th>Empresa</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {listaElementosBusqueda.map((elemento) => (
+                        <tr key={elemento["id"]}>
+                          <td>{elemento["persona__nombreCompleto"]}</td>
+                          <td>{elemento["estado"]}</td>
+                          <td>{elemento["correo"]}</td>
+                          <td>{elemento["empresa"]}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </Modal.Body>
+            <Modal.Footer>
+              <button
+                className="btn btn-outline-primary"
+                onClick={() => setMostrarListaDetalle(false)}
+              >
+                Cancelar
               </button>
             </Modal.Footer>
           </Modal>

@@ -151,7 +151,7 @@ const Indicadores = () => {
 
   const handleClose = () => setShow(false);
 
-  const handleEliminarIndicadores = (id) => () => {
+  const handleEliminarIndicadores = (id) => {
     setIndicadores((prev) => prev.filter((el) => el.id !== id));
     //console.log(event.target.value);
   };
@@ -162,7 +162,7 @@ const Indicadores = () => {
       .then((res) => res.data)
       .then((data) => {
         console.log(data);
-        //handleEliminarContactos(contactoEliminar);
+        handleEliminarIndicadores(indicadorEliminar);
         setShow(false);
       })
       .catch((err) => alert(err));

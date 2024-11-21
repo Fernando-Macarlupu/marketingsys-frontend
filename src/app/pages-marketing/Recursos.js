@@ -123,7 +123,7 @@ const Recursos = () => {
     }
   };
 
-  const handleEliminarRecursos = (id) => () => {
+  const handleEliminarRecursos = (id) => {
     setRecursos((prev) => prev.filter((el) => el.id !== id));
     //console.log(event.target.value);
   };
@@ -134,7 +134,7 @@ const Recursos = () => {
       .then((res) => res.data)
       .then((data) => {
         console.log(data);
-        //handleEliminarEmpresas(empresaEliminar);
+        handleEliminarRecursos(recursoEliminar);
         setShow(false);
       })
       .catch((err) => alert(err));

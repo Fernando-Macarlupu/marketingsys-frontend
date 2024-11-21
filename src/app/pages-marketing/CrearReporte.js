@@ -5,7 +5,7 @@ import DatePicker from "react-datepicker";
 import api from "../api";
 import bsCustomFileInput from "bs-custom-file-input";
 
-const CrearLista = () => {
+const CrearReporte = () => {
   const history = useHistory();
   const [show, setShow] = useState(false);
   const [mostrarCargaDatos, setMostrarCargaDatos] = useState(false);
@@ -22,12 +22,13 @@ const CrearLista = () => {
 
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
-  const [objeto, setObjeto] = useState("0");
+  const [columnas, setColumnas] = useState([]);
+  const [filas, setFilas] = useState([]);
+
   const [tipo, setTipo] = useState("0");
 
   const [opcionesEvaluacion, setOpcionesEvaluacion] = useState([]);
 
-  const [elementos, setElementos] = useState([]);
   const [mostrarTablaElementos, setMostrarTablaElementos] = useState(false);
   const [mostrarCargaElementos, setMostrarCargaElementos] = useState(false);
 
@@ -35,13 +36,10 @@ const CrearLista = () => {
 
   const handleClose = () => setShow(false);
   const handleShow = () => {
-    if (nombre == "") alert("Ingrese el nombre de la lista");
+    if (nombre == "") alert("Ingrese el nombre del reporte");
     else {
-      if (objeto == "") alert("Ingrese el objeto de la lista");
-      else {
-        if (tipo == "") alert("Ingrese el tipo de la lista");
-        else setShow(true);
-      }
+      if (tipo == "") alert("Ingrese el tipo del reporte");
+      else setShow(true);
     }
   };
 
@@ -55,9 +53,9 @@ const CrearLista = () => {
   const cadenasOpciones = [{ id: "5", nombre: "Contiene" }];
   const otrosOpciones = [{ id: "0", nombre: "Igual" }];
 
-  const handleChangeObjeto = (event) => {
+  const handleChangeTipo = (event) => {
     //aviso si esta seguro de cambiar
-    setObjeto(event.target.value);
+    setTipo(event.target.value);
     setOpcionesEvaluacion([]);
     setNuevoFiltroEvaluacion("");
     const propiedad = document.getElementById("propiedadFiltroNuevo");
@@ -65,7 +63,8 @@ const CrearLista = () => {
     propiedad.value = "";
     evaluacion.value = "";
     setFiltros([]);
-    setElementos([]);
+    setFilas([]);
+    setColumnas([]);
   };
 
   const handleChangePropiedadFiltro = (event) => {
@@ -84,14 +83,22 @@ const CrearLista = () => {
       event.target.value == "empresaNombre" ||
       event.target.value == "nombre" ||
       event.target.value == "sector" ||
-      event.target.value == "contactoNombre"
+      event.target.value == "contactoNombre" ||
+      event.target.value == "descripcion" ||
+      event.target.value == "sponsor"
+
     ) {
       setOpcionesEvaluacion(cadenasOpciones);
       setNuevoFiltroEvaluacion("cadena");
-    } else if (event.target.value == "fechaCreacion") {
+    } else if (event.target.value == "fechaCreacion"||
+        event.target.value == "inicioVigencia" ||
+        event.target.value == "finVigencia" ||
+        event.target.value == "fechaPublicacion") {
       setOpcionesEvaluacion(fechasEnterosOpciones);
       setNuevoFiltroEvaluacion("fecha");
-    } else if (event.target.value == "cantEmpleados") {
+    } else if (event.target.value == "cantEmpleados"||
+        event.target.value == "presupuesto" ||
+        event.target.value == "importe") {
       setOpcionesEvaluacion(fechasEnterosOpciones);
       setNuevoFiltroEvaluacion("entero");
     } else if (
@@ -101,16 +108,35 @@ const CrearLista = () => {
     ) {
       setOpcionesEvaluacion(otrosOpciones);
       setNuevoFiltroEvaluacion("booleano");
-    } else if (event.target.value == "estado") {
+    } else if (event.target.value == "estado" && tipo=="5") {
       setOpcionesEvaluacion(otrosOpciones);
-      setNuevoFiltroEvaluacion("estado");
-    } else if (event.target.value == "tipo") {
+      setNuevoFiltroEvaluacion("contacto-estado");
+    } else if (event.target.value == "tipo" && tipo=="6") {
       setOpcionesEvaluacion(otrosOpciones);
-      setNuevoFiltroEvaluacion("tipo");
+      setNuevoFiltroEvaluacion("empresa-tipo");
     } else if (event.target.value == "servicioRed") {
       setOpcionesEvaluacion(otrosOpciones);
       setNuevoFiltroEvaluacion("red");
-    }
+    }else if (event.target.value == "estado" && (tipo=="0" || tipo=="1" || tipo=="2" || tipo=="3" || tipo=="4")) {
+        setOpcionesEvaluacion(otrosOpciones);
+        setNuevoFiltroEvaluacion("marketing-estado");
+      }
+      else if (event.target.value == "tipo" && (tipo=="2")) {
+        setOpcionesEvaluacion(otrosOpciones);
+        setNuevoFiltroEvaluacion("campana-tipo");
+      }
+      else if (event.target.value == "tipo" && (tipo=="3")) {
+        setOpcionesEvaluacion(otrosOpciones);
+        setNuevoFiltroEvaluacion("recurso-tipo");
+      }
+      else if (event.target.value == "tipo" && (tipo=="4")) {
+        setOpcionesEvaluacion(otrosOpciones);
+        setNuevoFiltroEvaluacion("oportunidad-tipo");
+      }
+      else if (event.target.value == "etapa" && (tipo=="4")) {
+        setOpcionesEvaluacion(otrosOpciones);
+        setNuevoFiltroEvaluacion("oportunidad-etapa");
+      }
   };
 
   const handleAgregarFiltros = () => {
@@ -120,7 +146,7 @@ const CrearLista = () => {
       "valorEvaluacionFiltroNuevo"
     );
 
-    if (propiedad.value == "fechaCreacion") {
+    if (propiedad.value == "fechaCreacion" || propiedad.value == "inicioVigencia" || propiedad.value == "finVigencia") {
       if (
         propiedad.value == "" ||
         evaluacion.value == "" ||
@@ -138,13 +164,13 @@ const CrearLista = () => {
     }
 
     let valorEvaluacionValue = null;
-    if (propiedad.value == "fechaCreacion") {
+    if (propiedad.value == "fechaCreacion" || propiedad.value == "inicioVigencia" || propiedad.value == "finVigencia") {
       valorEvaluacionValue = nuevoFiltroFecha;
     } else {
       valorEvaluacionValue = valorEvaluacion.value;
     }
 
-    if (propiedad.value == "fechaCreacion") {
+    if (propiedad.value == "fechaCreacion" || propiedad.value == "inicioVigencia" || propiedad.value == "finVigencia") {
       valorEvaluacionValue =
         valorEvaluacionValue.getDate() +
         "-" +
@@ -179,9 +205,9 @@ const CrearLista = () => {
         nombre: propiedad.options[propiedad.selectedIndex].text,
       },
     ]);
-    if (propiedad.value == "fechaCreacion") {
+    if (propiedad.value == "fechaCreacion" || propiedad.value == "inicioVigencia" || propiedad.value == "finVigencia") {
       setNuevoFiltroFecha(null);
-    } else if (propiedad.value == "cantEmpleados") {
+    } else if (propiedad.value == "cantEmpleados" || propiedad.value == "presupuesto" || propiedad.value == "importe") {
       valorEvaluacion.value = 0;
     } else {
       valorEvaluacion.value = "";
@@ -222,12 +248,12 @@ const CrearLista = () => {
     ) {
       if (valorEvaluacion == "0") respuesta += "No";
       else respuesta += "Sí";
-    } else if (propiedad == "estado") {
+    } else if (propiedad == "estado" && tipo=="5") {
       if (valorEvaluacion == "0") respuesta += "Suscriptor";
       else if (valorEvaluacion == "1") respuesta += "Lead";
       else if (valorEvaluacion == "2") respuesta += "Oportunidad";
       else if (valorEvaluacion == "3") respuesta += "Cliente";
-    } else if (propiedad == "tipo") {
+    } else if (propiedad == "tipo"  && tipo=="6") {
       if (valorEvaluacion == "0") respuesta += "Cliente potencial";
       else if (valorEvaluacion == "1") respuesta += "Socio";
       else if (valorEvaluacion == "2") respuesta += "Revendedor";
@@ -236,7 +262,32 @@ const CrearLista = () => {
       if (valorEvaluacion == "0") respuesta += "Facebook";
       else if (valorEvaluacion == "1") respuesta += "Linkedin";
       else if (valorEvaluacion == "2") respuesta += "Instagram";
-    } else {
+    } else if (propiedad == "estado" && (tipo=="0" || tipo=="1" || tipo=="2" || tipo=="3" || tipo=="4")) {
+        if (valorEvaluacion == "0") respuesta += "No vigente";
+        else if (valorEvaluacion == "1") respuesta += "Vigente";
+      }
+      else if (propiedad == "tipo" && tipo=="2") {
+        if (valorEvaluacion == "0") respuesta += "Campaña de programa";
+        else if (valorEvaluacion == "1") respuesta += "Campaña stand-alone";
+      }
+      else if (propiedad == "tipo" && tipo=="3") {
+        if (valorEvaluacion == "0") respuesta += "Correo";
+        else if (valorEvaluacion == "1") respuesta += "Publicación";
+        else if (valorEvaluacion == "2") respuesta += "Página web";
+      }
+      else if (propiedad == "tipo" && tipo=="4") {
+        if (valorEvaluacion == "0") respuesta += "Negocio existente";
+        else if (valorEvaluacion == "1") respuesta += "Nuevo negocio";
+      }
+      else if (propiedad == "etapa" && tipo=="4") {
+        if (valorEvaluacion == "0") respuesta += "Calificación";
+        else if (valorEvaluacion == "1") respuesta += "Necesidad de análisis";
+        else if (valorEvaluacion == "2") respuesta += "Propuesta";
+        else if (valorEvaluacion == "3") respuesta += "Negociación";
+        else if (valorEvaluacion == "4") respuesta += "Perdida";
+        else if (valorEvaluacion == "5") respuesta += "Ganada";
+      }
+    else {
       respuesta += valorEvaluacion;
     }
     return respuesta;
@@ -244,8 +295,17 @@ const CrearLista = () => {
   };
 
   const handleAplicarFiltros = () => {
+    let fechaHoy = "",
+      fecha = new Date();
+    fechaHoy =
+      fecha.getDate() +
+      "-" +
+      parseInt(fecha.getMonth() + 1) +
+      "-" +
+      fecha.getFullYear();
     let cuerpo = {
-      objeto: objeto,
+      tipo: tipo,
+      fechaHoy: fechaHoy,
       propietario: usuarioLogueado["idCuenta"], //falta
       filtros: filtros,
     };
@@ -254,38 +314,36 @@ const CrearLista = () => {
     setMostrarTablaElementos(false);
     setMostrarCargaElementos(true);
     api
-      .post("aplicarFiltrosLista", cuerpo)
+      .post("aplicarFiltrosReporte", cuerpo)
       .then((res) => res.data)
       .then((data) => {
         console.log(data);
         setMostrarCargaElementos(false);
         setMostrarTablaElementos(true);
         //setShow(false);
-        setElementos(data);
+        setColumnas(data['columnas']);
+        setFilas(data['filas']);
       })
       .catch((err) => alert(err));
   };
 
-  const guardarLista = () => {
-    console.log("estos son los elementos");
-    console.log(elementos);
+  const guardarReporte = () => {
     let cuerpo = {
-      idLista: 0,
+      idReporte: 0,
       nombre: nombre,
       descripcion: descripcion,
       tipo: tipo,
-      objeto: objeto,
-      tamano: elementos.length,
       propietario: usuarioLogueado["idCuenta"], //falta
       filtros: filtros,
-      elementos: elementos,
+      columnas: columnas,
+      filas: filas,
     };
     console.log("cuerpo a subir");
     console.log(cuerpo);
     setMostrarDatos(false);
     setMostrarCargaDatos(true);
     api
-      .post("registrarLista", cuerpo)
+      .post("registrarReporte", cuerpo)
       .then((res) => res.data)
       .then((data) => {
         console.log(data);
@@ -293,8 +351,8 @@ const CrearLista = () => {
         setMostrarDatos(true);
         setShow(false);
         history.push({
-          pathname: "/listas",
-          state: { listaGuardada: true },
+          pathname: "/informes",
+          state: { reporteGuardado: true },
         });
       })
       .catch((err) => alert(err));
@@ -329,14 +387,14 @@ const CrearLista = () => {
         <div>
           <div>
             <div className="page-header">
-              <h3 className="page-title"> Nueva lista </h3>
+              <h3 className="page-title"> Nuevo reporte </h3>
             </div>
             <div className="row">
               <div className="col-12 grid-margin">
                 <div className="card">
                   <div className="card-body">
                     <div className="row">
-                      <h4 className="card-title col-md-8">Datos de lista</h4>
+                      <h4 className="card-title col-md-8">Datos de reporte</h4>
                       <div className="col-md-4">
                         <Form.Group>
                           <label className="col-form-label float-md-right">
@@ -383,25 +441,7 @@ const CrearLista = () => {
                         </div>
                       </div>
                       <div className="row">
-                        <div className="col-md-6">
-                          <Form.Group>
-                            <label className="col-sm-12 col-form-label">
-                              Objeto<code>*</code>
-                            </label>
-                            <div className="col-sm-12">
-                              <select
-                                className="form-control"
-                                onChange={handleChangeObjeto}
-                              >
-                                <option value={"0"} selected>
-                                  Contacto
-                                </option>
-                                <option value={"1"}>Empresa</option>
-                              </select>
-                            </div>
-                          </Form.Group>
-                        </div>
-                        <div className="col-md-6">
+                        <div className="col-md-12">
                           <Form.Group>
                             <label className="col-sm-12 col-form-label">
                               Tipo<code>*</code>
@@ -409,12 +449,17 @@ const CrearLista = () => {
                             <div className="col-sm-12">
                               <select
                                 className="form-control"
-                                onChange={({ target }) => setTipo(target.value)}
+                                onChange={handleChangeTipo}
                               >
                                 <option value={"0"} selected>
-                                  Estática
+                                  Plan
                                 </option>
-                                <option value={"1"}>Activa</option>
+                                <option value={"1"}>Programa</option>
+                                <option value={"2"}>Campaña</option>
+                                <option value={"3"}>Recurso</option>
+                                <option value={"4"}>Oportunidad</option>
+                                <option value={"5"}>Contacto</option>
+                                <option value={"6"}>Empresa</option>
                               </select>
                             </div>
                           </Form.Group>
@@ -439,7 +484,173 @@ const CrearLista = () => {
                             <div className="col-md-4">
                               <Form.Group>
                                 <div className="col-sm-12">
-                                  {objeto == "0" ? (
+                                  {tipo == "0" && (
+                                    <select
+                                      className="form-control"
+                                      id="propiedadFiltroNuevo"
+                                      onChange={handleChangePropiedadFiltro}
+                                    >
+                                      <option
+                                        value={""}
+                                        disabled
+                                        selected
+                                        hidden
+                                      >
+                                        Propiedad
+                                      </option>
+                                      <option value={"descripcion"}>
+                                        Descripción
+                                      </option>
+                                      <option value={"sponsor"}>Sponsor</option>
+                                      <option value={"presupuesto"}>
+                                        Presupuesto
+                                      </option>
+                                      <option value={"estado"}>Estado</option>
+                                      <option value={"inicioVigencia"}>
+                                        Inicio de vigencia
+                                      </option>
+                                      <option value={"finVigencia"}>
+                                        Fin de vigencia
+                                      </option>
+                                      <option value={"fechaCreacion"}>
+                                        Fecha de creación
+                                      </option>
+                                    </select>
+                                  )}
+                                  {tipo == "1" && (
+                                    <select
+                                      className="form-control"
+                                      id="propiedadFiltroNuevo"
+                                      onChange={handleChangePropiedadFiltro}
+                                    >
+                                      <option
+                                        value={""}
+                                        disabled
+                                        selected
+                                        hidden
+                                      >
+                                        Propiedad
+                                      </option>
+                                      <option value={"descripcion"}>
+                                        Descripción
+                                      </option>
+                                      <option value={"sponsor"}>Sponsor</option>
+                                      <option value={"presupuesto"}>
+                                        Presupuesto
+                                      </option>
+                                      <option value={"estado"}>Estado</option>
+                                      <option value={"inicioVigencia"}>
+                                        Inicio de vigencia
+                                      </option>
+                                      <option value={"finVigencia"}>
+                                        Fin de vigencia
+                                      </option>
+                                      <option value={"fechaCreacion"}>
+                                        Fecha de creación
+                                      </option>
+                                    </select>
+                                  )}
+                                  {tipo == "2" && (
+                                    <select
+                                      className="form-control"
+                                      id="propiedadFiltroNuevo"
+                                      onChange={handleChangePropiedadFiltro}
+                                    >
+                                      <option
+                                        value={""}
+                                        disabled
+                                        selected
+                                        hidden
+                                      >
+                                        Propiedad
+                                      </option>
+                                      <option value={"descripcion"}>
+                                        Descripción
+                                      </option>
+                                      <option value={"tipo"}>Tipo</option>
+                                      <option value={"sponsor"}>Sponsor</option>
+                                      <option value={"presupuesto"}>
+                                        Presupuesto
+                                      </option>
+                                      <option value={"estado"}>Estado</option>
+                                      <option value={"inicioVigencia"}>
+                                        Inicio de vigencia
+                                      </option>
+                                      <option value={"finVigencia"}>
+                                        Fin de vigencia
+                                      </option>
+                                      <option value={"fechaCreacion"}>
+                                        Fecha de creación
+                                      </option>
+                                    </select>
+                                  )}
+                                  {tipo == "3" && (
+                                    <select
+                                      className="form-control"
+                                      id="propiedadFiltroNuevo"
+                                      onChange={handleChangePropiedadFiltro}
+                                    >
+                                      <option
+                                        value={""}
+                                        disabled
+                                        selected
+                                        hidden
+                                      >
+                                        Propiedad
+                                      </option>
+                                      <option value={"descripcion"}>
+                                        Descripción
+                                      </option>
+                                      <option value={"tipo"}>Tipo</option>
+                                      <option value={"sponsor"}>Sponsor</option>
+                                      <option value={"presupuesto"}>
+                                        Presupuesto
+                                      </option>
+                                      <option value={"estado"}>Estado</option>
+                                      <option value={"inicioVigencia"}>
+                                        Inicio de vigencia
+                                      </option>
+                                      <option value={"finVigencia"}>
+                                        Fin de vigencia
+                                      </option>
+                                      <option value={"fechaCreacion"}>
+                                        Fecha de creación
+                                      </option>
+                                    </select>
+                                  )}
+                                  {tipo == "4" && (
+                                    <select
+                                      className="form-control"
+                                      id="propiedadFiltroNuevo"
+                                      onChange={handleChangePropiedadFiltro}
+                                    >
+                                      <option
+                                        value={""}
+                                        disabled
+                                        selected
+                                        hidden
+                                      >
+                                        Propiedad
+                                      </option>
+                                      <option value={"descripcion"}>
+                                        Descripción
+                                      </option>
+                                      <option value={"tipo"}>Tipo</option>
+                                      <option value={"etapa"}>Etapa</option>
+                                      <option value={"importe"}>Importe</option>
+                                      <option value={"estado"}>Estado</option>
+                                      <option value={"inicioVigencia"}>
+                                        Inicio de vigencia
+                                      </option>
+                                      <option value={"finVigencia"}>
+                                        Fin de vigencia
+                                      </option>
+                                      <option value={"fechaCreacion"}>
+                                        Fecha de creación
+                                      </option>
+                                    </select>
+                                  )}
+                                  {tipo == "5" && (
                                     <select
                                       className="form-control"
                                       id="propiedadFiltroNuevo"
@@ -493,7 +704,8 @@ const CrearLista = () => {
                                         Fecha de creación
                                       </option>
                                     </select>
-                                  ) : (
+                                  )}
+                                  {tipo == "6" && (
                                     <select
                                       className="form-control"
                                       id="propiedadFiltroNuevo"
@@ -613,7 +825,8 @@ const CrearLista = () => {
                                   ) : (
                                     ""
                                   )}
-                                  {nuevoFiltroEvaluacion == "estado" ? (
+                                  {nuevoFiltroEvaluacion ==
+                                  "contacto-estado" ? (
                                     <select
                                       className="form-control"
                                       id="valorEvaluacionFiltroNuevo"
@@ -629,7 +842,7 @@ const CrearLista = () => {
                                   ) : (
                                     ""
                                   )}
-                                  {nuevoFiltroEvaluacion == "tipo" ? (
+                                  {nuevoFiltroEvaluacion == "empresa-tipo" ? (
                                     <select
                                       className="form-control"
                                       id="valorEvaluacionFiltroNuevo"
@@ -656,6 +869,88 @@ const CrearLista = () => {
                                       </option>
                                       <option value={"1"}>Linkedin</option>
                                       <option value={"2"}>Instagram</option>
+                                    </select>
+                                  ) : (
+                                    ""
+                                  )}
+                                  {nuevoFiltroEvaluacion ==
+                                  "marketing-estado" ? (
+                                    <select
+                                      className="form-control"
+                                      id="valorEvaluacionFiltroNuevo"
+                                      //onChange={handleChangePropiedadFiltro}
+                                    >
+                                      <option value={"0"} selected>
+                                        No vigente
+                                      </option>
+                                      <option value={"1"}>Vigente</option>
+                                    </select>
+                                  ) : (
+                                    ""
+                                  )}
+                                  {nuevoFiltroEvaluacion == "campana-tipo" ? (
+                                    <select
+                                      className="form-control"
+                                      id="valorEvaluacionFiltroNuevo"
+                                      //onChange={handleChangePropiedadFiltro}
+                                    >
+                                      <option value={"0"} selected>
+                                        Campaña de programa
+                                      </option>
+                                      <option value={"1"}>
+                                        Campaña stand-alone
+                                      </option>
+                                    </select>
+                                  ) : (
+                                    ""
+                                  )}
+                                  {nuevoFiltroEvaluacion == "recurso-tipo" ? (
+                                    <select
+                                      className="form-control"
+                                      id="valorEvaluacionFiltroNuevo"
+                                      //onChange={handleChangePropiedadFiltro}
+                                    >
+                                      <option value={"0"} selected>
+                                        Correo
+                                      </option>
+                                      <option value={"1"}>Publicación</option>
+                                      <option value={"2"}>Página web</option>
+                                    </select>
+                                  ) : (
+                                    ""
+                                  )}
+                                  {nuevoFiltroEvaluacion ==
+                                  "oportunidad-tipo" ? (
+                                    <select
+                                      className="form-control"
+                                      id="valorEvaluacionFiltroNuevo"
+                                      //onChange={handleChangePropiedadFiltro}
+                                    >
+                                      <option value={"0"} selected>
+                                        Negocio existente
+                                      </option>
+                                      <option value={"1"}>Nuevo negocio</option>
+                                    </select>
+                                  ) : (
+                                    ""
+                                  )}
+                                  {nuevoFiltroEvaluacion ==
+                                  "oportunidad-etapa" ? (
+                                    <select
+                                      className="form-control"
+                                      id="valorEvaluacionFiltroNuevo"
+                                      //onChange={handleChangePropiedadFiltro}
+                                    >
+                                      <option value={"0"} selected>
+                                        Calificación
+                                      </option>
+                                      <option value={"1"}>
+                                        Necesidad de análisis
+                                      </option>
+                                      <option value={"2"}>Propuesta</option>
+                                      <option value={"3"}>Negociación</option>
+                                      <option value={"4"}>Perdida</option>
+                                      <option value={"5"}>Ganada</option>
                                     </select>
                                   ) : (
                                     ""
@@ -741,50 +1036,28 @@ const CrearLista = () => {
                               </div>
                             )}
                             {mostrarTablaElementos && (
-                              
-                                objeto=="0"?  <div className="table-responsive">
+                              <div className="table-responsive">
                                 <table className="table">
                                   <thead>
                                     <tr>
-                                    <th>Nombre completo</th>
-                                    <th>Estado</th>
-                                    <th>Correo</th>
-                                    <th>Empresa</th>
+                                      {columnas.map((columna) => (
+                                        <th>{columna}</th>
+                                      ))}
                                     </tr>
                                   </thead>
                                   <tbody>
-                                    {elementos.map((elemento) => (
-                                      <tr key={elemento["id"]}>
-                                        <td>{elemento["persona__nombreCompleto"]}</td>
-                                        <td>{elemento["estado"]}</td>
-                                        <td>{elemento["correo"]}</td>
-                                        <td>{elemento["empresa"]}</td>
-                                      </tr>
-                                    ))}
-                                  </tbody>
-                                </table>
-                              </div> :  <div className="table-responsive">
-                                <table className="table">
-                                  <thead>
-                                    <tr>
-                                    <th>Nombre</th>
-                                    <th>Tipo</th>
-                                    <th>Telefono</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {elementos.map((elemento) => (
-                                      <tr key={elemento["id"]}>
-                                        <td>{elemento["nombre"]}</td>
-                                        <td>{elemento["tipo"]}</td>
-                                        <td>{elemento["telefono"]}</td>
+                                    {filas.map((fila) => (
+                                      <tr>
+                                        {Object.entries(fila).map(
+                                          ([propiedad, valor]) => (
+                                            <td>{valor}</td>
+                                          )
+                                        )}
                                       </tr>
                                     ))}
                                   </tbody>
                                 </table>
                               </div>
-                              
-                             
                             )}
                           </Form.Group>
                         </div>
@@ -797,7 +1070,7 @@ const CrearLista = () => {
                             className="btn btn-outline-primary"
                             onClick={() =>
                               history.push({
-                                pathname: "/listas",
+                                pathname: "/informes",
                               })
                             }
                           >
@@ -824,13 +1097,13 @@ const CrearLista = () => {
             <Modal.Header closeButton>
               <Modal.Title>
                 <h4 className="card-title" style={{ color: "#000000" }}>
-                  Guardar lista
+                  Guardar reporte
                 </h4>
               </Modal.Title>
             </Modal.Header>
             <Modal.Body>
               <h5 className="card-title" style={{ color: "#000000" }}>
-                ¿Desea guardar la lista?
+                ¿Desea guardar el reporte?
               </h5>
             </Modal.Body>
             <Modal.Footer>
@@ -838,7 +1111,7 @@ const CrearLista = () => {
                 Cancelar
               </button>
 
-              <button className="btn btn-primary" onClick={guardarLista}>
+              <button className="btn btn-primary" onClick={guardarReporte}>
                 Guardar
               </button>
             </Modal.Footer>
@@ -849,4 +1122,4 @@ const CrearLista = () => {
   );
 };
 
-export default CrearLista;
+export default CrearReporte;
