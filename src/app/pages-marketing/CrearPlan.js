@@ -8,6 +8,10 @@ import bsCustomFileInput from "bs-custom-file-input";
 const CrearPlan = () => {
   const history = useHistory();
   const [show, setShow] = useState(false);
+  const [mostrarBuscarIndicadores, setMostrarBuscarIndicadores] =
+    useState(false);
+  const [mostrarBuscarEstrategias, setMostrarBuscarEstrategias] =
+    useState(false);
   const [mostrarCargaDatos, setMostrarCargaDatos] = useState(false);
   const [mostrarDatos, setMostrarDatos] = useState(true);
 
@@ -51,7 +55,7 @@ const CrearPlan = () => {
   const handleChangeFinVigencia = (date) => setFinVigencia(date);
 
   const handleAgregarIndicadores =
-    (id, nombre, aspecto, tipo, automatizacion) => () => {
+    (id, nombre, aspecto, tipo, calculoAutomatico) => () => {
       for (let index = 0; index < indicadores.length; index++) {
         const element = indicadores[index];
         if (element["id"] == id) return;
@@ -63,10 +67,23 @@ const CrearPlan = () => {
           nombre: nombre,
           aspecto: aspecto,
           tipo: tipo,
-          automatizacion: automatizacion,
+          calculoAutomatico: calculoAutomatico,
+          valor: 0.0,
         },
       ]);
     };
+
+  const handleValorIndicadores = (id, event) => {
+    const indicadoresLista = [];
+    console.log(id)
+    for (let index = 0; index < indicadores.length; index++) {
+      const element = indicadores[index];
+      if (element["id"] == id) element["valor"] = event.target.value;
+      indicadoresLista.push(element);
+    }
+    console.log(indicadoresLista);
+    setIndicadores(indicadoresLista);
+  };
 
   const handleEliminarIndicadores = (id) => () => {
     console.log("se va a eliminar");
@@ -99,14 +116,21 @@ const CrearPlan = () => {
   const buscarIndicadores = () => {
     //console.log("esto es la cadena")
     let tipoBusqueda = "";
-    if(tipoIndicador!=""){
-      if(aspectoIndicador=="1" && tipoIndicador=="0") tipoBusqueda = "0" //programa
-      else if(aspectoIndicador=="1" && tipoIndicador=="1") tipoBusqueda = "1" //campaña stand-alone
-      else if(aspectoIndicador=="2" && tipoIndicador=="0") tipoBusqueda = "2" //campaña de programa
-      else if(aspectoIndicador=="2" && tipoIndicador=="1") tipoBusqueda = "3" //campaña stand-alone
-      else if(aspectoIndicador=="3" && tipoIndicador=="0") tipoBusqueda = "4" //correo
-      else if(aspectoIndicador=="3" && tipoIndicador=="1") tipoBusqueda = "5" //publicacion
-      else if(aspectoIndicador=="3" && tipoIndicador=="2") tipoBusqueda = "6" //pagina web
+    if (tipoIndicador != "") {
+      if (aspectoIndicador == "1" && tipoIndicador == "0")
+        tipoBusqueda = "0"; //programa
+      else if (aspectoIndicador == "1" && tipoIndicador == "1")
+        tipoBusqueda = "1"; //campaña stand-alone
+      else if (aspectoIndicador == "2" && tipoIndicador == "0")
+        tipoBusqueda = "2"; //campaña de programa
+      else if (aspectoIndicador == "2" && tipoIndicador == "1")
+        tipoBusqueda = "3"; //campaña stand-alone
+      else if (aspectoIndicador == "3" && tipoIndicador == "0")
+        tipoBusqueda = "4"; //correo
+      else if (aspectoIndicador == "3" && tipoIndicador == "1")
+        tipoBusqueda = "5"; //publicacion
+      else if (aspectoIndicador == "3" && tipoIndicador == "2")
+        tipoBusqueda = "6"; //pagina web
     }
     setMostrarTablaIndicadores(false);
     setMostrarCargaIndicadores(true);
@@ -405,9 +429,21 @@ const CrearPlan = () => {
                             <div className="row">
                               <div className="col-md-12">
                                 <Form.Group>
-                                  <label className="col-sm-12 col-form-label">
+                                  <label className="col-sm-7 col-form-label">
                                     Indicadores
                                   </label>
+
+                                  <button
+                                    type="button"
+                                    className="btn btn-link float-sm-right"
+                                    onClick={() =>
+                                      setMostrarBuscarIndicadores(
+                                        !mostrarBuscarIndicadores
+                                      )
+                                    }
+                                  >
+                                    Buscar indicadores
+                                  </button>
                                 </Form.Group>
                                 {indicadores.length == 0 ? (
                                   <Form.Group>
@@ -416,199 +452,240 @@ const CrearPlan = () => {
                                     </label>
                                   </Form.Group>
                                 ) : (
-                                  <div className="table-responsive">
-                                    <table className="table">
-                                      <thead>
-                                        <tr>
-                                          <th>Nombre</th>
-                                          <th>Aspecto-Tipo</th>
-                                          <th>Automatización</th>
-                                          <th></th>
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        {indicadores.map((indicador) => (
-                                          <tr key={indicador["id"]}>
-                                            <td>{indicador["nombre"]}</td>
-                                            <td>
-                                              {indicador["aspecto"] +
-                                                " - " +
-                                                indicador["tipo"]}
-                                            </td>
-                                            <td>
-                                              {indicador["automatizacion"]}
-                                            </td>
-                                            <td>
-                                              <button
-                                                style={{ marginLeft: "auto" }}
-                                                type="button"
-                                              >
-                                                <i
-                                                  className="mdi mdi-delete"
-                                                  style={{ color: "black" }}
-                                                  onClick={handleEliminarIndicadores(
-                                                    indicador["id"]
-                                                  )}
-                                                ></i>
-                                              </button>
-                                            </td>
-                                          </tr>
-                                        ))}
-                                      </tbody>
-                                    </table>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-
-                            <div className="row">
-                              <div className="col-md-6">
-                                <Form.Group>
-                                  <div className="search-field col-sm-12">
-                                    <form
-                                      className="d-flex align-items-center h-100"
-                                      onSubmit={buscarIndicadoresCadena}
-                                    >
-                                      <div className="input-group">
-                                        <div className="input-group-prepend bg-white">
-                                          <i className="input-group-text border-0 mdi mdi-magnify"></i>
-                                        </div>
-                                        <input
-                                          type="text"
-                                          className="form-control bg-white border-0"
-                                          placeholder="Nombre"
-                                          value={indicadorCadena}
-                                          onChange={({ target }) =>
-                                            setIndicadorCadena(target.value)
-                                          }
-                                        />
-                                      </div>
-                                    </form>
-                                  </div>
-                                </Form.Group>
-                              </div>
-
-                              <div className="col-md-3">
-                                <Form.Group>
-                                  <select
-                                    className="form-control col-sm-11"
-                                    onChange={handleChangeAspectoVariable}
-                                  >
-                                    <option value="" disabled selected hidden>
-                                      Aspecto
-                                    </option>
-                                    <option value={""}>
-                                      Todos los aspectos
-                                    </option>
-                                    <option value={"0"}>Plan</option>
-                                    <option value={"1"}>Estrategia</option>
-                                    <option value={"2"}>Campaña</option>
-                                    <option value={"3"}>Recurso</option>
-                                  </select>
-                                </Form.Group>
-                              </div>
-
-                              <div className="col-md-2">
-                                <Form.Group>
-                                  <select
-                                    className="form-control col-sm-11"
-                                    onChange={({ target }) =>
-                                      setTipoIndicador(target.value)
-                                    }
-                                  >
-                                    {opcionesTipoVariable.map(
-                                      ({ id, nombre }) => (
-                                        <option value={id}>{nombre}</option>
-                                      )
-                                    )}
-                                  </select>
-                                </Form.Group>
-                              </div>
-
-                              <div className="col-md-1">
-                                <Form.Group>
-                                  <button
-                                    type="button"
-                                    className="btn btn-primary"
-                                    onClick={buscarIndicadores}
-                                  >
-                                    Buscar
-                                  </button>
-                                </Form.Group>
-                              </div>
-                            </div>
-
-                            <div className="row">
-                              <div className="col-md-12">
-                                <Form.Group>
-                                  {mostrarCargaIndicadores && (
-                                    <div className="row h-100">
-                                      <div className="col-sm-12 my-auto">
-                                        <div className="circle-loader"></div>
-                                      </div>
-                                    </div>
-                                  )}
-                                  {mostrarTablaIndicadores && (
+                                  <Form.Group>
                                     <div className="table-responsive">
                                       <table className="table">
                                         <thead>
                                           <tr>
                                             <th>Nombre</th>
-                                            <th>Aspecto-Tipo</th>
+                                            <th>Tipo</th>
                                             <th>Automatización</th>
+                                            <th>Valor</th>
                                             <th></th>
                                           </tr>
                                         </thead>
                                         <tbody>
-                                          {indicadoresBusqueda.map(
-                                            (indicador) => (
-                                              <tr key={indicador["id"]}>
-                                                <td>{indicador["nombre"]}</td>
-                                                <td>
-                                                  {indicador["aspecto"] +
-                                                    " - " +
-                                                    indicador["tipo"]}
-                                                </td>
-                                                <td>
-                                                  {indicador["automatizacion"]}
-                                                </td>
-                                                <td>
-                                                  <button
-                                                    type="button"
-                                                    onClick={handleAgregarIndicadores(
-                                                      indicador["id"],
-                                                      indicador["nombre"],
-                                                      indicador["aspecto"],
-                                                      indicador["tipo"],
-                                                      indicador[
-                                                        "automatizacion"
-                                                      ]
+                                          {indicadores.map((indicador) => (
+                                            <tr key={indicador["id"]}>
+                                              <td>{indicador["nombre"]}</td>
+                                              <td>
+                                                {indicador["tipo"]}
+                                              </td>
+                                              <td>
+                                                {indicador["calculoAutomatico"]}
+                                              </td>
+                                              <td>
+                                                <input
+                                                  type={"number"}
+                                                  placeholder="Agregar valor"
+                                                  className="form-control"
+                                                  onChange={(e) =>
+                                                    handleValorIndicadores(
+                                                      indicador["id"], e
+                                                    )
+                                                  }
+                                                  value={indicador["valor"]}
+                                                />
+                                              </td>
+                                              <td>
+                                                <button
+                                                  style={{ marginLeft: "auto" }}
+                                                  type="button"
+                                                >
+                                                  <i
+                                                    className="mdi mdi-delete"
+                                                    style={{ color: "black" }}
+                                                    onClick={handleEliminarIndicadores(
+                                                      indicador["id"]
                                                     )}
-                                                  >
-                                                    <i
-                                                      className="mdi mdi-plus"
-                                                      style={{ color: "black" }}
-                                                    ></i>
-                                                  </button>
-                                                </td>
-                                              </tr>
-                                            )
-                                          )}
+                                                  ></i>
+                                                </button>
+                                              </td>
+                                            </tr>
+                                          ))}
                                         </tbody>
                                       </table>
                                     </div>
-                                  )}
-                                </Form.Group>
+                                  </Form.Group>
+                                )}
                               </div>
                             </div>
+                            {mostrarBuscarIndicadores && (
+                              <div>
+                                <div className="row">
+                                  <div className="col-md-6">
+                                    <Form.Group>
+                                      <div className="search-field col-sm-12">
+                                        <form
+                                          className="d-flex align-items-center h-100"
+                                          onSubmit={buscarIndicadoresCadena}
+                                        >
+                                          <div className="input-group">
+                                            <div className="input-group-prepend bg-white">
+                                              <i className="input-group-text border-0 mdi mdi-magnify"></i>
+                                            </div>
+                                            <input
+                                              type="text"
+                                              className="form-control bg-white border-0"
+                                              placeholder="Nombre"
+                                              value={indicadorCadena}
+                                              onChange={({ target }) =>
+                                                setIndicadorCadena(target.value)
+                                              }
+                                            />
+                                          </div>
+                                        </form>
+                                      </div>
+                                    </Form.Group>
+                                  </div>
+
+                                  <div className="col-md-3">
+                                    <Form.Group>
+                                      <select
+                                        className="form-control col-sm-11"
+                                        onChange={handleChangeAspectoVariable}
+                                      >
+                                        <option
+                                          value=""
+                                          disabled
+                                          selected
+                                          hidden
+                                        >
+                                          Aspecto
+                                        </option>
+                                        <option value={""}>
+                                          Todos los aspectos
+                                        </option>
+                                        <option value={"0"}>Plan</option>
+                                        <option value={"1"}>Estrategia</option>
+                                        <option value={"2"}>Campaña</option>
+                                        <option value={"3"}>Recurso</option>
+                                      </select>
+                                    </Form.Group>
+                                  </div>
+
+                                  <div className="col-md-2">
+                                    <Form.Group>
+                                      <select
+                                        className="form-control col-sm-11"
+                                        onChange={({ target }) =>
+                                          setTipoIndicador(target.value)
+                                        }
+                                      >
+                                        {opcionesTipoVariable.map(
+                                          ({ id, nombre }) => (
+                                            <option value={id}>{nombre}</option>
+                                          )
+                                        )}
+                                      </select>
+                                    </Form.Group>
+                                  </div>
+
+                                  <div className="col-md-1">
+                                    <Form.Group>
+                                      <button
+                                        type="button"
+                                        className="btn btn-primary"
+                                        onClick={buscarIndicadores}
+                                      >
+                                        Buscar
+                                      </button>
+                                    </Form.Group>
+                                  </div>
+                                </div>
+
+                                <div className="row">
+                                  <div className="col-md-12">
+                                    <Form.Group>
+                                      {mostrarCargaIndicadores && (
+                                        <div className="row h-100">
+                                          <div className="col-sm-12 my-auto">
+                                            <div className="circle-loader"></div>
+                                          </div>
+                                        </div>
+                                      )}
+                                      {mostrarTablaIndicadores && (
+                                        <div className="table-responsive">
+                                          <table className="table">
+                                            <thead>
+                                              <tr>
+                                                <th>Nombre</th>
+                                                <th>Aspecto-Tipo</th>
+                                                <th>Automatización</th>
+                                                <th></th>
+                                              </tr>
+                                            </thead>
+                                            <tbody>
+                                              {indicadoresBusqueda.map(
+                                                (indicador) => (
+                                                  <tr key={indicador["id"]}>
+                                                    <td>
+                                                      {indicador["nombre"]}
+                                                    </td>
+                                                    <td>
+                                                      {indicador["aspecto"] +
+                                                        " - " +
+                                                        indicador["tipo"]}
+                                                    </td>
+                                                    <td>
+                                                      {
+                                                        indicador[
+                                                          "calculoAutomatico"
+                                                        ]
+                                                      }
+                                                    </td>
+                                                    <td>
+                                                      <button
+                                                        type="button"
+                                                        onClick={handleAgregarIndicadores(
+                                                          indicador["id"],
+                                                          indicador["nombre"],
+                                                          indicador["aspecto"],
+                                                          indicador["tipo"],
+                                                          indicador[
+                                                            "calculoAutomatico"
+                                                          ]
+                                                        )}
+                                                      >
+                                                        <i
+                                                          className="mdi mdi-plus"
+                                                          style={{
+                                                            color: "black",
+                                                          }}
+                                                        ></i>
+                                                      </button>
+                                                    </td>
+                                                  </tr>
+                                                )
+                                              )}
+                                            </tbody>
+                                          </table>
+                                        </div>
+                                      )}
+                                    </Form.Group>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
                           </Tab>
                           <Tab eventKey="Estrategias" title="Estrategias">
                             <div className="row">
                               <div className="col-md-12">
                                 <Form.Group>
-                                  <label className="col-sm-12 col-form-label">
+                                  <label className="col-sm-7 col-form-label">
                                     Estrategias
                                   </label>
+                                  <button
+                                    type="button"
+                                    className="btn btn-link float-sm-right"
+                                    onClick={() =>
+                                      setMostrarBuscarEstrategias(
+                                        !mostrarBuscarEstrategias
+                                      )
+                                    }
+                                  >
+                                    Buscar estrategias
+                                  </button>
                                 </Form.Group>
                                 {estrategias.length == 0 ? (
                                   <Form.Group>
@@ -617,136 +694,7 @@ const CrearPlan = () => {
                                     </label>
                                   </Form.Group>
                                 ) : (
-                                  <div className="table-responsive">
-                                    <table className="table">
-                                      <thead>
-                                        <tr>
-                                          <th>Descripción</th>
-                                          <th>Estado</th>
-                                          <th>Tipo</th>
-                                          <th></th>
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        {estrategias.map((estrategia) => (
-                                          <tr key={estrategia["id"]}>
-                                            <td>{estrategia["descripcion"]}</td>
-                                            <td>{estrategia["tipo"]}</td>
-                                            <td>{estrategia["estado"]}</td>
-                                            <td>
-                                              <button
-                                                style={{ marginLeft: "auto" }}
-                                                type="button"
-                                              >
-                                                <i
-                                                  className="mdi mdi-delete"
-                                                  style={{ color: "black" }}
-                                                  onClick={handleEliminarEstrategias(
-                                                    estrategia["id"]
-                                                  )}
-                                                ></i>
-                                              </button>
-                                            </td>
-                                          </tr>
-                                        ))}
-                                      </tbody>
-                                    </table>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-
-                            <div className="row">
-                              <div className="col-md-7">
-                                <Form.Group>
-                                  <div className="search-field col-sm-12">
-                                    <form
-                                      className="d-flex align-items-center h-100"
-                                      onSubmit={buscarEstrategiasCadena}
-                                    >
-                                      <div className="input-group">
-                                        <div className="input-group-prepend bg-white">
-                                          <i className="input-group-text border-0 mdi mdi-magnify"></i>
-                                        </div>
-                                        <input
-                                          type="text"
-                                          className="form-control bg-white border-0"
-                                          placeholder="Descripción"
-                                          value={estrategiaCadena}
-                                          onChange={({ target }) =>
-                                            setEstrategiaCadena(target.value)
-                                          }
-                                        />
-                                      </div>
-                                    </form>
-                                  </div>
-                                </Form.Group>
-                              </div>
-
-                              <div className="col-md-2">
-                                <Form.Group>
-                                  <select
-                                    className="form-control col-sm-11"
-                                    onChange={({ target }) =>
-                                      setEstrategiaTipo(target.value)
-                                    }
-                                  >
-                                    <option value="" disabled selected hidden>
-                                      Tipo
-                                    </option>
-                                    <option value={""}>Todos los tipos</option>
-                                    <option value={"0"}>Programa</option>
-                                    <option value={"1"}>
-                                      Campaña stand-alone
-                                    </option>
-                                  </select>
-                                </Form.Group>
-                              </div>
-
-                              <div className="col-md-2">
-                                <Form.Group>
-                                  <select
-                                    className="form-control col-sm-11"
-                                    onChange={({ target }) =>
-                                      setEstrategiaEstado(target.value)
-                                    }
-                                  >
-                                    <option value="" disabled selected hidden>
-                                      Estado
-                                    </option>
-                                    <option value={""}>
-                                      Todos los estados
-                                    </option>
-                                    <option value={"0"}>No vigente</option>
-                                    <option value={"1"}>Vigente</option>
-                                  </select>
-                                </Form.Group>
-                              </div>
-
-                              <div className="col-md-1">
-                                <Form.Group>
-                                  <button
-                                    type="button"
-                                    className="btn btn-primary"
-                                    onClick={buscarEstrategias}
-                                  >
-                                    Buscar
-                                  </button>
-                                </Form.Group>
-                              </div>
-                            </div>
-
-                            <div className="row">
-                              <div className="col-md-12">
-                                <Form.Group>
-                                  {mostrarCargaEstrategias && (
-                                    <div className="row h-100">
-                                      <div className="col-sm-12 my-auto">
-                                        <div className="circle-loader"></div>
-                                      </div>
-                                    </div>
-                                  )}
-                                  {mostrarTablaEstrategias && (
+                                  <Form.Group>
                                     <div className="table-responsive">
                                       <table className="table">
                                         <thead>
@@ -758,45 +706,205 @@ const CrearPlan = () => {
                                           </tr>
                                         </thead>
                                         <tbody>
-                                          {estrategiasBusqueda.map(
-                                            (estrategia) => (
-                                              <tr key={estrategia["id"]}>
-                                                <td>
-                                                  {estrategia["descripcion"]}
-                                                </td>
-                                                <td>{estrategia["tipo"]}</td>
-                                                <td>{estrategia["estado"]}</td>
-                                                <td>
-                                                  <button
-                                                    style={{
-                                                      marginLeft: "auto",
-                                                    }}
-                                                    type="button"
-                                                  >
-                                                    <i
-                                                      className="mdi mdi-delete"
-                                                      style={{ color: "black" }}
-                                                      onClick={handleAgregarEstrategias(
-                                                        estrategia["id"],
-                                                        estrategia[
-                                                          "descripcion"
-                                                        ],
-                                                        estrategia["tipo"],
-                                                        estrategia["estado"]
-                                                      )}
-                                                    ></i>
-                                                  </button>
-                                                </td>
-                                              </tr>
-                                            )
-                                          )}
+                                          {estrategias.map((estrategia) => (
+                                            <tr key={estrategia["id"]}>
+                                              <td>
+                                                {estrategia["descripcion"]}
+                                              </td>
+                                              <td>{estrategia["tipo"]}</td>
+                                              <td>{estrategia["estado"]}</td>
+                                              <td>
+                                                <button
+                                                  style={{ marginLeft: "auto" }}
+                                                  type="button"
+                                                >
+                                                  <i
+                                                    className="mdi mdi-delete"
+                                                    style={{ color: "black" }}
+                                                    onClick={handleEliminarEstrategias(
+                                                      estrategia["id"]
+                                                    )}
+                                                  ></i>
+                                                </button>
+                                              </td>
+                                            </tr>
+                                          ))}
                                         </tbody>
                                       </table>
                                     </div>
-                                  )}
-                                </Form.Group>
+                                  </Form.Group>
+                                )}
                               </div>
                             </div>
+
+                            {mostrarBuscarEstrategias && (
+                              <div>
+                                <div className="row">
+                                  <div className="col-md-7">
+                                    <Form.Group>
+                                      <div className="search-field col-sm-12">
+                                        <form
+                                          className="d-flex align-items-center h-100"
+                                          onSubmit={buscarEstrategiasCadena}
+                                        >
+                                          <div className="input-group">
+                                            <div className="input-group-prepend bg-white">
+                                              <i className="input-group-text border-0 mdi mdi-magnify"></i>
+                                            </div>
+                                            <input
+                                              type="text"
+                                              className="form-control bg-white border-0"
+                                              placeholder="Descripción"
+                                              value={estrategiaCadena}
+                                              onChange={({ target }) =>
+                                                setEstrategiaCadena(
+                                                  target.value
+                                                )
+                                              }
+                                            />
+                                          </div>
+                                        </form>
+                                      </div>
+                                    </Form.Group>
+                                  </div>
+
+                                  <div className="col-md-2">
+                                    <Form.Group>
+                                      <select
+                                        className="form-control col-sm-11"
+                                        onChange={({ target }) =>
+                                          setEstrategiaTipo(target.value)
+                                        }
+                                      >
+                                        <option
+                                          value=""
+                                          disabled
+                                          selected
+                                          hidden
+                                        >
+                                          Tipo
+                                        </option>
+                                        <option value={""}>
+                                          Todos los tipos
+                                        </option>
+                                        <option value={"0"}>Programa</option>
+                                        <option value={"1"}>
+                                          Campaña stand-alone
+                                        </option>
+                                      </select>
+                                    </Form.Group>
+                                  </div>
+
+                                  <div className="col-md-2">
+                                    <Form.Group>
+                                      <select
+                                        className="form-control col-sm-11"
+                                        onChange={({ target }) =>
+                                          setEstrategiaEstado(target.value)
+                                        }
+                                      >
+                                        <option
+                                          value=""
+                                          disabled
+                                          selected
+                                          hidden
+                                        >
+                                          Estado
+                                        </option>
+                                        <option value={""}>
+                                          Todos los estados
+                                        </option>
+                                        <option value={"0"}>No vigente</option>
+                                        <option value={"1"}>Vigente</option>
+                                      </select>
+                                    </Form.Group>
+                                  </div>
+
+                                  <div className="col-md-1">
+                                    <Form.Group>
+                                      <button
+                                        type="button"
+                                        className="btn btn-primary"
+                                        onClick={buscarEstrategias}
+                                      >
+                                        Buscar
+                                      </button>
+                                    </Form.Group>
+                                  </div>
+                                </div>
+                                <div className="row">
+                                  <div className="col-md-12">
+                                    <Form.Group>
+                                      {mostrarCargaEstrategias && (
+                                        <div className="row h-100">
+                                          <div className="col-sm-12 my-auto">
+                                            <div className="circle-loader"></div>
+                                          </div>
+                                        </div>
+                                      )}
+                                      {mostrarTablaEstrategias && (
+                                        <div className="table-responsive">
+                                          <table className="table">
+                                            <thead>
+                                              <tr>
+                                                <th>Descripción</th>
+                                                <th>Tipo</th>
+                                                <th>Estado</th>
+                                                <th></th>
+                                              </tr>
+                                            </thead>
+                                            <tbody>
+                                              {estrategiasBusqueda.map(
+                                                (estrategia) => (
+                                                  <tr key={estrategia["id"]}>
+                                                    <td>
+                                                      {
+                                                        estrategia[
+                                                          "descripcion"
+                                                        ]
+                                                      }
+                                                    </td>
+                                                    <td>
+                                                      {estrategia["tipo"]}
+                                                    </td>
+                                                    <td>
+                                                      {estrategia["estado"]}
+                                                    </td>
+                                                    <td>
+                                                      <button
+                                                        style={{
+                                                          marginLeft: "auto",
+                                                        }}
+                                                        type="button"
+                                                      >
+                                                        <i
+                                                          className="mdi mdi-plus"
+                                                          style={{
+                                                            color: "black",
+                                                          }}
+                                                          onClick={handleAgregarEstrategias(
+                                                            estrategia["id"],
+                                                            estrategia[
+                                                              "descripcion"
+                                                            ],
+                                                            estrategia["tipo"],
+                                                            estrategia["estado"]
+                                                          )}
+                                                        ></i>
+                                                      </button>
+                                                    </td>
+                                                  </tr>
+                                                )
+                                              )}
+                                            </tbody>
+                                          </table>
+                                        </div>
+                                      )}
+                                    </Form.Group>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
                           </Tab>
                         </Tabs>
                       </div>

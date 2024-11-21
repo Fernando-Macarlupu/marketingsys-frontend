@@ -123,7 +123,7 @@ const Oportunidades = () => {
     }
   };
 
-  const handleEliminarOportunidades = (id) => () => {
+  const handleEliminarOportunidades = (id) => {
     setOportunidades((prev) => prev.filter((el) => el.id !== id));
     //console.log(event.target.value);
   };
@@ -134,7 +134,7 @@ const Oportunidades = () => {
       .then((res) => res.data)
       .then((data) => {
         console.log(data);
-        //handleEliminarEmpresas(empresaEliminar);
+        handleEliminarOportunidades(oportunidadEliminar);
         setShow(false);
       })
       .catch((err) => alert(err));

@@ -1,8 +1,9 @@
 import React, { Component } from 'react'
 import {Tabs, Tab } from 'react-bootstrap';
-export class Informes extends Component {
-  render() {
-    return (
+import Dashboards from "./Dashboards";
+import Reportes from "./Reportes";
+const Informes = () => {
+  return (
       <div>
           <div className="page-header">
           <h3 className="page-title"> Informes y reportes </h3>
@@ -10,12 +11,12 @@ export class Informes extends Component {
           <div className="row">
           <div className="col-md-12">
             <div className="justify-content-between align-items-center tab-transparent">
-              <Tabs defaultActiveKey="Informes" className="nav">
-                  <Tab eventKey="Informes" title="Informes">
-                  <p></p>
+              <Tabs defaultActiveKey="Dashboards" className="nav">
+                  <Tab eventKey="Dashboards" title="Dashboards">
+                  <Dashboards></Dashboards>
                   </Tab>
                   <Tab eventKey="Reportes" title="Reportes">
-                  <p></p>
+                  <Reportes></Reportes>
                   </Tab>
                   </Tabs>
             </div>
@@ -23,6 +24,6 @@ export class Informes extends Component {
         </div>
       </div>
     )
-  }
+  
 }
 export default Informes

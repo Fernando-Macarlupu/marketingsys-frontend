@@ -1,12 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { Tabs, Tab, Form, FormGroup, Modal } from "react-bootstrap";
 import { Link, useHistory } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import api from "../api";
 import bsCustomFileInput from "bs-custom-file-input";
+import LandingPageEditor from "./LandingPageEditor";
+import plantilla2 from "./plantilla2.json";
 
 const CrearRecurso = () => {
   const history = useHistory();
+  const emailEditorRef = useRef(null);
+  const landingEditorRef = useRef(null);
   const [show, setShow] = useState(false);
   const [mostrarCargaDatos, setMostrarCargaDatos] = useState(false);
   const [mostrarDatos, setMostrarDatos] = useState(true);
@@ -20,7 +24,6 @@ const CrearRecurso = () => {
   const [descripcion, setDescripcion] = useState("");
   const [presupuesto, setPresupuesto] = useState(0.0);
   const [tipo, setTipo] = useState("0");
-
 
   const [mostrarBuscarCampanas, setMostrarBuscarCampanas] = useState(false);
   const [campana, setCampana] = useState({ id: 0, descripcion: "" });
@@ -54,16 +57,24 @@ const CrearRecurso = () => {
   const [audienciaRedSocial, setAudienciaRedSocial] = useState("");
   const [contenidoRedSocial, setContenidoRedSocial] = useState("");
 
+  const [correosUsuario, setCorreosUsuario] = useState([]);
   const [remitenteCorreo, setRemitenteCorreo] = useState("");
+  const [remitenteContrasena, setRemitenteContrasena] = useState("");
   const [asuntoCorreo, setAsuntoCorreo] = useState("");
   const [fechaPublicacionCorreo, setFechaPublicacionCorreo] = useState(null);
   const [horaPublicacionCorreo, setHoraPublicacionCorreo] = useState(null);
-  const [contenidoCorreo, setContenidoCorreo] = useState("");
+  const [contenidoCorreo, setContenidoCorreo] = useState(null);
+
+  const [contenidoGuardar, setContenidoGuardar] = useState(null);
+  const [contenidoGuardarHTML, setContenidoGuardarHTML] = useState(null);
 
   const [titulo, setTitulo] = useState("");
   const [dominio, setDominio] = useState("");
   const [complementoDominio, setComplementoDominio] = useState("");
-  const [contenidoPagina, setContenidoPagina] = useState("");
+  const [contenidoLanding, setContenidoLanding] = useState(null);
+  const [contenidoGuardarLanding, setContenidoGuardarLanding] = useState(null);
+  const [contenidoGuardarLandingHTML, setContenidoGuardarLandingHTML] =
+    useState(null);
 
   const [usuarioLogueado, setUsuarioLogueado] = useState({});
 
@@ -71,7 +82,52 @@ const CrearRecurso = () => {
   const handleShow = () => {
     if (descripcion == "") alert("Ingrese la descripción de la estrategia");
     else {
-      setShow(true);
+      if (tipo == "0") {
+        if (remitenteCorreo == "") alert("Ingrese el remitente del correo");
+        else {
+          if (fechaPublicacionCorreo == null)
+            alert("Ingrese la fecha de publicación del correo");
+          else {
+            if (horaPublicacionCorreo == null)
+              alert("Ingrese la hora de publicación del correo");
+            else {
+              if (asuntoCorreo == "") alert("Ingrese el asunto del correo");
+              else {
+                if (emailEditorRef != null) {
+                  if (emailEditorRef.current != null) {
+                    const unlayer = emailEditorRef.current.editor;
+                    if (unlayer != null) {
+                      unlayer.exportHtml((data) => {
+                        const { design, html } = data;
+                        setContenidoGuardar(design);
+                        setContenidoGuardarHTML(html);
+                      });
+                    }
+                  }
+                }
+                setShow(true);
+              }
+            }
+          }
+        }
+      } else if (tipo == "2") {
+        if (dominio == "") alert("Ingrese el dominio de la página web");
+        else {
+          if (landingEditorRef != null) {
+            if (landingEditorRef.current != null) {
+              const unlayer = landingEditorRef.current.editor;
+              if (unlayer != null) {
+                unlayer.exportHtml((data) => {
+                  const { design, html } = data;
+                  setContenidoGuardarLanding(design);
+                  setContenidoGuardarLandingHTML(html);
+                });
+              }
+            }
+          }
+          setShow(true);
+        }
+      }
     }
   };
 
@@ -87,6 +143,19 @@ const CrearRecurso = () => {
 
   const handleChangeInicioVigencia = (date) => setInicioVigencia(date);
   const handleChangeFinVigencia = (date) => setFinVigencia(date);
+
+  const handleChangeRemitente = (event) => {
+    //buscar la contra y setearla tambien setear el remitente
+    setRemitenteCorreo(event.target.value);
+    let cont = "";
+    for (let index = 0; index < correosUsuario.length; index++) {
+      const element = correosUsuario[index];
+      if (element["direccion"] == event.target.value) {
+        cont = element["contrasena"];
+      }
+    }
+    setRemitenteContrasena(cont);
+  };
 
   const handleBuscarCampanas = () =>
     setMostrarBuscarCampanas(!mostrarBuscarCampanas);
@@ -141,7 +210,7 @@ const CrearRecurso = () => {
   };
 
   const handleAgregarIndicadores =
-    (id, nombre, aspecto, tipo, automatizacion) => () => {
+    (id, nombre, aspecto, tipo, calculoAutomatico) => () => {
       for (let index = 0; index < indicadores.length; index++) {
         const element = indicadores[index];
         if (element["id"] == id) return;
@@ -153,10 +222,21 @@ const CrearRecurso = () => {
           nombre: nombre,
           aspecto: aspecto,
           tipo: tipo,
-          automatizacion: automatizacion,
+          calculoAutomatico: calculoAutomatico,
+          valor: 0.0,
         },
       ]);
     };
+
+  const handleValorIndicadores = (event, id) => () => {
+    const indicadoresLista = [];
+    for (let index = 0; index < indicadores.length; index++) {
+      const element = indicadores[index];
+      if (element["id"] == id) element["valor"] = event.target.value;
+      indicadoresLista.push(element);
+    }
+    setIndicadores(indicadoresLista);
+  };
 
   const handleEliminarIndicadores = (id) => () => {
     console.log("se va a eliminar");
@@ -269,7 +349,8 @@ const CrearRecurso = () => {
 
   const guardarRecurso = () => {
     let fechaVigenciaIni = "",
-      fechaVigenciaFin = "";
+      fechaVigenciaFin = "",
+      fechaPublicacion = "";
 
     if (inicioVigencia != null) {
       fechaVigenciaIni =
@@ -301,14 +382,25 @@ const CrearRecurso = () => {
       indicadores: indicadores,
       contactos: [],
     };
+
     if (tipo == "0") {
+      if (fechaPublicacionCorreo != null) {
+        fechaPublicacion =
+          fechaPublicacionCorreo.getDate() +
+          "-" +
+          parseInt(fechaPublicacionCorreo.getMonth() + 1) +
+          "-" +
+          fechaPublicacionCorreo.getFullYear();
+      }
       //correo
-      cuerpo["fechaPublicacion"] = fechaPublicacionCorreo; //cambiar formato
+      cuerpo["fechaPublicacion"] = fechaPublicacion;
       cuerpo["horaPublicacion"] = horaPublicacionCorreo; //cambiar formato
       cuerpo["asuntoCorreo"] = asuntoCorreo;
       cuerpo["remitenteCorreo"] = remitenteCorreo;
+      cuerpo["remitenteContrasena"] = remitenteContrasena;
       cuerpo["contactos"] = contactos;
-      cuerpo["contenido"] = contenidoCorreo;
+      cuerpo["contenido"] = JSON.stringify(contenidoGuardar);
+      cuerpo["contenidoHTML"] = contenidoGuardarHTML;
     } else if (tipo == "1") {
       cuerpo["fechaPublicacion"] = fechaPublicacionRedSocial; //cambiar formato
       cuerpo["horaPublicacion"] = horaPublicacionRedSocial; //cambiar formato
@@ -320,7 +412,8 @@ const CrearRecurso = () => {
       cuerpo["titulo"] = titulo;
       cuerpo["dominio"] = dominio;
       cuerpo["complementoDominio"] = complementoDominio;
-      cuerpo["contenido"] = contenidoPagina;
+      cuerpo["contenido"] = JSON.stringify(contenidoGuardarLanding);
+      cuerpo["contenidoHTML"] = contenidoGuardarLandingHTML;
     }
     console.log("cuerpo a subir");
     console.log(cuerpo);
@@ -343,6 +436,17 @@ const CrearRecurso = () => {
       .catch((err) => alert(err));
   };
 
+  const cargarCorreos = (id) => {
+    api
+      .get(`correosUsuario/${id}`)
+      .then((res) => res.data)
+      .then((data) => {
+        console.log(data);
+        setCorreosUsuario(data);
+      })
+      .catch((err) => alert(err));
+  };
+
   useEffect(() => {
     let usuario = localStorage.getItem("marketingSYSusuario");
     let usuarioPropiedades = {};
@@ -354,6 +458,7 @@ const CrearRecurso = () => {
     }
     usuarioPropiedades = JSON.parse(usuario);
     setUsuarioLogueado(usuarioPropiedades);
+    cargarCorreos(usuarioPropiedades["idUsuario"]);
   }, []);
 
   const componentDidMount = () => {
@@ -671,45 +776,64 @@ const CrearRecurso = () => {
                                   </label>
                                 </Form.Group>
                               ) : (
-                                <div className="table-responsive">
-                                  <table className="table">
-                                    <thead>
-                                      <tr>
-                                        <th>Nombre</th>
-                                        <th>Aspecto-Tipo</th>
-                                        <th>Automatización</th>
-                                        <th></th>
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      {indicadores.map((indicador) => (
-                                        <tr key={indicador["id"]}>
-                                          <td>{indicador["nombre"]}</td>
-                                          <td>
-                                            {indicador["aspecto"] +
-                                              " - " +
-                                              indicador["tipo"]}
-                                          </td>
-                                          <td>{indicador["automatizacion"]}</td>
-                                          <td>
-                                            <button
-                                              style={{ marginLeft: "auto" }}
-                                              type="button"
-                                            >
-                                              <i
-                                                className="mdi mdi-delete"
-                                                style={{ color: "black" }}
-                                                onClick={handleEliminarIndicadores(
-                                                  indicador["id"]
-                                                )}
-                                              ></i>
-                                            </button>
-                                          </td>
+                                <Form.Group>
+                                  <div className="table-responsive">
+                                    <table className="table">
+                                      <thead>
+                                        <tr>
+                                          <th>Nombre</th>
+                                          <th>Aspecto-Tipo</th>
+                                          <th>Automatización</th>
+                                          <th>Valor</th>
+                                          <th></th>
                                         </tr>
-                                      ))}
-                                    </tbody>
-                                  </table>
-                                </div>
+                                      </thead>
+                                      <tbody>
+                                        {indicadores.map((indicador) => (
+                                          <tr key={indicador["id"]}>
+                                            <td>{indicador["nombre"]}</td>
+                                            <td>
+                                              {indicador["aspecto"] +
+                                                " - " +
+                                                indicador["tipo"]}
+                                            </td>
+                                            <td>
+                                              {indicador["calculoAutomatico"]}
+                                            </td>
+                                            <td>
+                                              <input
+                                                type={"number"}
+                                                placeholder="Agregar valor"
+                                                className="form-control"
+                                                onChange={(event) =>
+                                                  handleValorIndicadores(
+                                                    event,
+                                                    indicador["id"]
+                                                  )
+                                                }
+                                                value={indicador["valor"]}
+                                              />
+                                            </td>
+                                            <td>
+                                              <button
+                                                style={{ marginLeft: "auto" }}
+                                                type="button"
+                                              >
+                                                <i
+                                                  className="mdi mdi-delete"
+                                                  style={{ color: "black" }}
+                                                  onClick={handleEliminarIndicadores(
+                                                    indicador["id"]
+                                                  )}
+                                                ></i>
+                                              </button>
+                                            </td>
+                                          </tr>
+                                        ))}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                </Form.Group>
                               )}
                             </div>
                           </div>
@@ -819,7 +943,7 @@ const CrearRecurso = () => {
                                                   indicador["tipo"]}
                                               </td>
                                               <td>
-                                                {indicador["automatizacion"]}
+                                                {indicador["calculoAutomatico"]}
                                               </td>
                                               <td>
                                                 <button
@@ -829,7 +953,9 @@ const CrearRecurso = () => {
                                                     indicador["nombre"],
                                                     indicador["aspecto"],
                                                     indicador["tipo"],
-                                                    indicador["automatizacion"]
+                                                    indicador[
+                                                      "calculoAutomatico"
+                                                    ]
                                                   )}
                                                 >
                                                   <i
@@ -935,13 +1061,27 @@ const CrearRecurso = () => {
                                         Correo del remitente <code>*</code>
                                       </label>
                                       <div className="col-sm-12">
-                                        <Form.Control
-                                          type="text"
+                                        <select
+                                          className="form-control"
                                           value={remitenteCorreo}
-                                          //onChange={({ target }) =>
-                                          //  setPresupuesto(target.value)
-                                          //}
-                                        />
+                                          onChange={handleChangeRemitente}
+                                        >
+                                          <option
+                                            value={""}
+                                            disabled
+                                            selected
+                                            hidden
+                                          >
+                                            Seleccione un correo
+                                          </option>
+                                          {correosUsuario.map(
+                                            ({ direccion }) => (
+                                              <option value={direccion}>
+                                                {direccion}
+                                              </option>
+                                            )
+                                          )}
+                                        </select>
                                       </div>
                                     </Form.Group>
                                   </div>
@@ -975,9 +1115,11 @@ const CrearRecurso = () => {
                                         <Form.Control
                                           type="time"
                                           value={horaPublicacionCorreo}
-                                          //onChange={({ target }) =>
-                                          //  setPresupuesto(target.value)
-                                          //}
+                                          onChange={({ target }) =>
+                                            setHoraPublicacionCorreo(
+                                              target.value
+                                            )
+                                          }
                                         />
                                       </div>
                                     </Form.Group>
@@ -1016,45 +1158,49 @@ const CrearRecurso = () => {
                                         </label>
                                       </Form.Group>
                                     ) : (
-                                      <div className="table-responsive">
-                                        <table className="table">
-                                          <thead>
-                                            <tr>
-                                              <th>Correo</th>
-                                              <th>Nombre completo</th>
-                                              <th>Empresa</th>
-                                              <th></th>
-                                            </tr>
-                                          </thead>
-                                          <tbody>
-                                            {contactos.map((contacto) => (
-                                              <tr key={contacto["id"]}>
-                                                <td>{contacto["correo"]}</td>
-                                                <td>
-                                                  {contacto["nombreCompleto"]}
-                                                </td>
-                                                <td>{contacto["empresa"]}</td>
-                                                <td>
-                                                  <button
-                                                    style={{
-                                                      marginLeft: "auto",
-                                                    }}
-                                                    type="button"
-                                                  >
-                                                    <i
-                                                      className="mdi mdi-delete"
-                                                      style={{ color: "black" }}
-                                                      onClick={handleEliminarContactos(
-                                                        contacto["id"]
-                                                      )}
-                                                    ></i>
-                                                  </button>
-                                                </td>
+                                      <Form.Group>
+                                        <div className="table-responsive">
+                                          <table className="table">
+                                            <thead>
+                                              <tr>
+                                                <th>Correo</th>
+                                                <th>Nombre completo</th>
+                                                <th>Empresa</th>
+                                                <th></th>
                                               </tr>
-                                            ))}
-                                          </tbody>
-                                        </table>
-                                      </div>
+                                            </thead>
+                                            <tbody>
+                                              {contactos.map((contacto) => (
+                                                <tr key={contacto["id"]}>
+                                                  <td>{contacto["correo"]}</td>
+                                                  <td>
+                                                    {contacto["nombreCompleto"]}
+                                                  </td>
+                                                  <td>{contacto["empresa"]}</td>
+                                                  <td>
+                                                    <button
+                                                      style={{
+                                                        marginLeft: "auto",
+                                                      }}
+                                                      type="button"
+                                                    >
+                                                      <i
+                                                        className="mdi mdi-delete"
+                                                        style={{
+                                                          color: "black",
+                                                        }}
+                                                        onClick={handleEliminarContactos(
+                                                          contacto["id"]
+                                                        )}
+                                                      ></i>
+                                                    </button>
+                                                  </td>
+                                                </tr>
+                                              ))}
+                                            </tbody>
+                                          </table>
+                                        </div>
+                                      </Form.Group>
                                     )}
                                   </div>
                                 </div>
@@ -1140,7 +1286,9 @@ const CrearRecurso = () => {
                                                         onClick={handleAgregarContactos(
                                                           contacto["id"],
                                                           contacto["correo"],
-                                                          contacto["persona__nombreCompleto"],
+                                                          contacto[
+                                                            "persona__nombreCompleto"
+                                                          ],
                                                           contacto["empresa"]
                                                         )}
                                                       >
@@ -1171,12 +1319,12 @@ const CrearRecurso = () => {
                                         Contenido del correo<code>*</code>
                                       </label>
                                       <div className="col-sm-12">
-                                        <Form.Control
-                                          type="text"
-                                          //value={descripcion}
-                                          //onChange={({ target }) =>
-                                          //  setDescripcion(target.value)
-                                          //}
+                                        <LandingPageEditor
+                                          emailEditorRef={emailEditorRef}
+                                          contenidoCorreo={contenidoCorreo}
+                                          setContenidoCorreo={
+                                            setContenidoCorreo
+                                          }
                                         />
                                       </div>
                                     </Form.Group>
@@ -1502,12 +1650,12 @@ const CrearRecurso = () => {
                                         Contenido de la página<code>*</code>
                                       </label>
                                       <div className="col-sm-12">
-                                        <Form.Control
-                                          type="text"
-                                          //value={descripcion}
-                                          //onChange={({ target }) =>
-                                          //  setDescripcion(target.value)
-                                          //}
+                                        <LandingPageEditor
+                                          emailEditorRef={landingEditorRef}
+                                          contenidoCorreo={contenidoLanding}
+                                          setContenidoCorreo={
+                                            setContenidoLanding
+                                          }
                                         />
                                       </div>
                                     </Form.Group>

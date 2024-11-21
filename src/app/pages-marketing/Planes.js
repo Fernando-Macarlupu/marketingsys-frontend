@@ -122,7 +122,7 @@ const Planes = () => {
     }
   };
 
-  const handleEliminarPlanes = (id) => () => {
+  const handleEliminarPlanes = (id) => {
     setPlanes((prev) => prev.filter((el) => el.id !== id));
     //console.log(event.target.value);
   };
@@ -133,7 +133,7 @@ const Planes = () => {
       .then((res) => res.data)
       .then((data) => {
         console.log(data);
-        //handleEliminarEmpresas(empresaEliminar);
+        handleEliminarPlanes(planEliminar);
         setShow(false);
       })
       .catch((err) => alert(err));

@@ -5,12 +5,13 @@ import DatePicker from "react-datepicker";
 import api from "../api";
 import "react-datepicker/dist/react-datepicker.css";
 
-const Contactos = () => {
+const Reportes = () => {
   const history = useHistory();
   const location = useLocation();
   const [show, setShow] = useState(false);
   const [mostrarTabla, setMostrarTabla] = useState(false);
   const [mostrarCarga, setMostrarCarga] = useState(false);
+
   const [usuarioLogueado, setUsuarioLogueado] = useState({});
   const [startDateCreate, setStartDateCreate] = useState(new Date());
   const [endDateCreate, setEndDateCreate] = useState(new Date());
@@ -18,9 +19,8 @@ const Contactos = () => {
   const [endDateModify, setEndDateModify] = useState(new Date());
   const [buscarFechas, setBuscarFechas] = useState(0);
   const [cadena, setCadena] = useState("");
-  const [estado, setEstado] = useState("");
-  const [contactos, setContactos] = useState([]);
-  const [contactoEliminar, setContactoEliminar] = useState(0);
+  const [reportes, setReportes] = useState([]);
+  const [reporteEliminar, setReporteEliminar] = useState(0);
   const [mostrarMensajeExito, setMostrarMensajeExito] = useState(false);
   const [mostrarMensajeExitoCarga, setMostrarMensajeExitoCarga] =
     useState(false);
@@ -33,20 +33,13 @@ const Contactos = () => {
       });
       return;
     }
-    if (location.state == null) console.log("El contacto guardado es null");
+    if (location.state == null) console.log("El reporte guardado es null");
     else {
-      if (location.state.contactoGuardado == true) {
+      if (location.state.reporteGuardado == true) {
         setMostrarMensajeExito(true);
         setTimeout(() => {
           setMostrarMensajeExito(false);
         }, 5000);
-      } else {
-        if (location.state.contactosCargados == true) {
-          setMostrarMensajeExitoCarga(true);
-          setTimeout(() => {
-            setMostrarMensajeExitoCarga(false);
-          }, 5000);
-        }
       }
     }
     setUsuarioLogueado(JSON.parse(usuario));
@@ -62,8 +55,8 @@ const Contactos = () => {
   //   estado: "",
   //   contactos: [],
   // };
-
-  const buscarContactos = () => {
+  
+  const buscarReportes = () => {
     //console.log("esto es la cadena")
     console.log(cadena);
     let fechaCreacionIni = "",
@@ -108,9 +101,8 @@ const Contactos = () => {
     setMostrarTabla(false);
     setMostrarCarga(true);
     api
-      .post("filtrarContactos", {
+      .post("filtrarReportes", {
         cadena: cadena,
-        estado: estado,
         fechaCreacionIni: fechaCreacionIni,
         fechaCreacionFin: fechaCreacionFin,
         fechaModificacionIni: fechaModificacionIni,
@@ -120,16 +112,16 @@ const Contactos = () => {
       .then((res) => res.data)
       .then((data) => {
         console.log(data);
-        setContactos(data);
+        setReportes(data);
         setMostrarCarga(false);
         setMostrarTabla(true);
       })
       .catch((err) => alert(err));
   };
 
-  const buscarContactosCadena = (event) => {
+  const buscarReportesCadena = (event) => {
     event.preventDefault();
-    buscarContactos();
+    buscarReportes();
   };
 
   const handleChangeCadena = (event) => {
@@ -140,11 +132,6 @@ const Contactos = () => {
   const handleChangeBuscarFechas = (event) => {
     console.log(event.target.value);
     setBuscarFechas(event.target.value);
-  };
-
-  const handleChangeEstado = (event) => {
-    console.log(event.target.value);
-    setEstado(event.target.value);
   };
 
   const handleChangeStartCreate = (date) => {
@@ -162,19 +149,18 @@ const Contactos = () => {
 
   const handleClose = () => setShow(false);
 
-  const handleEliminarContactos = (id) => {
-    setContactos((prev) => prev.filter((el) => el.id !== id));
-    console.log("se elimino");
+  const handleEliminarReportes = (id) => {
+    setReportes((prev) => prev.filter((el) => el.id !== id));
     //console.log(event.target.value);
   };
 
-  const eliminarContacto = () => {
+  const eliminarReporte = () => {
     api
-      .delete(`eliminarContacto/${contactoEliminar}`)
+      .delete(`eliminarReporte/${reporteEliminar}`)
       .then((res) => res.data)
       .then((data) => {
         console.log(data);
-        handleEliminarContactos(contactoEliminar);
+        handleEliminarReportes(reporteEliminar);
         setShow(false);
       })
       .catch((err) => alert(err));
@@ -186,14 +172,14 @@ const Contactos = () => {
       console.log("Ver detalle");
       event.target.value = 0;
       history.push({
-        pathname: "/detalleContacto",
-        state: { idContacto: id },
+        pathname: "/detalleReporte",
+        state: { idReporte: id },
       });
     }
     if (event.target.value == 2) {
       console.log("Eliminar");
       event.target.value = 0;
-      setContactoEliminar(id);
+      setReporteEliminar(id);
       setShow(true);
       // api
       // .delete(`eliminarContacto/${id}`)
@@ -208,8 +194,8 @@ const Contactos = () => {
   return (
     <div>
       <div className="row">
-        <div className="page-header col-md-5">
-          <h3 className="page-title"> Contactos </h3>
+        <div className="page-header col-md-7">
+          <h3 className="page-title"> Reportes </h3>
         </div>
         <div className="page-header col-md-3">
           <Alert
@@ -219,16 +205,7 @@ const Contactos = () => {
           >
             {" "}
             <i className="px-2 mdi mdi-check-circle"></i>
-            Contacto registrado correctamente
-          </Alert>
-          <Alert
-            show={mostrarMensajeExitoCarga}
-            variant="success"
-            className="small text-center"
-          >
-            {" "}
-            <i className="px-2 mdi mdi-check-circle"></i>
-            Contactos cargados correctamente
+            Reporte registrado correctamente
           </Alert>
         </div>
         <div className="col-md-2">
@@ -236,21 +213,9 @@ const Contactos = () => {
             <div className="text-right">
               <button
                 className="btn btn-primary"
-                onClick={() => history.push({ pathname: "/cargarContactos" })}
+                onClick={() => history.push({ pathname: "/crearReporte" })}
               >
-                Cargar contactos
-              </button>
-            </div>
-          </Form.Group>
-        </div>
-        <div className="col-md-2">
-          <Form.Group>
-            <div className="text-right">
-              <button
-                className="btn btn-primary"
-                onClick={() => history.push({ pathname: "/crearContacto" })}
-              >
-                Nuevo contacto
+                Nuevo reporte
               </button>
             </div>
           </Form.Group>
@@ -327,7 +292,7 @@ const Contactos = () => {
               <div className="search-field col-sm-10">
                 <form
                   className="d-flex align-items-center h-100"
-                  onSubmit={buscarContactosCadena}
+                  onSubmit={buscarReportesCadena}
                 >
                   <div className="input-group">
                     <div className="input-group-prepend bg-white">
@@ -336,29 +301,12 @@ const Contactos = () => {
                     <input
                       type="text"
                       className="form-control bg-white border-0"
-                      placeholder="Nombres, apellidos, telefono o correo del contacto"
+                      placeholder="Nombre del reporte"
                       onChange={handleChangeCadena}
                     />
                   </div>
                 </form>
               </div>
-            </Form.Group>
-          </div>
-          <div className="col-md-4">
-            <Form.Group className="row">
-              <select
-                className="form-control col-sm-6"
-                onChange={handleChangeEstado}
-              >
-                <option value="" disabled selected hidden>
-                  Estado del contacto
-                </option>
-                <option value={""}>Todos los estados</option>
-                <option value={"0"}>Suscriptor</option>
-                <option value={"1"}>Lead</option>
-                <option value={"2"}>Oportunidad</option>
-                <option value={"3"}>Cliente</option>
-              </select>
             </Form.Group>
           </div>
           <div className="col-md-2">
@@ -367,7 +315,7 @@ const Contactos = () => {
                 <button
                   type="button"
                   className="btn btn-primary"
-                  onClick={buscarContactos}
+                  onClick={buscarReportes}
                 >
                   Buscar
                 </button>
@@ -378,7 +326,7 @@ const Contactos = () => {
       </form>
       <div className="row">
         <div className="col-sm-12">
-          {mostrarCarga && (
+        {mostrarCarga && (
             <div className="row h-100">
               <div className="col-sm-12 my-auto">
                 <div className="circle-loader"></div>
@@ -386,45 +334,39 @@ const Contactos = () => {
             </div>
           )}
           {mostrarTabla && (
-            <div className="table-responsive">
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>Nombre completo</th>
-                    <th>Correo</th>
-                    <th>Teléfono</th>
-                    <th>Estado</th>
-                    <th>Fecha de creación</th>
-                    <th>Fecha de modificación</th>
-                    <th></th>
+          <div className="table-responsive">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Fecha de creación</th>
+                  <th>Fecha de modificación</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {reportes.map((reporte) => (
+                  <tr key={reporte["id"]}>
+                    <td>{reporte["nombre"]}</td>
+                    <td>{reporte["fechaCreacion"]}</td>
+                    <td>{reporte["fechaModificacion"]}</td>
+                    <td>
+                      <select
+                        className="form-control"
+                        onChange={(e) => handleVerDetalle(reporte["id"], e)}
+                      >
+                        <option value={0} disabled selected hidden>
+                          ...
+                        </option>
+                        <option value={1}>Ver detalle</option>
+                        <option value={2}>Eliminar</option>
+                      </select>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {contactos.map((contacto) => (
-                    <tr key={contacto["id"]}>
-                      <td>{contacto["persona__nombreCompleto"]}</td>
-                      <td>{contacto["correo"]}</td>
-                      <td>{contacto["telefono"]}</td>
-                      <td>{contacto["estado"]}</td>
-                      <td>{contacto["fechaCreacion"]}</td>
-                      <td>{contacto["fechaModificacion"]}</td>
-                      <td>
-                        <select
-                          className="form-control"
-                          onChange={(e) => handleVerDetalle(contacto["id"], e)}
-                        >
-                          <option value={0} disabled selected hidden>
-                            ...
-                          </option>
-                          <option value={1}>Ver detalle</option>
-                          <option value={2}>Eliminar</option>
-                        </select>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
           )}
         </div>
       </div>
@@ -432,21 +374,21 @@ const Contactos = () => {
         <Modal.Header closeButton>
           <Modal.Title>
             <h4 className="card-title" style={{ color: "#000000" }}>
-              Eliminar contacto
+              Eliminar reporte
             </h4>
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <h5 className="card-title" style={{ color: "#000000" }}>
-            ¿Desea eliminar el contacto?
+            ¿Desea eliminar el reporte?
           </h5>
         </Modal.Body>
         <Modal.Footer>
           <button className="btn btn-outline-primary" onClick={handleClose}>
             Cancelar
           </button>
-          <Link className="nav-link" to="/contactos">
-            <button className="btn btn-primary" onClick={eliminarContacto}>
+          <Link className="nav-link" to="/informes">
+            <button className="btn btn-primary" onClick={eliminarReporte}>
               Eliminar
             </button>
           </Link>
@@ -455,4 +397,4 @@ const Contactos = () => {
     </div>
   );
 };
-export default Contactos;
+export default Reportes;
