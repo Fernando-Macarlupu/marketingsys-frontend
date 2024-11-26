@@ -231,6 +231,62 @@ const CrearReporte = () => {
       //console.log(event.target.value);
     };
 
+    const mostrarColumnas = (columna) => {
+      if (columna == 'plan-descripcion') return "Plan: Descripción";
+      else if (columna == 'plan-sponsor') return "Plan: Sponsor";
+      else if (columna == 'plan-presupuesto') return "Plan: Presupuesto";
+      else if (columna == 'plan-inicioVigencia') return "Plan: Inicio de vigencia";
+      else if (columna == 'plan-finVigencia') return "Plan: Fin de vigencia";
+      else if (columna == 'plan-estado') return "Plan: Estado";
+      else if (columna == 'plan-fechaCreacion') return "Plan: Fecha de creación";
+      else if (columna == 'plan-fechaModificacion') return "Plan: Fecha de modificación";
+      else if (columna == 'programa-descripcion') return "Programa: Descripción";
+      else if (columna == 'programa-tipo') return "Programa: Tipo";
+      else if (columna == 'programa-sponsor') return "Programa: Sponsor";
+      else if (columna == 'programa-presupuesto') return "Programa: Presupuesto";
+      else if (columna == 'programa-inicioVigencia') return "Programa: Inicio de vigencia";
+      else if (columna == 'programa-finVigencia') return "Programa: Fin de vigencia";
+      else if (columna == 'programa-estado') return "Programa: Estado";
+      else if (columna == 'programa-fechaCreacion') return "Programa: Fecha de creación";
+      else if (columna == 'programa-fechaModificacion') return "Programa: Fecha de modificación";
+      else if (columna == 'campana-descripcion') return "Campaña: Descripción";
+      else if (columna == 'campana-tipo') return "Campaña: Tipo";
+      else if (columna == 'campana-sponsor') return "Campaña: Sponsor";
+      else if (columna == 'campana-presupuesto') return "Campaña: Presupuesto";
+      else if (columna == 'campana-inicioVigencia') return "Campaña: Inicio de vigencia";
+      else if (columna == 'campana-finVigencia') return "Campaña: Fin de vigencia";
+      else if (columna == 'campana-estado') return "Campaña: Estado";
+      else if (columna == 'campana-fechaCreacion') return "Campaña: Fecha de creación";
+      else if (columna == 'campana-fechaModificacion') return "Campaña: Fecha de modificación";
+      else if (columna == 'recurso-descripcion') return "Recurso: Descripción";
+      else if (columna == 'recurso-tipo') return "Recurso: Tipo";
+      else if (columna == 'recurso-presupuesto') return "Recurso: Presupuesto";
+      else if (columna == 'recurso-inicioVigencia') return "Recurso: Inicio de vigencia";
+      else if (columna == 'recurso-finVigencia') return "Recurso: Fin de vigencia";
+      else if (columna == 'recurso-estado') return "Recurso: Estado";
+      else if (columna == 'recurso-fechaCreacion') return "Recurso: Fecha de creación";
+      else if (columna == 'recurso-fechaModificacion') return "Recurso: Fecha de modificación";
+      else if (columna == 'oportunidad-descripcion') return "Oportunidad: Descripción";
+      else if (columna == 'oportunidad-tipo') return "Oportunidad: Tipo";
+      else if (columna == 'oportunidad-etapa') return "Oportunidad: Etapa";
+      else if (columna == 'oportunidad-importe') return "Oportunidad: Importe";
+      else if (columna == 'oportunidad-inicioVigencia') return "Oportunidad: Inicio de vigencia";
+      else if (columna == 'oportunidad-finVigencia') return "Oportunidad: Fin de vigencia";
+      else if (columna == 'oportunidad-estado') return "Oportunidad: Estado";
+      else if (columna == 'oportunidad-fechaCreacion') return "Oportunidad: Fecha de creación";
+      else if (columna == 'oportunidad-fechaModificacion') return "Oportunidad: Fecha de modificación";
+      else if (columna == 'contacto-nombreCompleto') return "Contacto: Nombre completo";
+      else if (columna == 'contacto-estado') return "Contacto: Estado";
+      else if (columna == 'contacto-fechaCreacion') return "Contacto: Fecha de creación";
+      else if (columna == 'contacto-fechaModificacion') return "Contacto: Fecha de modificación";
+      else if (columna == 'contacto-empresa') return "Contacto: Empresa";
+      else if (columna == 'empresa-nombre') return "Empresa: Nombre";
+      else if (columna == 'empresa-sector') return "Empresa: Sector";
+      else if (columna == 'empresa-fechaCreacion') return "Empresa: Fecha de creación";
+      else if (columna == 'empresa-fechaModificacion') return "Empresa: Fecha de modificación";
+      else if (columna == 'empresa-tipo') return "Empresa: Tipo";
+    }
+
   const mostrarFiltros = (propiedad, evaluacion, valorEvaluacion, nombre) => {
     let respuesta = "";
     respuesta += nombre + " - ";
@@ -1041,16 +1097,16 @@ const CrearReporte = () => {
                                   <thead>
                                     <tr>
                                       {columnas.map((columna) => (
-                                        <th>{columna}</th>
+                                        <th>{mostrarColumnas(columna)}</th>
                                       ))}
                                     </tr>
                                   </thead>
                                   <tbody>
                                     {filas.map((fila) => (
                                       <tr>
-                                        {Object.entries(fila).map(
-                                          ([propiedad, valor]) => (
-                                            <td>{valor}</td>
+                                        {Object.keys(fila).map(
+                                          (key) => (
+                                            <td>{fila[key][1]}</td>
                                           )
                                         )}
                                       </tr>

@@ -42,7 +42,8 @@ const CrearOportunidad = () => {
   const handleShow = () => {
     if (descripcion == "") alert("Ingrese la descripción de la estrategia");
     else {
-      setShow(true);
+      if(inicioVigencia==null || finVigencia==null) alert("Ingrese las fechas de inicio y fin de vigencia de la oportunidad");
+      else{setShow(true);}
     }
   };
 
@@ -293,10 +294,11 @@ const buscarContactosCadena = (event) => {
                             </label>
                             <div className="col-sm-12">
                               <select
+                              value={etapa}
                                 className="form-control"
                                 onChange={handleChangeEtapa}
                               >
-                                <option value={"0"} selected>
+                                <option value={"0"}>
                                   Calificación
                                 </option>
                                 <option value={"1"}>
@@ -425,10 +427,11 @@ const buscarContactosCadena = (event) => {
                             </label>
                             <div className="col-sm-12">
                               <select
+                              value={tipo}
                                 className="form-control"
                                 onChange={handleChangeTipo}
                               >
-                                <option value={"0"} selected>
+                                <option value={"0"}>
                                   Negocio existente
                                 </option>
                                 <option value={"1"}>Nuevo negocio</option>
@@ -458,7 +461,7 @@ const buscarContactosCadena = (event) => {
                         <div className="col-md-6">
                           <Form.Group>
                             <label className="col-sm-12 col-form-label">
-                              Inicio de vigencia
+                              Inicio de vigencia <code>*</code>
                             </label>
                             <div className="col-sm-12">
                               <div className="customDatePickerWidth">
@@ -475,7 +478,7 @@ const buscarContactosCadena = (event) => {
                         <div className="col-md-6">
                           <Form.Group>
                             <label className="col-sm-12 col-form-label">
-                              Fin de vigencia
+                              Fin de vigencia <code>*</code>
                             </label>
                             <div className="col-sm-12">
                               <div className="customDatePickerWidth">

@@ -3,8 +3,14 @@ import { Link, useHistory, useLocation } from "react-router-dom";
 import { Form, Alert } from "react-bootstrap";
 import { googleLogout, useGoogleLogin } from "@react-oauth/google";
 import api from "../api";
-import axios from 'axios';
-import { LOGIN_REQUEST, PUBLIC_CLIENT_APPLICATION, TOKEN_REQUEST } from './msalConfig';
+import axios from "axios";
+import {
+  LOGIN_REQUEST,
+  PUBLIC_CLIENT_APPLICATION,
+  TOKEN_REQUEST,
+  MSAL_CONFIG,
+} from "./msalConfig";
+import { PublicClientApplication } from "@azure/msal-browser";
 
 const Login = () => {
   const history = useHistory();
@@ -15,40 +21,112 @@ const Login = () => {
   const [mostrarCargaDatos, setMostrarCargaDatos] = useState(false);
   const [mostrarDatos, setMostrarDatos] = useState(true);
   const [mostrarMensajeExito, setMostrarMensajeExito] = useState(false);
+  const [mostrarMensajeExitoContrasena, setMostrarMensajeExitoContrasena] =
+    useState(false);
 
   const [user, setUser] = useState([]);
   const [profile, setProfile] = useState([]);
   const [correoLogin, setCorreoLogin] = useState([]);
 
   let fechaHoy = new Date();
-    let fechaExpiracion = new Date(fechaHoy);
-    fechaExpiracion.setDate(fechaHoy.getDate() + 180);
+  let fechaExpiracion = new Date(fechaHoy);
+  fechaExpiracion.setDate(fechaHoy.getDate() + 180);
 
   const [token, setToken] = useState(null);
   const [interactionInProgress, setInteractionInProgress] = useState(false);
 
+  const handleLoginMicrosoft = (datos) => {
+    const cuerpo = {
+      correo: datos.username,
+      nombreCompleto: datos.name,
+      servicio: "1",
+      cuentaUsuario: {
+        id: 0,
+        nombre: datos.name,
+        expiracionCuenta:
+          fechaExpiracion.getDate() +
+          "-" +
+          parseInt(fechaExpiracion.getMonth() + 1) +
+          "-" +
+          fechaExpiracion.getFullYear(),
+        diasExpiracioncuenta: 180,
+      },
+    };
+    // send the username and password to the server
+    setMostrarDatos(false);
+    setMostrarCargaDatos(true);
+    api
+      .post("loginCorreo", cuerpo)
+      .then((res) => res.data)
+      .then((data) => {
+        console.log(data);
+        setMostrarCargaDatos(false);
+        setMostrarDatos(true);
+        if (data["mensaje"] == "Usuario no encontrado") alert(data["mensaje"]);
+        else {
+          setUsuario(data["datos"]);
+          localStorage.setItem(
+            "marketingSYSusuario",
+            JSON.stringify(data["datos"])
+          );
+          localStorage.setItem(
+            "marketingSYSusuario_logueado",
+            JSON.stringify(true)
+          );
+          console.log("llego hasta poner el dashboard");
+          history.push({
+            pathname: "/dashboard",
+          });
+        }
+      })
+      .catch((err) => alert(err));
+  };
+
   const handleSignIn = async () => {
-    const loginResponse = await PUBLIC_CLIENT_APPLICATION.loginPopup(LOGIN_REQUEST);
-    if (loginResponse.account) {
-      PUBLIC_CLIENT_APPLICATION.setActiveAccount(loginResponse.account);
-    }
-    const tokenResponse = await PUBLIC_CLIENT_APPLICATION.acquireTokenSilent(TOKEN_REQUEST);
-    setToken(tokenResponse.accessToken);
-  }
+    console.log(interactionInProgress);
+    const CLIENT_APPLICATION = new PublicClientApplication(MSAL_CONFIG);
+
+    await CLIENT_APPLICATION.initialize();
+    CLIENT_APPLICATION.loginPopup(LOGIN_REQUEST).then(
+      function (loginResponse) {
+        if (loginResponse.account) {
+          console.log(loginResponse.account);
+          if (!interactionInProgress) {
+            setInteractionInProgress(true);
+            const currentAccount = CLIENT_APPLICATION.getAccountByHomeId(
+              loginResponse.account.homeAccountId
+            );
+            console.log("Esta es la cuenta actual");
+            console.log(JSON.stringify(currentAccount));
+            localStorage.setItem("cuentaWindows", JSON.stringify(currentAccount));
+            handleLoginMicrosoft(currentAccount);
+            setInteractionInProgress(false);
+          }
+          CLIENT_APPLICATION.setActiveAccount(loginResponse.account);
+        }
+      }).catch(function (error) {
+          console.log(error);
+      });
+    
+    //const tokenResponse = await PUBLIC_CLIENT_APPLICATION.acquireTokenSilent(TOKEN_REQUEST);
+    //setToken(tokenResponse.accessToken);
+  };
 
   const handleSignOut = async () => {
     if (!interactionInProgress) {
       setInteractionInProgress(true);
-      PUBLIC_CLIENT_APPLICATION.logout();
+      PUBLIC_CLIENT_APPLICATION.logoutRedirect();
       setToken(null);
       setInteractionInProgress(false);
     }
-  }
+  };
 
   const handleRefreshToken = async () => {
-    const tokenResponse = await PUBLIC_CLIENT_APPLICATION.acquireTokenSilent(TOKEN_REQUEST);
+    const tokenResponse = await PUBLIC_CLIENT_APPLICATION.acquireTokenSilent(
+      TOKEN_REQUEST
+    );
     setToken(tokenResponse.accessToken);
-  }
+  };
 
   const handleLoginGoogle = (data) => {
     const datos = {
@@ -58,9 +136,14 @@ const Login = () => {
       cuentaUsuario: {
         id: 0,
         nombre: data.name,
-        expiracionCuenta: fechaExpiracion.getDate() + "-" + parseInt(fechaExpiracion.getMonth() + 1) + "-" + fechaExpiracion.getFullYear(),
+        expiracionCuenta:
+          fechaExpiracion.getDate() +
+          "-" +
+          parseInt(fechaExpiracion.getMonth() + 1) +
+          "-" +
+          fechaExpiracion.getFullYear(),
         diasExpiracioncuenta: 180,
-      }
+      },
     };
     // send the username and password to the server
     setMostrarDatos(false);
@@ -94,18 +177,21 @@ const Login = () => {
 
   const obtenerPerfil = (user) => {
     axios
-    .get(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${user.access_token}`, {
-        headers: {
+      .get(
+        `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${user.access_token}`,
+        {
+          headers: {
             Authorization: `Bearer ${user.access_token}`,
-            Accept: 'application/json'
+            Accept: "application/json",
+          },
         }
-    })
-    .then((res) => {
+      )
+      .then((res) => {
         setProfile(res.data);
         console.log(res.data);
         handleLoginGoogle(res.data);
-    })
-    .catch((err) => console.log(err));
+      })
+      .catch((err) => console.log(err));
   };
 
   const login = useGoogleLogin({
@@ -118,6 +204,10 @@ const Login = () => {
   });
 
   useEffect(() => {
+    let interaccion = sessionStorage.getItem("msal.interaction.status");
+    if (interaccion != null) {
+      sessionStorage.removeItem("msal.interaction.status");
+    }
     if (location.state == null) console.log("La cuenta guardada es null");
     else {
       if (location.state.registroDeCuenta == true) {
@@ -125,6 +215,13 @@ const Login = () => {
         setTimeout(() => {
           setMostrarMensajeExito(false);
         }, 5000);
+      } else {
+        if (location.state.actualizacionContrasena == true) {
+          setMostrarMensajeExitoContrasena(true);
+          setTimeout(() => {
+            setMostrarMensajeExitoContrasena(false);
+          }, 5000);
+        }
       }
     }
   }, []);
@@ -215,6 +312,15 @@ const Login = () => {
                     <i className="px-2 mdi mdi-check-circle"></i>
                     Cuenta de usuario creada correctamente
                   </Alert>
+                  <Alert
+                    show={mostrarMensajeExitoContrasena}
+                    variant="success"
+                    className="small text-center"
+                  >
+                    {" "}
+                    <i className="px-2 mdi mdi-check-circle"></i>
+                    Contraseña actualizada correctamente
+                  </Alert>
                   <Form className="pt-3">
                     <Form.Group>
                       <label className="col-form-label">
@@ -242,13 +348,14 @@ const Login = () => {
                     </Form.Group>
                     <div className="my-2 d-flex justify-content-between align-items-center">
                       <div></div>
-                      <a
-                        href="!#"
-                        onClick={(event) => event.preventDefault()}
-                        className="auth-link text-primary"
-                      >
-                        ¿Olvidó la contraseña?
-                      </a>
+                      <div className="auth-link text-left mt-3">
+                        <Link
+                          to="/restablecerContrasena"
+                          className="text-primary"
+                        >
+                          ¿Olvidó su contraseña?
+                        </Link>
+                      </div>
                     </div>
                     <div className="mt-3">
                       <button
@@ -278,8 +385,8 @@ const Login = () => {
                           className="btn btn-block btn-outline-primary btn-lg font-weight-medium auth-form-btn"
                           onClick={handleSignIn}
                         >
-                          <i className="mdi mdi-windows mr-2"></i>Iniciar con
-                          Windows
+                          <i className="mdi mdi-microsoft mr-2"></i>Iniciar con
+                          Microsoft
                         </button>
                       </div>
                     </div>

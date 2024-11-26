@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Form, Tabs, Tab,FormGroup, Modal } from "react-bootstrap";
+import {
+  Form,
+  Tabs,
+  Tab,
+  FormGroup,
+  Modal,
+  CloseButton,
+} from "react-bootstrap";
 import { Link, useHistory } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import api from "../api";
@@ -20,7 +27,10 @@ const CrearDashboard = () => {
   const [nuevoComponenteReporte, setNuevoComponenteReporte] = useState({
     id: 0,
     nombre: "",
+    tipo: "",
   });
+  const [nuevoComponenteReporteTipo, setNuevoComponenteReporteTipo] =
+    useState("");
 
   const [mostrarAgregarComponente, setMostrarAgregarComponente] =
     useState(false);
@@ -82,9 +92,9 @@ const CrearDashboard = () => {
     responsive: true,
     animation: {
       animateScale: true,
-      animateRotate: true
-    }
-};
+      animateRotate: true,
+    },
+  };
 
   const handleClose = () => setShow(false);
   const handleShow = () => {
@@ -137,12 +147,19 @@ const CrearDashboard = () => {
             cantidades: data["cantidades"],
           },
         ]);
+        setNuevoComponenteReporte({
+          id: 0,
+          nombre: "",
+          tipo: "",
+        });
+        setNuevoComponenteReporteTipo("");
         setNuevoComponenteTipo("0");
         setNuevoComponenteOrganizado("plan-estado");
         setNuevoComponenteValores("cantidad");
         setNuevoComponenteTitulo("");
         setNuevoComponenteSubTitulo("");
         setMostrarAgregarComponente(false);
+        setMostrarTabla(false);
       })
       .catch((err) => alert(err));
   };
@@ -176,11 +193,26 @@ const CrearDashboard = () => {
     buscarReportes();
   };
 
-  const handleAsignarReporte = (id, nombre) => () => {
+  const handleAsignarReporte = (id, nombre, tipo) => () => {
     setNuevoComponenteReporte({
       id: id,
       nombre: nombre,
+      tipo: tipo,
     });
+    setNuevoComponenteReporteTipo(tipo);
+    if (tipo == "0") setNuevoComponenteOrganizado("plan-estado");
+    else if (tipo == "1") setNuevoComponenteOrganizado("programa-estado");
+    else if (tipo == "2") setNuevoComponenteOrganizado("campana-estado");
+    else if (tipo == "3") setNuevoComponenteOrganizado("recurso-estado");
+    else if (tipo == "4") setNuevoComponenteOrganizado("oportunidad-estado");
+    else if (tipo == "5") setNuevoComponenteOrganizado("contacto-estado");
+    else if (tipo == "6") setNuevoComponenteOrganizado("empresa-tipo");
+  };
+
+  const handleEliminarComponentes = (componente) => () => {
+    console.log("se va a eliminar");
+    setComponentes((prev) => prev.filter((el) => el !== componente));
+    //console.log(event.target.value);
   };
 
   const fechasEnterosOpciones = [
@@ -660,9 +692,7 @@ const CrearDashboard = () => {
                 </Tab>
                 <Tab eventKey="Estructura" title="Estructura del dashboard">
                   <div className="row">
-                    <h4 className="card-title col-md-8">
-                      Estructura del dashboard
-                    </h4>
+                    <h4 className="card-title col-md-8"></h4>
                     <div className="col-md-4">
                       <Form.Group>
                         <div className="text-right">
@@ -679,137 +709,192 @@ const CrearDashboard = () => {
 
                   <div className="row">
                     {componentes.map((componente) => (
-                        <div className="col-md-12">
-                          {componente["tipo"] == "0" && (
-                            <div className="col-md-6 grid-margin stretch-card">
-                              <div className="card">
-                                <div className="card-body">
-                                  <h4 className="card-title">
-                                    {componente["titulo"]}
-                                  </h4>
-                                  <h5 className="card-subtitle">
-                                    {componente["subtitulo"]}
-                                  </h5>
-                                  <Bar
-                                    data={{
-                                      labels: componente['labels'],
-                                      datasets: [
-                                        {
-                                          label: "#",
-                                          data: componente['cantidades'],
-                                          backgroundColor: [
-                                            "rgba(255, 99, 132, 0.2)",
-                                            "rgba(54, 162, 235, 0.2)",
-                                            "rgba(255, 206, 86, 0.2)",
-                                            "rgba(75, 192, 192, 0.2)",
-                                            "rgba(153, 102, 255, 0.2)",
-                                            "rgba(255, 159, 64, 0.2)",
-                                          ],
-                                          borderColor: [
-                                            "rgba(255,99,132,1)",
-                                            "rgba(54, 162, 235, 1)",
-                                            "rgba(255, 206, 86, 1)",
-                                            "rgba(75, 192, 192, 1)",
-                                            "rgba(153, 102, 255, 1)",
-                                            "rgba(255, 159, 64, 1)",
-                                          ],
-                                          borderWidth: 1,
-                                          fill: false,
-                                        },
-                                      ],
-                                    }}
-                                    options={options}
-                                  />
+                      <div className="col-md-6">
+                        {componente["tipo"] == "0" && (
+                          <div className="col-md-12 grid-margin stretch-card">
+                            <div className="card">
+                              <div className="card-body">
+                                <div className="row">
+                                  <div className="col-md-12">
+                                    <CloseButton
+                                      className="float-md-right"
+                                      onClick={handleEliminarComponentes(
+                                        componente
+                                      )}
+                                    />
+                                  </div>
                                 </div>
-                              </div>
-                            </div>
-                          )}
-                          {componente["tipo"] == "1" && (
-                            <div className="col-md-6 grid-margin stretch-card">
-                              <div className="card">
-                                <div className="card-body">
                                 <h4 className="card-title">
-                                    {componente["titulo"]}
-                                  </h4>
-                                  <h5 className="card-subtitle">
-                                    {componente["subtitulo"]}
-                                  </h5>
-                                  <Line
-                                    data={{
-                                      labels: componente['labels'],
-                                      datasets: [
-                                        {
-                                          label: "#",
-                                          data: componente['cantidades'],
-                                          backgroundColor: [
-                                            "rgba(255, 99, 132, 0.2)",
-                                            "rgba(54, 162, 235, 0.2)",
-                                            "rgba(255, 206, 86, 0.2)",
-                                            "rgba(75, 192, 192, 0.2)",
-                                            "rgba(153, 102, 255, 0.2)",
-                                            "rgba(255, 159, 64, 0.2)",
-                                          ],
-                                          borderColor: [
-                                            "rgba(255,99,132,1)",
-                                            "rgba(54, 162, 235, 1)",
-                                            "rgba(255, 206, 86, 1)",
-                                            "rgba(75, 192, 192, 1)",
-                                            "rgba(153, 102, 255, 1)",
-                                            "rgba(255, 159, 64, 1)",
-                                          ],
-                                          borderWidth: 1,
-                                          fill: false,
-                                        },
-                                      ],
-                                    }}
-                                    options={options}
-                                  />
-                                </div>
+                                  {componente["titulo"]}
+                                </h4>
+                                <h5 className="card-subtitle">
+                                  {componente["subtitulo"]}
+                                </h5>
+                                <Bar
+                                  data={{
+                                    labels: componente["labels"],
+                                    datasets: [
+                                      {
+                                        label: "",
+                                        data: componente["cantidades"],
+                                        backgroundColor: [
+                                          "rgba(255, 99, 132, 0.2)",
+                                          "rgba(54, 162, 235, 0.2)",
+                                          "rgba(255, 206, 86, 0.2)",
+                                          "rgba(75, 192, 192, 0.2)",
+                                          "rgba(153, 102, 255, 0.2)",
+                                          "rgba(255, 159, 64, 0.2)",
+                                        ],
+                                        borderColor: [
+                                          "rgba(255,99,132,1)",
+                                          "rgba(54, 162, 235, 1)",
+                                          "rgba(255, 206, 86, 1)",
+                                          "rgba(75, 192, 192, 1)",
+                                          "rgba(153, 102, 255, 1)",
+                                          "rgba(255, 159, 64, 1)",
+                                        ],
+                                        borderWidth: 1,
+                                        fill: false,
+                                      },
+                                    ],
+                                  }}
+                                  options={options}
+                                />
                               </div>
                             </div>
-                          )}
-                          {componente["tipo"] == "2" && (
-                            <div className="col-md-6 grid-margin stretch-card">
-                              <div className="card">
-                                <div className="card-body">
+                          </div>
+                        )}
+                        {componente["tipo"] == "1" && (
+                          <div className="col-md-12 grid-margin stretch-card">
+                            <div className="card">
+                              <div className="card-body">
+                                <div className="row">
+                                  <div className="col-md-12">
+                                    <CloseButton
+                                      className="float-md-right"
+                                      onClick={handleEliminarComponentes(
+                                        componente
+                                      )}
+                                    />
+                                  </div>
+                                </div>
                                 <h4 className="card-title">
-                                    {componente["titulo"]}
-                                  </h4>
-                                  <h5 className="card-subtitle">
-                                    {componente["subtitulo"]}
-                                  </h5>
-                                  <Pie
-                                    data={{
-                                        datasets: [{
-                                          data: componente['cantidades'],
-                                          backgroundColor: [
-                                            'rgba(255, 99, 132, 0.5)',
-                                            'rgba(54, 162, 235, 0.5)',
-                                            'rgba(255, 206, 86, 0.5)',
-                                            'rgba(75, 192, 192, 0.5)',
-                                            'rgba(153, 102, 255, 0.5)',
-                                            'rgba(255, 159, 64, 0.5)'
-                                          ],
-                                          borderColor: [
-                                            'rgba(255,99,132,1)',
-                                            'rgba(54, 162, 235, 1)',
-                                            'rgba(255, 206, 86, 1)',
-                                            'rgba(75, 192, 192, 1)',
-                                            'rgba(153, 102, 255, 1)',
-                                            'rgba(255, 159, 64, 1)'
-                                          ],
-                                        }],
-                                        labels: componente['labels']
-                                    }}
-                                    options={doughnutPieOptions}
-                                  />
-                                </div>
+                                  {componente["titulo"]}
+                                </h4>
+                                <h5 className="card-subtitle">
+                                  {componente["subtitulo"]}
+                                </h5>
+                                <Line
+                                  data={{
+                                    labels: componente["labels"],
+                                    datasets: [
+                                      {
+                                        label: "",
+                                        data: componente["cantidades"],
+                                        backgroundColor: [
+                                          "rgba(255, 99, 132, 0.2)",
+                                          "rgba(54, 162, 235, 0.2)",
+                                          "rgba(255, 206, 86, 0.2)",
+                                          "rgba(75, 192, 192, 0.2)",
+                                          "rgba(153, 102, 255, 0.2)",
+                                          "rgba(255, 159, 64, 0.2)",
+                                        ],
+                                        borderColor: [
+                                          "rgba(255,99,132,1)",
+                                          "rgba(54, 162, 235, 1)",
+                                          "rgba(255, 206, 86, 1)",
+                                          "rgba(75, 192, 192, 1)",
+                                          "rgba(153, 102, 255, 1)",
+                                          "rgba(255, 159, 64, 1)",
+                                        ],
+                                        borderWidth: 1,
+                                        fill: false,
+                                      },
+                                    ],
+                                  }}
+                                  options={options}
+                                />
                               </div>
                             </div>
-                          )}
-                        </div>
-                      
+                          </div>
+                        )}
+                        {componente["tipo"] == "2" && (
+                          <div className="col-md-12 grid-margin stretch-card">
+                            <div className="card">
+                              <div className="card-body">
+                                <div className="row">
+                                  <div className="col-md-12">
+                                    <CloseButton
+                                      className="float-md-right"
+                                      onClick={handleEliminarComponentes(
+                                        componente
+                                      )}
+                                    />
+                                  </div>
+                                </div>
+                                <h4 className="card-title">
+                                  {componente["titulo"]}
+                                </h4>
+                                <h5 className="card-subtitle">
+                                  {componente["subtitulo"]}
+                                </h5>
+                                <Pie
+                                  data={{
+                                    datasets: [
+                                      {
+                                        data: componente["cantidades"],
+                                        backgroundColor: [
+                                          "rgba(255, 99, 132, 0.5)",
+                                          "rgba(54, 162, 235, 0.5)",
+                                          "rgba(255, 206, 86, 0.5)",
+                                          "rgba(75, 192, 192, 0.5)",
+                                          "rgba(153, 102, 255, 0.5)",
+                                          "rgba(255, 159, 64, 0.5)",
+                                        ],
+                                        borderColor: [
+                                          "rgba(255,99,132,1)",
+                                          "rgba(54, 162, 235, 1)",
+                                          "rgba(255, 206, 86, 1)",
+                                          "rgba(75, 192, 192, 1)",
+                                          "rgba(153, 102, 255, 1)",
+                                          "rgba(255, 159, 64, 1)",
+                                        ],
+                                      },
+                                    ],
+                                    labels: componente["labels"],
+                                  }}
+                                  options={doughnutPieOptions}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     ))}
+                  </div>
+                  <div className="row">
+                    <div className="col-md-6">
+                      <button
+                        type="button"
+                        className="btn btn-outline-primary"
+                        onClick={() =>
+                          history.push({
+                            pathname: "/informes",
+                          })
+                        }
+                      >
+                        Salir
+                      </button>
+                    </div>
+                    <div className="col-md-6">
+                      <button
+                        type="button"
+                        className="btn btn-primary float-sm-right"
+                        onClick={handleShow}
+                      >
+                        Guardar
+                      </button>
+                    </div>
                   </div>
                 </Tab>
               </Tabs>
@@ -843,6 +928,7 @@ const CrearDashboard = () => {
           <Modal
             show={mostrarAgregarComponente}
             onHide={handleMostrarAgregarComponente}
+            dialogClassName="custom-modal-style"
           >
             <Modal.Header closeButton>
               <Modal.Title>
@@ -856,17 +942,19 @@ const CrearDashboard = () => {
                 <div className="col-md-12">
                   <Form.Group>
                     <label className="col-sm-12 col-form-label">Tipo</label>
-                    <select
-                      className="form-control"
-                      value={nuevoComponenteTipo}
-                      onChange={handleChangeTipoComponente}
-                    >
-                      <option value={"0"} selected>
-                        Gráfico de barras
-                      </option>
-                      <option value={"1"}>Gráfico lineal</option>
-                      <option value={"2"}>Gráfico circular</option>
-                    </select>
+                    <div className="col-sm-12">
+                      <select
+                        className="form-control"
+                        value={nuevoComponenteTipo}
+                        onChange={handleChangeTipoComponente}
+                      >
+                        <option value={"0"} selected>
+                          Gráfico de barras
+                        </option>
+                        <option value={"1"}>Gráfico lineal</option>
+                        <option value={"2"}>Gráfico circular</option>
+                      </select>
+                    </div>
                   </Form.Group>
                 </div>
               </div>
@@ -876,22 +964,18 @@ const CrearDashboard = () => {
                   <Form.Group>
                     <label className="col-md-12 col-form-label">Reporte</label>
                     <div className="col-md-12">
-                      <Form.Group>
-                        <div className="col-sm-12">
-                          <Form.Control
-                            type="text"
-                            value={nuevoComponenteReporte.nombre}
-                          />
-                        </div>
-                      </Form.Group>
+                      <Form.Control
+                        type="text"
+                        value={nuevoComponenteReporte.nombre}
+                      />
                     </div>
                   </Form.Group>
                 </div>
               </div>
 
               <div className="row">
-                <div className="col-md-6">
-                  <Form.Group className="row">
+                <div className="col-md-10">
+                  <Form.Group>
                     <div className="search-field col-sm-10">
                       <form
                         className="d-flex align-items-center h-100"
@@ -958,7 +1042,8 @@ const CrearDashboard = () => {
                                   type="button"
                                   onClick={handleAsignarReporte(
                                     reporte["id"],
-                                    reporte["nombre"]
+                                    reporte["nombre"],
+                                    reporte["tipo"]
                                   )}
                                 >
                                   <i
@@ -1018,39 +1103,97 @@ const CrearDashboard = () => {
                     <label className="col-sm-12 col-form-label">
                       Organizado por
                     </label>
-                    <select
-                      className="form-control"
-                      value={nuevoComponenteOrganizado}
-                      onChange={handleChangeNuevoComponenteOrganizado}
-                    >
-                      <option value={"plan-estado"} selected>
-                        Estado del plan
-                      </option>
-                      <option value={"programa-estado"}>
-                        Estado del programa
-                      </option>
-                      <option value={"campana-estado"}>
-                        Estado de la campaña
-                      </option>
-                      <option value={"campana-tipo"}>Tipo de la campaña</option>
-                      <option value={"recurso-estado"}>
-                        Estado del recurso
-                      </option>
-                      <option value={"recurso-tipo"}>Tipo del recurso</option>
-                      <option value={"oportunidad-estado"}>
-                        Estado de la oportunidad
-                      </option>
-                      <option value={"oportunidad-tipo"}>
-                        Tipo de la oportunidad
-                      </option>
-                      <option value={"oportunidad-etapa"}>
-                        Etapa de la oportunidad
-                      </option>
-                      <option value={"contacto-estado"}>
-                        Estado del contacto
-                      </option>
-                      <option value={"empresa-tipo"}>Tipo de empresa</option>
-                    </select>
+                    <div className="col-sm-12">
+                      {nuevoComponenteReporteTipo == "0" && (
+                        <select
+                          className="form-control"
+                          value={nuevoComponenteOrganizado}
+                          onChange={handleChangeNuevoComponenteOrganizado}
+                        >
+                          <option value={"plan-estado"} selected>
+                            Estado del plan
+                          </option>
+                        </select>
+                      )}
+                      {nuevoComponenteReporteTipo == "1" && (
+                        <select
+                          className="form-control"
+                          value={nuevoComponenteOrganizado}
+                          onChange={handleChangeNuevoComponenteOrganizado}
+                        >
+                          <option value={"programa-estado"} selected>
+                            Estado del programa
+                          </option>
+                        </select>
+                      )}
+                      {nuevoComponenteReporteTipo == "2" && (
+                        <select
+                          className="form-control"
+                          value={nuevoComponenteOrganizado}
+                          onChange={handleChangeNuevoComponenteOrganizado}
+                        >
+                          <option value={"campana-estado"} selected>
+                            Estado de la campaña{" "}
+                          </option>
+                          <option value={"campana-tipo"}>
+                            Tipo de la campaña
+                          </option>
+                        </select>
+                      )}
+                      {nuevoComponenteReporteTipo == "3" && (
+                        <select
+                          className="form-control"
+                          value={nuevoComponenteOrganizado}
+                          onChange={handleChangeNuevoComponenteOrganizado}
+                        >
+                          <option value={"recurso-estado"} selected>
+                            Estado del recurso
+                          </option>
+                          <option value={"recurso-tipo"}>
+                            Tipo del recurso
+                          </option>
+                        </select>
+                      )}
+                      {nuevoComponenteReporteTipo == "4" && (
+                        <select
+                          className="form-control"
+                          value={nuevoComponenteOrganizado}
+                          onChange={handleChangeNuevoComponenteOrganizado}
+                        >
+                          <option value={"oportunidad-estado"} selected>
+                            Estado de la oportunidad
+                          </option>
+                          <option value={"oportunidad-tipo"}>
+                            Tipo de la oportunidad
+                          </option>
+                          <option value={"oportunidad-etapa"}>
+                            Etapa de la oportunidad
+                          </option>
+                        </select>
+                      )}
+                      {nuevoComponenteReporteTipo == "5" && (
+                        <select
+                          className="form-control"
+                          value={nuevoComponenteOrganizado}
+                          onChange={handleChangeNuevoComponenteOrganizado}
+                        >
+                          <option value={"contacto-estado"} selected>
+                            Estado del contacto
+                          </option>
+                        </select>
+                      )}
+                      {nuevoComponenteReporteTipo == "6" && (
+                        <select
+                          className="form-control"
+                          value={nuevoComponenteOrganizado}
+                          onChange={handleChangeNuevoComponenteOrganizado}
+                        >
+                          <option value={"empresa-tipo"} selected>
+                            Tipo de empresa
+                          </option>
+                        </select>
+                      )}
+                    </div>
                   </Form.Group>
                 </div>
               </div>
@@ -1059,15 +1202,17 @@ const CrearDashboard = () => {
                 <div className="col-md-12">
                   <Form.Group>
                     <label className="col-sm-12 col-form-label">Valores</label>
-                    <select
-                      className="form-control"
-                      value={nuevoComponenteValores}
-                      onChange={handleChangeNuevoComponenteValores}
-                    >
-                      <option value={"cantidad"} selected>
-                        Cantidad de registros
-                      </option>
-                    </select>
+                    <div className="col-sm-12">
+                      <select
+                        className="form-control"
+                        value={nuevoComponenteValores}
+                        onChange={handleChangeNuevoComponenteValores}
+                      >
+                        <option value={"cantidad"} selected>
+                          Cantidad de registros
+                        </option>
+                      </select>
+                    </div>
                   </Form.Group>
                 </div>
               </div>

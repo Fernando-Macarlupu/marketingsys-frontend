@@ -457,7 +457,7 @@ const CargarEmpresas = () => {
                                     <th>Encabezado de archivo</th>
                                     <th>Tipo de propiedad</th>
                                     <th>Propiedad de empresa</th>
-                                    <th>Asignado</th>
+
                                   </tr>
                                 </thead>
                                 <tbody>
@@ -581,7 +581,7 @@ const CargarEmpresas = () => {
                                           )}
                                         </div>
                                       </td>
-                                      <td>
+                                      {/* <td>
                                         {columnasVerificacion[columna["id"]] ==
                                         "" ? (
                                           <label className="badge badge-success">
@@ -592,7 +592,7 @@ const CargarEmpresas = () => {
                                             No asignado
                                           </label>
                                         )}
-                                      </td>
+                                      </td> */}
                                     </tr>
                                   ))}
                                 </tbody>

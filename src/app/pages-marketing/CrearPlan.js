@@ -30,7 +30,7 @@ const CrearPlan = () => {
   const [finVigencia, setFinVigencia] = useState(null);
 
   const [indicadorCadena, setIndicadorCadena] = useState("");
-  const [aspectoIndicador, setAspectoIndicador] = useState("");
+  //const [aspectoIndicador, setAspectoIndicador] = useState("");
   const [tipoIndicador, setTipoIndicador] = useState("");
   const [indicadores, setIndicadores] = useState([]);
   const [indicadoresBusqueda, setIndicadoresBusqueda] = useState([]);
@@ -47,15 +47,26 @@ const CrearPlan = () => {
   const handleShow = () => {
     if (descripcion == "") alert("Ingrese la descripción del plan");
     else {
-      setShow(true);
+      if(inicioVigencia==null || finVigencia==null) alert("Ingrese las fechas de inicio y fin de vigencia del plan");
+      else{setShow(true);}
     }
   };
 
   const handleChangeInicioVigencia = (date) => setInicioVigencia(date);
   const handleChangeFinVigencia = (date) => setFinVigencia(date);
 
+  const mostrarIndicadorTipo = (tipo) => {
+    if (tipo == "0") return "Plan";
+    else if (tipo == "1") return "Programa";
+    else if (tipo == "2") return "Campaña stand-alone";
+    else if (tipo == "3") return "Campaña de programa";
+    else if (tipo == "4") return "Correo";
+    else if (tipo == "5") return "Publicación";
+    else if (tipo == "6") return "Página web";
+  };
+
   const handleAgregarIndicadores =
-    (id, nombre, aspecto, tipo, calculoAutomatico) => () => {
+    (id, nombre, tipo, calculoAutomatico) => () => {
       for (let index = 0; index < indicadores.length; index++) {
         const element = indicadores[index];
         if (element["id"] == id) return;
@@ -65,7 +76,6 @@ const CrearPlan = () => {
         {
           id: id,
           nombre: nombre,
-          aspecto: aspecto,
           tipo: tipo,
           calculoAutomatico: calculoAutomatico,
           valor: 0.0,
@@ -75,7 +85,7 @@ const CrearPlan = () => {
 
   const handleValorIndicadores = (id, event) => {
     const indicadoresLista = [];
-    console.log(id)
+    console.log(id);
     for (let index = 0; index < indicadores.length; index++) {
       const element = indicadores[index];
       if (element["id"] == id) element["valor"] = event.target.value;
@@ -115,30 +125,29 @@ const CrearPlan = () => {
 
   const buscarIndicadores = () => {
     //console.log("esto es la cadena")
-    let tipoBusqueda = "";
-    if (tipoIndicador != "") {
-      if (aspectoIndicador == "1" && tipoIndicador == "0")
-        tipoBusqueda = "0"; //programa
-      else if (aspectoIndicador == "1" && tipoIndicador == "1")
-        tipoBusqueda = "1"; //campaña stand-alone
-      else if (aspectoIndicador == "2" && tipoIndicador == "0")
-        tipoBusqueda = "2"; //campaña de programa
-      else if (aspectoIndicador == "2" && tipoIndicador == "1")
-        tipoBusqueda = "3"; //campaña stand-alone
-      else if (aspectoIndicador == "3" && tipoIndicador == "0")
-        tipoBusqueda = "4"; //correo
-      else if (aspectoIndicador == "3" && tipoIndicador == "1")
-        tipoBusqueda = "5"; //publicacion
-      else if (aspectoIndicador == "3" && tipoIndicador == "2")
-        tipoBusqueda = "6"; //pagina web
-    }
+    // let tipoBusqueda = "";
+    // if (tipoIndicador != "") {
+    //   if (aspectoIndicador == "1" && tipoIndicador == "0")
+    //     tipoBusqueda = "0"; //programa
+    //   else if (aspectoIndicador == "1" && tipoIndicador == "1")
+    //     tipoBusqueda = "1"; //campaña stand-alone
+    //   else if (aspectoIndicador == "2" && tipoIndicador == "0")
+    //     tipoBusqueda = "2"; //campaña de programa
+    //   else if (aspectoIndicador == "2" && tipoIndicador == "1")
+    //     tipoBusqueda = "3"; //campaña stand-alone
+    //   else if (aspectoIndicador == "3" && tipoIndicador == "0")
+    //     tipoBusqueda = "4"; //correo
+    //   else if (aspectoIndicador == "3" && tipoIndicador == "1")
+    //     tipoBusqueda = "5"; //publicacion
+    //   else if (aspectoIndicador == "3" && tipoIndicador == "2")
+    //     tipoBusqueda = "6"; //pagina web
+    //}
     setMostrarTablaIndicadores(false);
     setMostrarCargaIndicadores(true);
     api
       .post("filtrarIndicadores", {
         cadena: indicadorCadena,
-        aspecto: aspectoIndicador,
-        tipo: tipoBusqueda,
+        tipo: "0",
         fechaCreacionIni: "",
         fechaCreacionFin: "",
         fechaModificacionIni: "",
@@ -291,16 +300,16 @@ const CrearPlan = () => {
     { id: "3", nombre: "Página web" },
   ];
 
-  const handleChangeAspectoVariable = (event) => {
-    setAspectoIndicador(event.target.value);
-    if (event.target.value == "") setOpcionesTipoVariable(planOpciones);
-    else if (event.target.value == "0") setOpcionesTipoVariable(planOpciones);
-    else if (event.target.value == "1")
-      setOpcionesTipoVariable(estrategiaOpciones);
-    else if (event.target.value == "2")
-      setOpcionesTipoVariable(campanaOpciones);
-    else if (event.target.value == "3")
-      setOpcionesTipoVariable(recursoOpciones);
+  const handleChangeTipoVariable = (event) => {
+    setTipoIndicador(event.target.value);
+    // if (event.target.value == "") setOpcionesTipoVariable(planOpciones);
+    // else if (event.target.value == "0") setOpcionesTipoVariable(planOpciones);
+    // else if (event.target.value == "1")
+    //   setOpcionesTipoVariable(estrategiaOpciones);
+    // else if (event.target.value == "2")
+    //   setOpcionesTipoVariable(campanaOpciones);
+    // else if (event.target.value == "3")
+    //   setOpcionesTipoVariable(recursoOpciones);
   };
 
   return (
@@ -390,7 +399,7 @@ const CrearPlan = () => {
                         <div className="col-md-6">
                           <Form.Group>
                             <label className="col-sm-12 col-form-label">
-                              Inicio de vigencia
+                              Inicio de vigencia <code>*</code>
                             </label>
                             <div className="col-sm-12">
                               <div className="customDatePickerWidth">
@@ -407,7 +416,7 @@ const CrearPlan = () => {
                         <div className="col-md-6">
                           <Form.Group>
                             <label className="col-sm-12 col-form-label">
-                              Fin de vigencia
+                              Fin de vigencia <code>*</code>
                             </label>
                             <div className="col-sm-12">
                               <div className="customDatePickerWidth">
@@ -469,19 +478,29 @@ const CrearPlan = () => {
                                             <tr key={indicador["id"]}>
                                               <td>{indicador["nombre"]}</td>
                                               <td>
-                                                {indicador["tipo"]}
+                                                {mostrarIndicadorTipo(
+                                                  indicador["tipo"]
+                                                )}
                                               </td>
                                               <td>
-                                                {indicador["calculoAutomatico"]}
+                                                {indicador["calculoAutomatico"]
+                                                  ? "Habilitada"
+                                                  : "No habilitada"}
                                               </td>
                                               <td>
                                                 <input
                                                   type={"number"}
                                                   placeholder="Agregar valor"
                                                   className="form-control"
+                                                  disabled={
+                                                    indicador[
+                                                      "calculoAutomatico"
+                                                    ]
+                                                  }
                                                   onChange={(e) =>
                                                     handleValorIndicadores(
-                                                      indicador["id"], e
+                                                      indicador["id"],
+                                                      e
                                                     )
                                                   }
                                                   value={indicador["valor"]}
@@ -513,9 +532,9 @@ const CrearPlan = () => {
                             {mostrarBuscarIndicadores && (
                               <div>
                                 <div className="row">
-                                  <div className="col-md-6">
+                                  <div className="col-md-11">
                                     <Form.Group>
-                                      <div className="search-field col-sm-12">
+                                      <div className="search-field col-sm-8">
                                         <form
                                           className="d-flex align-items-center h-100"
                                           onSubmit={buscarIndicadoresCadena}
@@ -539,47 +558,6 @@ const CrearPlan = () => {
                                     </Form.Group>
                                   </div>
 
-                                  <div className="col-md-3">
-                                    <Form.Group>
-                                      <select
-                                        className="form-control col-sm-11"
-                                        onChange={handleChangeAspectoVariable}
-                                      >
-                                        <option
-                                          value=""
-                                          disabled
-                                          selected
-                                          hidden
-                                        >
-                                          Aspecto
-                                        </option>
-                                        <option value={""}>
-                                          Todos los aspectos
-                                        </option>
-                                        <option value={"0"}>Plan</option>
-                                        <option value={"1"}>Estrategia</option>
-                                        <option value={"2"}>Campaña</option>
-                                        <option value={"3"}>Recurso</option>
-                                      </select>
-                                    </Form.Group>
-                                  </div>
-
-                                  <div className="col-md-2">
-                                    <Form.Group>
-                                      <select
-                                        className="form-control col-sm-11"
-                                        onChange={({ target }) =>
-                                          setTipoIndicador(target.value)
-                                        }
-                                      >
-                                        {opcionesTipoVariable.map(
-                                          ({ id, nombre }) => (
-                                            <option value={id}>{nombre}</option>
-                                          )
-                                        )}
-                                      </select>
-                                    </Form.Group>
-                                  </div>
 
                                   <div className="col-md-1">
                                     <Form.Group>
@@ -610,7 +588,7 @@ const CrearPlan = () => {
                                             <thead>
                                               <tr>
                                                 <th>Nombre</th>
-                                                <th>Aspecto-Tipo</th>
+                                                <th>Tipo</th>
                                                 <th>Automatización</th>
                                                 <th></th>
                                               </tr>
@@ -623,16 +601,16 @@ const CrearPlan = () => {
                                                       {indicador["nombre"]}
                                                     </td>
                                                     <td>
-                                                      {indicador["aspecto"] +
-                                                        " - " +
-                                                        indicador["tipo"]}
+                                                      {mostrarIndicadorTipo(
+                                                        indicador["tipo"]
+                                                      )}
                                                     </td>
                                                     <td>
-                                                      {
-                                                        indicador[
-                                                          "calculoAutomatico"
-                                                        ]
-                                                      }
+                                                      {indicador[
+                                                        "calculoAutomatico"
+                                                      ]
+                                                        ? "Habilitada"
+                                                        : "No habilitada"}
                                                     </td>
                                                     <td>
                                                       <button
@@ -640,7 +618,6 @@ const CrearPlan = () => {
                                                         onClick={handleAgregarIndicadores(
                                                           indicador["id"],
                                                           indicador["nombre"],
-                                                          indicador["aspecto"],
                                                           indicador["tipo"],
                                                           indicador[
                                                             "calculoAutomatico"

@@ -287,9 +287,9 @@ const Dashboards = () => {
           </div>
         </div>
         <div className="row">
-          <div className="col-md-6">
+          <div className="col-md-10">
             <Form.Group className="row">
-              <div className="search-field col-sm-10">
+              <div className="search-field col-sm-6">
                 <form
                   className="d-flex align-items-center h-100"
                   onSubmit={buscarDashboardsCadena}

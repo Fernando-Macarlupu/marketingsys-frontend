@@ -5,6 +5,13 @@ import DatePicker from "react-datepicker";
 import api from "../api";
 import bsCustomFileInput from "bs-custom-file-input";
 import LandingPageEditor from "./LandingPageEditor";
+import Editor from "./Editor";
+
+import {
+  FacebookEmbed,
+  LinkedInEmbed,
+  InstagramEmbed,
+} from "react-social-media-embed";
 import plantilla2 from "./plantilla2.json";
 
 const CrearRecurso = () => {
@@ -15,6 +22,9 @@ const CrearRecurso = () => {
   const [mostrarCargaDatos, setMostrarCargaDatos] = useState(false);
   const [mostrarDatos, setMostrarDatos] = useState(true);
   const [step, setStep] = useState(1);
+
+  const [mostrarBuscarIndicadores, setMostrarBuscarIndicadores] =
+    useState(false);
 
   const [mostrarTablaIndicadores, setMostrarTablaIndicadores] = useState(false);
   const [mostrarCargaIndicadores, setMostrarCargaIndicadores] = useState(false);
@@ -37,7 +47,7 @@ const CrearRecurso = () => {
 
   const [indicadorCadena, setIndicadorCadena] = useState("");
   const [aspectoIndicador, setAspectoIndicador] = useState("");
-  const [tipoIndicador, setTipoIndicador] = useState("");
+  const [tipoIndicador, setTipoIndicador] = useState("4");
   const [indicadores, setIndicadores] = useState([]);
   const [indicadoresBusqueda, setIndicadoresBusqueda] = useState([]);
 
@@ -49,12 +59,13 @@ const CrearRecurso = () => {
   const [contactosBusqueda, setContactosBusqueda] = useState([]);
 
   const [servicioRedSocial, setServicioRedSocial] = useState("");
+  const [redesUsuario, setRedesUsuario] = useState([]);
   const [usuarioRedSocial, setUsuarioRedSocial] = useState("");
   const [fechaPublicacionRedSocial, setFechaPublicacionRedSocial] =
     useState(null);
   const [horaPublicacionRedSocial, setHoraPublicacionRedSocial] =
     useState(null);
-  const [audienciaRedSocial, setAudienciaRedSocial] = useState("");
+  const [audienciaRedSocial, setAudienciaRedSocial] = useState("0");
   const [contenidoRedSocial, setContenidoRedSocial] = useState("");
 
   const [correosUsuario, setCorreosUsuario] = useState([]);
@@ -76,56 +87,79 @@ const CrearRecurso = () => {
   const [contenidoGuardarLandingHTML, setContenidoGuardarLandingHTML] =
     useState(null);
 
+  const [avtars, setAvtars] = useState([]);
+  const [images, setImages] = useState([]);
+  const [imagesList, setImagesList] = useState([]);
+  const [name, setName] = useState("");
+  const [caption, setCaption] = useState("");
+  const [time, setTime] = useState(null);
+  const [privacy, setPrivacy] = useState("");
+  const [likes, setLikes] = useState(0);
+
+  const [includeLike, setIncludeLike] = useState(false);
+  const [includeLove, setIncludeLove] = useState(false);
+  const [includeHaha, setIncludeHaha] = useState(false);
+  const [includeWow, setIncludeWow] = useState(false);
+  const [includeSad, setIncludeSad] = useState(false);
+  const [includeAngry, setIncludeAngry] = useState(false);
+  const [editorShown, setEditorShown] = useState(true);
+
+  const [fechaPublicacionRedSocialString, setFechaPublicacionRedSocialString] =
+    useState("");
+
   const [usuarioLogueado, setUsuarioLogueado] = useState({});
 
   const handleClose = () => setShow(false);
   const handleShow = () => {
-    if (descripcion == "") alert("Ingrese la descripción de la estrategia");
+    if (descripcion == "") alert("Ingrese la descripción del recurso");
     else {
-      if (tipo == "0") {
-        if (remitenteCorreo == "") alert("Ingrese el remitente del correo");
-        else {
-          if (fechaPublicacionCorreo == null)
-            alert("Ingrese la fecha de publicación del correo");
+      if (inicioVigencia == null || finVigencia == null)
+        alert("Ingrese las fechas de inicio y fin de vigencia del recurso");
+      else {
+        if (tipo == "0") {
+          if (remitenteCorreo == "") alert("Ingrese el remitente del correo");
           else {
-            if (horaPublicacionCorreo == null)
-              alert("Ingrese la hora de publicación del correo");
+            if (asuntoCorreo == "") alert("Ingrese el asunto del correo");
             else {
-              if (asuntoCorreo == "") alert("Ingrese el asunto del correo");
-              else {
-                if (emailEditorRef != null) {
-                  if (emailEditorRef.current != null) {
-                    const unlayer = emailEditorRef.current.editor;
-                    if (unlayer != null) {
-                      unlayer.exportHtml((data) => {
-                        const { design, html } = data;
-                        setContenidoGuardar(design);
-                        setContenidoGuardarHTML(html);
-                      });
-                    }
+              if (emailEditorRef != null) {
+                if (emailEditorRef.current != null) {
+                  const unlayer = emailEditorRef.current.editor;
+                  if (unlayer != null) {
+                    unlayer.exportHtml((data) => {
+                      const { design, html } = data;
+                      setContenidoGuardar(design);
+                      setContenidoGuardarHTML(html);
+                    });
                   }
                 }
-                setShow(true);
               }
+              setShow(true);
             }
           }
-        }
-      } else if (tipo == "2") {
-        if (dominio == "") alert("Ingrese el dominio de la página web");
-        else {
-          if (landingEditorRef != null) {
-            if (landingEditorRef.current != null) {
-              const unlayer = landingEditorRef.current.editor;
-              if (unlayer != null) {
-                unlayer.exportHtml((data) => {
-                  const { design, html } = data;
-                  setContenidoGuardarLanding(design);
-                  setContenidoGuardarLandingHTML(html);
-                });
+        } else if (tipo == "1") {
+          if (servicioRedSocial == "")
+            alert("Ingrese el servicio de la red social");
+          else {
+            console.log(images);
+            setShow(true);
+          }
+        } else if (tipo == "2") {
+          if (dominio == "") alert("Ingrese el dominio de la página web");
+          else {
+            if (landingEditorRef != null) {
+              if (landingEditorRef.current != null) {
+                const unlayer = landingEditorRef.current.editor;
+                if (unlayer != null) {
+                  unlayer.exportHtml((data) => {
+                    const { design, html } = data;
+                    setContenidoGuardarLanding(design);
+                    setContenidoGuardarLandingHTML(html);
+                  });
+                }
               }
             }
+            setShow(true);
           }
-          setShow(true);
         }
       }
     }
@@ -155,6 +189,11 @@ const CrearRecurso = () => {
       }
     }
     setRemitenteContrasena(cont);
+  };
+
+  const handleChangeUsuarioRedSocial = (event) => {
+    //buscar la contra y setearla tambien setear el remitente
+    setUsuarioRedSocial(event.target.value);
   };
 
   const handleBuscarCampanas = () =>
@@ -209,8 +248,18 @@ const CrearRecurso = () => {
     //console.log(event.target.value);
   };
 
+  const mostrarIndicadorTipo = (tipo) => {
+    if (tipo == "0") return "Plan";
+    else if (tipo == "1") return "Programa";
+    else if (tipo == "2") return "Campaña stand-alone";
+    else if (tipo == "3") return "Campaña de programa";
+    else if (tipo == "4") return "Correo";
+    else if (tipo == "5") return "Publicación";
+    else if (tipo == "6") return "Página web";
+  };
+
   const handleAgregarIndicadores =
-    (id, nombre, aspecto, tipo, calculoAutomatico) => () => {
+    (id, nombre, tipo, calculoAutomatico) => () => {
       for (let index = 0; index < indicadores.length; index++) {
         const element = indicadores[index];
         if (element["id"] == id) return;
@@ -220,7 +269,6 @@ const CrearRecurso = () => {
         {
           id: id,
           nombre: nombre,
-          aspecto: aspecto,
           tipo: tipo,
           calculoAutomatico: calculoAutomatico,
           valor: 0.0,
@@ -228,13 +276,15 @@ const CrearRecurso = () => {
       ]);
     };
 
-  const handleValorIndicadores = (event, id) => () => {
+  const handleValorIndicadores = (id, event) => {
     const indicadoresLista = [];
+    console.log(id);
     for (let index = 0; index < indicadores.length; index++) {
       const element = indicadores[index];
       if (element["id"] == id) element["valor"] = event.target.value;
       indicadoresLista.push(element);
     }
+    console.log(indicadoresLista);
     setIndicadores(indicadoresLista);
   };
 
@@ -250,30 +300,29 @@ const CrearRecurso = () => {
 
   const buscarIndicadores = () => {
     //console.log("esto es la cadena")
-    let tipoBusqueda = "";
-    if (tipoIndicador != "") {
-      if (aspectoIndicador == "1" && tipoIndicador == "0")
-        tipoBusqueda = "0"; //programa
-      else if (aspectoIndicador == "1" && tipoIndicador == "1")
-        tipoBusqueda = "1"; //campaña stand-alone
-      else if (aspectoIndicador == "2" && tipoIndicador == "0")
-        tipoBusqueda = "2"; //campaña de programa
-      else if (aspectoIndicador == "2" && tipoIndicador == "1")
-        tipoBusqueda = "3"; //campaña stand-alone
-      else if (aspectoIndicador == "3" && tipoIndicador == "0")
-        tipoBusqueda = "4"; //correo
-      else if (aspectoIndicador == "3" && tipoIndicador == "1")
-        tipoBusqueda = "5"; //publicacion
-      else if (aspectoIndicador == "3" && tipoIndicador == "2")
-        tipoBusqueda = "6"; //pagina web
-    }
+    // let tipoBusqueda = "";
+    // if (tipoIndicador != "") {
+    //   if (aspectoIndicador == "1" && tipoIndicador == "0")
+    //     tipoBusqueda = "0"; //programa
+    //   else if (aspectoIndicador == "1" && tipoIndicador == "1")
+    //     tipoBusqueda = "1"; //campaña stand-alone
+    //   else if (aspectoIndicador == "2" && tipoIndicador == "0")
+    //     tipoBusqueda = "2"; //campaña de programa
+    //   else if (aspectoIndicador == "2" && tipoIndicador == "1")
+    //     tipoBusqueda = "3"; //campaña stand-alone
+    //   else if (aspectoIndicador == "3" && tipoIndicador == "0")
+    //     tipoBusqueda = "4"; //correo
+    //   else if (aspectoIndicador == "3" && tipoIndicador == "1")
+    //     tipoBusqueda = "5"; //publicacion
+    //   else if (aspectoIndicador == "3" && tipoIndicador == "2")
+    //     tipoBusqueda = "6"; //pagina web
+    //}
     setMostrarTablaIndicadores(false);
     setMostrarCargaIndicadores(true);
     api
       .post("filtrarIndicadores", {
         cadena: indicadorCadena,
-        aspecto: aspectoIndicador,
-        tipo: tipoBusqueda,
+        tipo: tipoIndicador,
         fechaCreacionIni: "",
         fechaCreacionFin: "",
         fechaModificacionIni: "",
@@ -347,6 +396,12 @@ const CrearRecurso = () => {
     buscarContactos();
   };
 
+  const handleFechaPublicacionRedSocial = (date) => {
+    setFechaPublicacionRedSocial(date);
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    setFechaPublicacionRedSocialString(date.toLocaleDateString("es-ES", options));
+  };
+
   const guardarRecurso = () => {
     let fechaVigenciaIni = "",
       fechaVigenciaFin = "",
@@ -372,6 +427,7 @@ const CrearRecurso = () => {
     let cuerpo = {
       idRecurso: 0,
       idCampana: campana.id,
+      idUsuario: usuarioLogueado["idUsuario"],
       tipo: tipo, //0: de programa, 1: stand-alone
       descripcion: descripcion,
       presupuesto: presupuesto,
@@ -402,12 +458,33 @@ const CrearRecurso = () => {
       cuerpo["contenido"] = JSON.stringify(contenidoGuardar);
       cuerpo["contenidoHTML"] = contenidoGuardarHTML;
     } else if (tipo == "1") {
-      cuerpo["fechaPublicacion"] = fechaPublicacionRedSocial; //cambiar formato
+      if (fechaPublicacionRedSocial != null) {
+        fechaPublicacion =
+          fechaPublicacionRedSocial.getDate() +
+          "-" +
+          parseInt(fechaPublicacionRedSocial.getMonth() + 1) +
+          "-" +
+          fechaPublicacionRedSocial.getFullYear();
+      }
+      let imagenes = [];
+      for (let index = 0; index < images.length; index++) {
+        const element = images[index];
+        if (element!=""){
+          imagenes.push(
+            {
+              contenido: element,
+              enlace: JSON.stringify(imagesList[index])
+            }
+          )
+        }
+      }
+      cuerpo["fechaPublicacion"] = fechaPublicacion; //cambiar formato
       cuerpo["horaPublicacion"] = horaPublicacionRedSocial; //cambiar formato
       cuerpo["servicioRedSocial"] = servicioRedSocial;
       cuerpo["usuarioRedSocial"] = usuarioRedSocial;
       cuerpo["audienciaRedSocial"] = audienciaRedSocial;
-      cuerpo["contenido"] = contenidoRedSocial;
+      cuerpo["contenido"] = caption;
+      cuerpo["imagenes"] = imagenes;
     } else if (tipo == "2") {
       cuerpo["titulo"] = titulo;
       cuerpo["dominio"] = dominio;
@@ -443,6 +520,23 @@ const CrearRecurso = () => {
       .then((data) => {
         console.log(data);
         setCorreosUsuario(data);
+      })
+      .catch((err) => alert(err));
+  };
+
+  const cargarRedes = (id, tipo) => {
+    let cuerpo = {
+      id: parseInt(id),
+      tipo: tipo,
+    };
+    console.log("esto se manda");
+    console.log(cuerpo);
+    api
+      .post("redesUsuario", cuerpo)
+      .then((res) => res.data)
+      .then((data) => {
+        console.log(data);
+        setRedesUsuario(data);
       })
       .catch((err) => alert(err));
   };
@@ -486,6 +580,15 @@ const CrearRecurso = () => {
     { id: "1", nombre: "Publicación" },
     { id: "3", nombre: "Página web" },
   ];
+
+  const handleChangeTipoVariable = (event) => {
+    setTipoIndicador(event.target.value);
+  };
+
+  const handleChangeServicioRedSocial = (event) => {
+    setServicioRedSocial(event.target.value);
+    cargarRedes(usuarioLogueado["idUsuario"], event.target.value);
+  };
 
   const handleChangeAspectoVariable = (event) => {
     setAspectoIndicador(event.target.value);
@@ -730,7 +833,7 @@ const CrearRecurso = () => {
                             <div className="col-md-6">
                               <Form.Group>
                                 <label className="col-sm-12 col-form-label">
-                                  Inicio de vigencia
+                                  Inicio de vigencia <code>*</code>
                                 </label>
                                 <div className="col-sm-12">
                                   <div className="customDatePickerWidth">
@@ -747,7 +850,7 @@ const CrearRecurso = () => {
                             <div className="col-md-6">
                               <Form.Group>
                                 <label className="col-sm-12 col-form-label">
-                                  Fin de vigencia
+                                  Fin de vigencia <code>*</code>
                                 </label>
                                 <div className="col-sm-12">
                                   <div className="customDatePickerWidth">
@@ -765,9 +868,21 @@ const CrearRecurso = () => {
                           <div className="row">
                             <div className="col-md-12">
                               <Form.Group>
-                                <label className="col-sm-12 col-form-label">
+                                <label className="col-sm-7 col-form-label">
                                   Indicadores
                                 </label>
+
+                                <button
+                                  type="button"
+                                  className="btn btn-link float-sm-right"
+                                  onClick={() =>
+                                    setMostrarBuscarIndicadores(
+                                      !mostrarBuscarIndicadores
+                                    )
+                                  }
+                                >
+                                  Buscar indicadores
+                                </button>
                               </Form.Group>
                               {indicadores.length == 0 ? (
                                 <Form.Group>
@@ -782,7 +897,7 @@ const CrearRecurso = () => {
                                       <thead>
                                         <tr>
                                           <th>Nombre</th>
-                                          <th>Aspecto-Tipo</th>
+                                          <th>Tipo</th>
                                           <th>Automatización</th>
                                           <th>Valor</th>
                                           <th></th>
@@ -792,23 +907,26 @@ const CrearRecurso = () => {
                                         {indicadores.map((indicador) => (
                                           <tr key={indicador["id"]}>
                                             <td>{indicador["nombre"]}</td>
+                                            <td>{mostrarIndicadorTipo(
+                                                  indicador["tipo"]
+                                                )}</td>
                                             <td>
-                                              {indicador["aspecto"] +
-                                                " - " +
-                                                indicador["tipo"]}
-                                            </td>
-                                            <td>
-                                              {indicador["calculoAutomatico"]}
+                                              {indicador["calculoAutomatico"]
+                                                ? "Habilitada"
+                                                : "No habilitada"}
                                             </td>
                                             <td>
                                               <input
                                                 type={"number"}
                                                 placeholder="Agregar valor"
                                                 className="form-control"
-                                                onChange={(event) =>
+                                                disabled={
+                                                  indicador["calculoAutomatico"]
+                                                }
+                                                onChange={(e) =>
                                                   handleValorIndicadores(
-                                                    event,
-                                                    indicador["id"]
+                                                    indicador["id"],
+                                                    e
                                                   )
                                                 }
                                                 value={indicador["valor"]}
@@ -837,143 +955,127 @@ const CrearRecurso = () => {
                               )}
                             </div>
                           </div>
-                          <div className="row">
-                            <div className="col-md-6">
-                              <Form.Group>
-                                <div className="search-field col-sm-12">
-                                  <form
-                                    className="d-flex align-items-center h-100"
-                                    onSubmit={buscarIndicadoresCadena}
-                                  >
-                                    <div className="input-group">
-                                      <div className="input-group-prepend bg-white">
-                                        <i className="input-group-text border-0 mdi mdi-magnify"></i>
-                                      </div>
-                                      <input
-                                        type="text"
-                                        className="form-control bg-white border-0"
-                                        placeholder="Nombre"
-                                        value={indicadorCadena}
-                                        onChange={({ target }) =>
-                                          setIndicadorCadena(target.value)
-                                        }
-                                      />
+                          {mostrarBuscarIndicadores && (
+                            <div>
+                              <div className="row">
+                                <div className="col-md-6">
+                                  <Form.Group>
+                                    <div className="search-field col-sm-12">
+                                      <form
+                                        className="d-flex align-items-center h-100"
+                                        onSubmit={buscarIndicadoresCadena}
+                                      >
+                                        <div className="input-group">
+                                          <div className="input-group-prepend bg-white">
+                                            <i className="input-group-text border-0 mdi mdi-magnify"></i>
+                                          </div>
+                                          <input
+                                            type="text"
+                                            className="form-control bg-white border-0"
+                                            placeholder="Nombre"
+                                            value={indicadorCadena}
+                                            onChange={({ target }) =>
+                                              setIndicadorCadena(target.value)
+                                            }
+                                          />
+                                        </div>
+                                      </form>
                                     </div>
-                                  </form>
+                                  </Form.Group>
                                 </div>
-                              </Form.Group>
-                            </div>
 
-                            <div className="col-md-3">
-                              <Form.Group>
-                                <select
-                                  className="form-control col-sm-11"
-                                  onChange={handleChangeAspectoVariable}
-                                >
-                                  <option value="" disabled selected hidden>
-                                    Aspecto
-                                  </option>
-                                  <option value={""}>Todos los aspectos</option>
-                                  <option value={"0"}>Plan</option>
-                                  <option value={"1"}>Estrategia</option>
-                                  <option value={"2"}>Campaña</option>
-                                  <option value={"3"}>Recurso</option>
-                                </select>
-                              </Form.Group>
-                            </div>
+                                <div className="col-md-5">
+                                  <Form.Group>
+                                    <select
+                                      className="form-control col-sm-11"
+                                      onChange={handleChangeTipoVariable}
+                                      value={tipoIndicador}
+                                    >
+                                      <option value={"4"}>Correo</option>
+                                      <option value={"5"}>Publicación</option>
+                                      <option value={"6"}>Página web</option>
+                                    </select>
+                                  </Form.Group>
+                                </div>
+                                <div className="col-md-1">
+                                  <Form.Group>
+                                    <button
+                                      type="button"
+                                      className="btn btn-primary"
+                                      onClick={buscarIndicadores}
+                                    >
+                                      Buscar
+                                    </button>
+                                  </Form.Group>
+                                </div>
+                              </div>
 
-                            <div className="col-md-2">
-                              <Form.Group>
-                                <select
-                                  className="form-control col-sm-11"
-                                  onChange={({ target }) =>
-                                    setTipoIndicador(target.value)
-                                  }
-                                >
-                                  {opcionesTipoVariable.map(
-                                    ({ id, nombre }) => (
-                                      <option value={id}>{nombre}</option>
-                                    )
-                                  )}
-                                </select>
-                              </Form.Group>
-                            </div>
-
-                            <div className="col-md-1">
-                              <Form.Group>
-                                <button
-                                  type="button"
-                                  className="btn btn-primary"
-                                  onClick={buscarIndicadores}
-                                >
-                                  Buscar
-                                </button>
-                              </Form.Group>
-                            </div>
-                          </div>
-                          <div className="row">
-                            <div className="col-md-12">
-                              <Form.Group>
-                                {mostrarCargaIndicadores && (
-                                  <div className="row h-100">
-                                    <div className="col-sm-12 my-auto">
-                                      <div className="circle-loader"></div>
-                                    </div>
-                                  </div>
-                                )}
-                                {mostrarTablaIndicadores && (
-                                  <div className="table-responsive">
-                                    <table className="table">
-                                      <thead>
-                                        <tr>
-                                          <th>Nombre</th>
-                                          <th>Aspecto-Tipo</th>
-                                          <th>Automatización</th>
-                                          <th></th>
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        {indicadoresBusqueda.map(
-                                          (indicador) => (
-                                            <tr key={indicador["id"]}>
-                                              <td>{indicador["nombre"]}</td>
-                                              <td>
-                                                {indicador["aspecto"] +
-                                                  " - " +
-                                                  indicador["tipo"]}
-                                              </td>
-                                              <td>
-                                                {indicador["calculoAutomatico"]}
-                                              </td>
-                                              <td>
-                                                <button
-                                                  type="button"
-                                                  onClick={handleAgregarIndicadores(
-                                                    indicador["id"],
-                                                    indicador["nombre"],
-                                                    indicador["aspecto"],
-                                                    indicador["tipo"],
-                                                    indicador[
-                                                      "calculoAutomatico"
-                                                    ]
-                                                  )}
-                                                >
-                                                  <i
-                                                    className="mdi mdi-plus"
-                                                    style={{ color: "black" }}
-                                                  ></i>
-                                                </button>
-                                              </td>
+                              <div className="row">
+                                <div className="col-md-12">
+                                  <Form.Group>
+                                    {mostrarCargaIndicadores && (
+                                      <div className="row h-100">
+                                        <div className="col-sm-12 my-auto">
+                                          <div className="circle-loader"></div>
+                                        </div>
+                                      </div>
+                                    )}
+                                    {mostrarTablaIndicadores && (
+                                      <div className="table-responsive">
+                                        <table className="table">
+                                          <thead>
+                                            <tr>
+                                              <th>Nombre</th>
+                                              <th>Tipo</th>
+                                              <th>Automatización</th>
+                                              <th></th>
                                             </tr>
-                                          )
-                                        )}
-                                      </tbody>
-                                    </table>
-                                  </div>
-                                )}
-                              </Form.Group>
+                                          </thead>
+                                          <tbody>
+                                            {indicadoresBusqueda.map(
+                                              (indicador) => (
+                                                <tr key={indicador["id"]}>
+                                                  <td>{indicador["nombre"]}</td>
+                                                  <td>{indicador["tipo"]}</td>
+                                                  <td>
+                                                    {
+                                                      indicador[
+                                                        "calculoAutomatico"
+                                                      ]
+                                                    }
+                                                  </td>
+                                                  <td>
+                                                    <button
+                                                      type="button"
+                                                      onClick={handleAgregarIndicadores(
+                                                        indicador["id"],
+                                                        indicador["nombre"],
+                                                        indicador["tipo"],
+                                                        indicador[
+                                                          "calculoAutomatico"
+                                                        ]
+                                                      )}
+                                                    >
+                                                      <i
+                                                        className="mdi mdi-plus"
+                                                        style={{
+                                                          color: "black",
+                                                        }}
+                                                      ></i>
+                                                    </button>
+                                                  </td>
+                                                </tr>
+                                              )
+                                            )}
+                                          </tbody>
+                                        </table>
+                                      </div>
+                                    )}
+                                  </Form.Group>
+                                </div>
+                              </div>
                             </div>
-                          </div>
+                          )}
                           <div className="row">
                             <div className="col-md-6">
                               <button
@@ -1115,11 +1217,11 @@ const CrearRecurso = () => {
                                         <Form.Control
                                           type="time"
                                           value={horaPublicacionCorreo}
-                                          onChange={({ target }) =>
+                                          onChange={({ target }) => {
                                             setHoraPublicacionCorreo(
                                               target.value
-                                            )
-                                          }
+                                            );
+                                          }}
                                         />
                                       </div>
                                     </Form.Group>
@@ -1406,30 +1508,45 @@ const CrearRecurso = () => {
                                 <label className="col-sm-12 col-form-label">
                                   Red social
                                 </label>
+
                                 <div className="col-sm-12">
-                                  <Form.Control
-                                    type="text"
-                                    value={servicioRedSocial}
-                                    //onChange={({ target }) =>
-                                    //  setPresupuesto(target.value)
-                                    //}
-                                  />
+                                  <Form.Group>
+                                    <select
+                                      className="form-control col-sm-11"
+                                      value={servicioRedSocial}
+                                      onChange={handleChangeServicioRedSocial}
+                                    >
+                                      <option value="" disabled selected hidden>
+                                        Seleccionar servicio
+                                      </option>
+                                      <option value={"0"}>Facebook</option>
+                                      <option value={"1"}>Linkedin</option>
+                                      <option value={"2"}>Instagram</option>
+                                    </select>
+                                  </Form.Group>
                                 </div>
                               </Form.Group>
                             </div>
                             <div className="col-md-6">
                               <Form.Group>
                                 <label className="col-sm-12 col-form-label">
-                                  Usuario de red social
+                                  Usuario de red social <code>*</code>
                                 </label>
                                 <div className="col-sm-12">
-                                  <Form.Control
-                                    type="text"
+                                  <select
+                                    className="form-control"
                                     value={usuarioRedSocial}
-                                    //onChange={({ target }) =>
-                                    //  setPresupuesto(target.value)
-                                    //}
-                                  />
+                                    onChange={handleChangeUsuarioRedSocial}
+                                  >
+                                    <option value={""} disabled selected hidden>
+                                      Seleccione un usuario
+                                    </option>
+                                    {redesUsuario.map(({ nombreUsuario }) => (
+                                      <option value={nombreUsuario}>
+                                        {nombreUsuario}
+                                      </option>
+                                    ))}
+                                  </select>
                                 </div>
                               </Form.Group>
                             </div>
@@ -1445,9 +1562,7 @@ const CrearRecurso = () => {
                                     <DatePicker
                                       className="form-control w-100"
                                       selected={fechaPublicacionRedSocial}
-                                      onChange={(date) =>
-                                        setFechaPublicacionRedSocial(date)
-                                      }
+                                      onChange={handleFechaPublicacionRedSocial}
                                       dateFormat="dd/MM/yyyy"
                                     />
                                   </div>
@@ -1463,9 +1578,9 @@ const CrearRecurso = () => {
                                   <Form.Control
                                     type="time"
                                     value={horaPublicacionRedSocial}
-                                    //onChange={({ target }) =>
-                                    //  setPresupuesto(target.value)
-                                    //}
+                                    onChange={({ target }) => {
+                                      setHoraPublicacionRedSocial(target.value);
+                                    }}
                                   />
                                 </div>
                               </Form.Group>
@@ -1502,13 +1617,161 @@ const CrearRecurso = () => {
                                   Contenido de la publicación<code>*</code>
                                 </label>
                                 <div className="col-sm-12">
-                                  <Form.Control
-                                    type="text"
-                                    //value={descripcion}
-                                    //onChange={({ target }) =>
-                                    //  setDescripcion(target.value)
-                                    //}
-                                  />
+                                  {tipo == "1" && servicioRedSocial == "0" && (
+                                    // <div
+                                    //   style={{
+                                    //     display: "flex",
+                                    //     justifyContent: "center",
+                                    //   }}
+                                    // >
+                                    //   <FacebookEmbed
+                                    //     url="https://www.facebook.com/BLASCOLOR.EIRL/posts/pfbid0SYuC8n2FSHwfHjYJ83AAKJh3aamouJcNppwih1pDeNj4D2qfXujeYRRgXwSH53QMl"
+                                    //     width={550}
+                                    //   />
+                                    // </div>
+                                    <Editor
+                                      usuarioRedSocial={usuarioRedSocial}
+                                      audienciaRedSocial={audienciaRedSocial}
+                                      horaPublicacionRedSocial={
+                                        horaPublicacionRedSocial
+                                      }
+                                      fechaPublicacionRedSocialString = {fechaPublicacionRedSocialString}
+                                      caption={caption}
+                                      setCaption={setCaption}
+                                      avtars={avtars}
+                                      setAvtars={setAvtars}
+                                      images={images}
+                                      setImages={setImages}
+                                      imagesList={imagesList}
+                                      setImagesList={setImagesList}
+                                      name={name}
+                                      setName={setName}
+                                      time={time}
+                                      setTime={setTime}
+                                      privacy={privacy}
+                                      setPrivacy={setPrivacy}
+                                      likes={likes}
+                                      setLikes={setLikes}
+                                      includeLike={includeLike}
+                                      setIncludeLike={setIncludeLike}
+                                      includeLove={includeLove}
+                                      setIncludeLove={setIncludeLove}
+                                      includeHaha={includeHaha}
+                                      setIncludeHaha={setIncludeHaha}
+                                      includeWow={includeWow}
+                                      setIncludeWow={setIncludeWow}
+                                      includeSad={includeSad}
+                                      setIncludeSad={setIncludeSad}
+                                      includeAngry={includeAngry}
+                                      setIncludeAngry={setIncludeAngry}
+                                      editorShown={editorShown}
+                                      setEditorShown={setEditorShown}
+                                    />
+                                  )}
+                                  {tipo == "1" && servicioRedSocial == "1" && (
+                                    // <div
+                                    //   style={{
+                                    //     display: "flex",
+                                    //     justifyContent: "center",
+                                    //   }}
+                                    // >
+                                    //   <LinkedInEmbed
+                                    //     url="https://www.linkedin.com/embed/feed/update/urn:li:share:6898694772484112384"
+                                    //     postUrl="https://www.linkedin.com/posts/peterdiamandis_5-discoveries-the-james-webb-telescope-will-activity-6898694773406875648-z-D7"
+                                    //     width={325}
+                                    //     height={570}
+                                    //   />
+                                    // </div>
+                                    <Editor
+                                      usuarioRedSocial={usuarioRedSocial}
+                                      audienciaRedSocial={audienciaRedSocial}
+                                      horaPublicacionRedSocial={
+                                        horaPublicacionRedSocial
+                                      }
+                                      fechaPublicacionRedSocialString = {fechaPublicacionRedSocialString}
+                                      caption={caption}
+                                      setCaption={setCaption}
+                                      avtars={avtars}
+                                      setAvtars={setAvtars}
+                                      images={images}
+                                      setImages={setImages}
+                                      imagesList={imagesList}
+                                      setImagesList={setImagesList}
+                                      name={name}
+                                      setName={setName}
+                                      time={time}
+                                      setTime={setTime}
+                                      privacy={privacy}
+                                      setPrivacy={setPrivacy}
+                                      likes={likes}
+                                      setLikes={setLikes}
+                                      includeLike={includeLike}
+                                      setIncludeLike={setIncludeLike}
+                                      includeLove={includeLove}
+                                      setIncludeLove={setIncludeLove}
+                                      includeHaha={includeHaha}
+                                      setIncludeHaha={setIncludeHaha}
+                                      includeWow={includeWow}
+                                      setIncludeWow={setIncludeWow}
+                                      includeSad={includeSad}
+                                      setIncludeSad={setIncludeSad}
+                                      includeAngry={includeAngry}
+                                      setIncludeAngry={setIncludeAngry}
+                                      editorShown={editorShown}
+                                      setEditorShown={setEditorShown}
+                                    />
+                                  )}
+                                  {tipo == "1" && servicioRedSocial == "2" && (
+                                    // <div
+                                    //   style={{
+                                    //     display: "flex",
+                                    //     justifyContent: "center",
+                                    //   }}
+                                    // >
+                                    //   <InstagramEmbed
+                                    //     url="https://www.instagram.com/p/DCrEDTsS7X-/"
+                                    //     width={328}
+                                    //   />
+                                    // </div>
+                                    <Editor
+                                      usuarioRedSocial={usuarioRedSocial}
+                                      audienciaRedSocial={audienciaRedSocial}
+                                      horaPublicacionRedSocial={
+                                        horaPublicacionRedSocial
+                                      }
+                                      fechaPublicacionRedSocialString = {fechaPublicacionRedSocialString}
+                                      caption={caption}
+                                      setCaption={setCaption}
+                                      avtars={avtars}
+                                      setAvtars={setAvtars}
+                                      images={images}
+                                      setImages={setImages}
+                                      imagesList={imagesList}
+                                      setImagesList={setImagesList}
+                                      name={name}
+                                      setName={setName}
+                                      time={time}
+                                      setTime={setTime}
+                                      privacy={privacy}
+                                      setPrivacy={setPrivacy}
+                                      likes={likes}
+                                      setLikes={setLikes}
+                                      includeLike={includeLike}
+                                      setIncludeLike={setIncludeLike}
+                                      includeLove={includeLove}
+                                      setIncludeLove={setIncludeLove}
+                                      includeHaha={includeHaha}
+                                      setIncludeHaha={setIncludeHaha}
+                                      includeWow={includeWow}
+                                      setIncludeWow={setIncludeWow}
+                                      includeSad={includeSad}
+                                      setIncludeSad={setIncludeSad}
+                                      includeAngry={includeAngry}
+                                      setIncludeAngry={setIncludeAngry}
+                                      editorShown={editorShown}
+                                      setEditorShown={setEditorShown}
+                                    />
+                                  )}
                                 </div>
                               </Form.Group>
                             </div>
