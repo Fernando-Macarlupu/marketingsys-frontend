@@ -50,7 +50,7 @@ const Dashboard = () => {
       .then((res) => res.data)
       .then((data) => {
         console.log(data);
-        setComponentes(data["componentes"]);
+        if(data["componentes"]!={}) setComponentes(data["componentes"]);
         setMostrarCargaDatos(false);
         setMostrarDatos(true);
       })
