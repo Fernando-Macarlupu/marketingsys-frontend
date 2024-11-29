@@ -11,7 +11,7 @@ const RestablecerContrasena = lazy(() => import("./login-pages/RecuperarContrase
 
 const PerfilUsuario = lazy(() => import("./login-pages/PerfilUsuario"));
 
-const LoginMicrosoftDemo = lazy(() => import("./login-pages/LoginMicrosoftDemo"));
+//const LoginMicrosoftDemo = lazy(() => import("./login-pages/LoginMicrosoftDemo"));
 
 const Contactos = lazy(() => import("./pages/Contactos"));
 const Empresas = lazy(() => import("./pages/Empresas"));
@@ -58,7 +58,7 @@ const DetalleDashboard = lazy(() => import("./pages-marketing/DetalleDashboard")
 
 const Eventos = lazy(() => import("./pages/Eventos"));
 
-const Editor = lazy(() => import("./pages-marketing/Editor"));
+//const Editor = lazy(() => import("./pages-marketing/Editor"));
 
 const Buttons = lazy(() => import("./basic-ui/Buttons"));
 const Dropdowns = lazy(() => import("./basic-ui/Dropdowns"));
@@ -98,10 +98,10 @@ const AppRoutes = () => {
   return (
     <Suspense fallback={<Spinner />}>
       <Switch>
-      <Route path="/editor" component={Editor} />
+      {/* <Route path="/editor" component={Editor} /> */}
 
         <Route path="/iniciarSesion" component={IniciarSesion} />
-        <Route path="/microsoft" component={LoginMicrosoftDemo} />
+        {/* <Route path="/microsoft" component={LoginMicrosoftDemo} /> */}
         
         <Route path="/dashboard" component={Dashboard} />
 
