@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import { Form, Alert } from "react-bootstrap";
-//import { googleLogout, useGoogleLogin } from "@react-oauth/google";
+import { googleLogout, useGoogleLogin } from "@react-oauth/google";
 import api from "../api";
-// import axios from "axios";
+import axios from "axios";
 // import {
 //   LOGIN_REQUEST,
 //   PUBLIC_CLIENT_APPLICATION,
@@ -24,8 +24,8 @@ const Login = () => {
   const [mostrarMensajeExitoContrasena, setMostrarMensajeExitoContrasena] =
     useState(false);
 
-  //const [user, setUser] = useState([]);
-  //const [profile, setProfile] = useState([]);
+  const [user, setUser] = useState([]);
+  const [profile, setProfile] = useState([]);
   //const [correoLogin, setCorreoLogin] = useState([]);
 
   let fechaHoy = new Date();
@@ -128,80 +128,80 @@ const Login = () => {
   //   setToken(tokenResponse.accessToken);
   // };
 
-  // const handleLoginGoogle = (data) => {
-  //   const datos = {
-  //     correo: data.email,
-  //     nombreCompleto: data.name,
-  //     servicio: "0",
-  //     cuentaUsuario: {
-  //       id: 0,
-  //       nombre: data.name,
-  //       expiracionCuenta:
-  //         fechaExpiracion.getDate() +
-  //         "-" +
-  //         parseInt(fechaExpiracion.getMonth() + 1) +
-  //         "-" +
-  //         fechaExpiracion.getFullYear(),
-  //       diasExpiracioncuenta: 180,
-  //     },
-  //   };
-  //   // send the username and password to the server
-  //   setMostrarDatos(false);
-  //   setMostrarCargaDatos(true);
-  //   api
-  //     .post("loginCorreo", datos)
-  //     .then((res) => res.data)
-  //     .then((data) => {
-  //       console.log(data);
-  //       setMostrarCargaDatos(false);
-  //       setMostrarDatos(true);
-  //       if (data["mensaje"] == "Usuario no encontrado") alert(data["mensaje"]);
-  //       else {
-  //         setUsuario(data["datos"]);
-  //         localStorage.setItem(
-  //           "marketingSYSusuario",
-  //           JSON.stringify(data["datos"])
-  //         );
-  //         localStorage.setItem(
-  //           "marketingSYSusuario_logueado",
-  //           JSON.stringify(true)
-  //         );
-  //         console.log("llego hasta poner el dashboard");
-  //         history.push({
-  //           pathname: "/dashboard",
-  //         });
-  //       }
-  //     })
-  //     .catch((err) => alert(err));
-  // };
+   const handleLoginGoogle = (data) => {
+     const datos = {
+       correo: data.email,
+       nombreCompleto: data.name,
+       servicio: "0",
+       cuentaUsuario: {
+         id: 0,
+         nombre: data.name,
+         expiracionCuenta:
+           fechaExpiracion.getDate() +
+           "-" +
+           parseInt(fechaExpiracion.getMonth() + 1) +
+           "-" +
+           fechaExpiracion.getFullYear(),
+         diasExpiracioncuenta: 180,
+       },
+     };
+     // send the username and password to the server
+     setMostrarDatos(false);
+     setMostrarCargaDatos(true);
+     api
+       .post("loginCorreo", datos)
+       .then((res) => res.data)
+       .then((data) => {
+         console.log(data);
+         setMostrarCargaDatos(false);
+         setMostrarDatos(true);
+         if (data["mensaje"] == "Usuario no encontrado") alert(data["mensaje"]);
+         else {
+           setUsuario(data["datos"]);
+           localStorage.setItem(
+             "marketingSYSusuario",
+             JSON.stringify(data["datos"])
+           );
+           localStorage.setItem(
+             "marketingSYSusuario_logueado",
+             JSON.stringify(true)
+           );
+           console.log("llego hasta poner el dashboard");
+           history.push({
+             pathname: "/dashboard",
+           });
+         }
+       })
+       .catch((err) => alert(err));
+   };
 
-  // const obtenerPerfil = (user) => {
-  //   axios
-  //     .get(
-  //       `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${user.access_token}`,
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${user.access_token}`,
-  //           Accept: "application/json",
-  //         },
-  //       }
-  //     )
-  //     .then((res) => {
-  //       setProfile(res.data);
-  //       console.log(res.data);
-  //       handleLoginGoogle(res.data);
-  //     })
-  //     .catch((err) => console.log(err));
-  // };
+   const obtenerPerfil = (user) => {
+     axios
+       .get(
+         `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${user.access_token}`,
+         {
+           headers: {
+             Authorization: `Bearer ${user.access_token}`,
+             Accept: "application/json",
+           },
+         }
+       )
+       .then((res) => {
+         setProfile(res.data);
+         console.log(res.data);
+         handleLoginGoogle(res.data);
+       })
+       .catch((err) => console.log(err));
+   };
 
-  // const login = useGoogleLogin({
-  //   onSuccess: (codeResponse) => {
-  //     setUser(codeResponse);
-  //     //console.log(codeResponse);
-  //     obtenerPerfil(codeResponse);
-  //   },
-  //   onError: (error) => console.log("Login Failed:", error),
-  // });
+   const login = useGoogleLogin({
+     onSuccess: (codeResponse) => {
+       setUser(codeResponse);
+       //console.log(codeResponse);
+       obtenerPerfil(codeResponse);
+     },
+     onError: (error) => console.log("Login Failed:", error),
+   });
 
   useEffect(() => {
     let interaccion = sessionStorage.getItem("msal.interaction.status");
@@ -371,7 +371,7 @@ const Login = () => {
                         <button
                           type="button"
                           className="btn btn-block btn-outline-primary btn-lg font-weight-medium auth-form-btn"
-                          //onClick={() => login()}
+                          onClick={() => login()}
                         >
                           <i className="mdi mdi-google mr-2"></i>Iniciar con
                           Google
