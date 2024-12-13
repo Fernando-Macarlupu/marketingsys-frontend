@@ -331,9 +331,10 @@ const CrearIndicador = () => {
     else {
       if (tipo == "") alert("Seleccione un tipo de asociación del indicador");
       else {
+        if(formula!=""){
         let abreviaturas = [];
         let variablesEmpleadas = [];
-        let operaciones = ["+", "-", "*", "/", "^", "(", ")"];
+        let operaciones = ["+", "-", "*", "/", "(", ")"];
         for (let index = 0; index < variables.length; index++) {
           const element = variables[index];
           abreviaturas.push(element["abreviatura"]);
@@ -363,11 +364,12 @@ const CrearIndicador = () => {
         try {
           eval(formulaCambio);
           setSintaxis(true);
-        setShow(true);
+        
         } catch (e) {
           setSintaxis(false);
           alert("La fórmula no puede ser evaluada");
-        }
+        }}
+        setShow(true);
       }
     }
   };
@@ -463,7 +465,7 @@ const CrearIndicador = () => {
   const comprobarSintaxis = () => {
     let abreviaturas = [];
     let variablesEmpleadas = [];
-    let operaciones = ["+", "-", "*", "/", "^", "(", ")"];
+    let operaciones = ["+", "-", "*", "/", "(", ")"];
     for (let index = 0; index < variables.length; index++) {
       const element = variables[index];
       abreviaturas.push(element["abreviatura"]);
@@ -904,7 +906,6 @@ const CrearIndicador = () => {
                             <option value={"-"}>-</option>
                             <option value={"*"}>*</option>
                             <option value={"/"}>/</option>
-                            <option value={"^"}>^</option>
                             <option value={"("}>{"("}</option>
                             <option value={")"}>{")"}</option>
                           </select>

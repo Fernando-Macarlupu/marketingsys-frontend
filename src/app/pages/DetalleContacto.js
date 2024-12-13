@@ -179,16 +179,30 @@ const DetalleContacto = () => {
   };
 
   const mostrarRedSocial = (redSocial, nombreUsuario) => {
-    let resultado = "";
-    if (redSocial == "0") resultado += "Facebook - ";
+    let resultado = "", icono = "";
+    if (redSocial == "0"){ 
+      icono = "mdi mdi-facebook"; 
+      resultado += "Facebook - ";
+    }
     else {
-      if (redSocial == "1") resultado += "Linkedin - ";
+      if (redSocial == "1"){
+        icono = "mdi mdi-linkedin"; 
+        resultado += "Linkedin - ";
+      }
       else {
-        if (redSocial == "2") resultado += "Instagram - ";
+        if (redSocial == "2"){
+          icono = "mdi mdi-instagram"; 
+          resultado += "Instagram - ";
+        }
       }
     }
     if (nombreUsuario != "") resultado += nombreUsuario;
-    return resultado;
+    return (
+      <div>
+        <i className={icono} style={{ padding: 10 }}></i>
+        {resultado}
+      </div>
+    );
   };
 
   const handleChangeNombreCompleto = (event) => {

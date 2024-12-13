@@ -47,7 +47,12 @@ const CrearOportunidad = () => {
     }
   };
 
-  const handleChangeInicioVigencia = (date) => setInicioVigencia(date);
+  const handleChangeInicioVigencia = (date) => {
+    setInicioVigencia(date)
+    if(date>finVigencia){
+      setFinVigencia(date);
+    }
+  };
   const handleChangeFinVigencia = (date) => setFinVigencia(date);
 
   const handleBuscarCampanas = () =>
@@ -487,6 +492,7 @@ const buscarContactosCadena = (event) => {
                                   selected={finVigencia}
                                   onChange={handleChangeFinVigencia}
                                   dateFormat="dd/MM/yyyy"
+                                  minDate={inicioVigencia}
                                 />
                               </div>
                             </div>

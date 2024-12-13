@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Form, Modal, Alert } from "react-bootstrap";
+import { Form, Modal, Alert, Pagination } from "react-bootstrap";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import api from "../api";
@@ -24,6 +24,11 @@ const Dashboards = () => {
   const [mostrarMensajeExito, setMostrarMensajeExito] = useState(false);
   const [mostrarMensajeExitoCarga, setMostrarMensajeExitoCarga] =
     useState(false);
+  
+  const [actualPage, setActualPage] = useState(1);
+  const [countPage, setCountPage] = useState(0);
+  const [pages, setPages] = useState([]);
+  const maxPage = 10;
 
   useEffect(() => {
     let usuario = localStorage.getItem("marketingSYSusuario");
@@ -43,6 +48,7 @@ const Dashboards = () => {
       }
     }
     setUsuarioLogueado(JSON.parse(usuario));
+    buscarDashboardsInicial(JSON.parse(usuario)["idCuenta"]);
   }, []);
 
   // state = {
@@ -55,11 +61,59 @@ const Dashboards = () => {
   //   estado: "",
   //   contactos: [],
   // };
+
+  const cargarPaginas = (paginasCont) => {
+    let paginas = [];
+    for (let i = 0; i < paginasCont; i++) {
+      paginas.push(
+        <Pagination.Item onClick={setActualPage(i + 1)}>
+          {i + 1}
+        </Pagination.Item>
+      );
+    }
+    setPages(paginas);
+  };
+
+  const buscarDashboardsInicial = (idCuenta) => {
+    //console.log("esto es la cadena")
+    console.log(cadena);
+    let fechaCreacionIni = "", paginasCont=0,
+      fechaCreacionFin = "",
+      fechaModificacionIni = "",
+      fechaModificacionFin = "";
+
+    setMostrarTabla(false);
+    setMostrarCarga(true);
+    api
+      .post("filtrarDashboards", {
+        cadena: "",
+        fechaCreacionIni: "",
+        fechaCreacionFin: "",
+        fechaModificacionIni: "",
+        fechaModificacionFin: "",
+        propietario: idCuenta,
+      })
+      .then((res) => res.data)
+      .then((data) => {
+        console.log(data);
+        setDashboards(data);
+        if (data.length != null && data.length > 0) {
+          paginasCont = Math.ceil(data.length / maxPage);
+          setCountPage(paginasCont);
+          cargarPaginas(paginasCont);
+          setActualPage(1);
+        }
+        setMostrarCarga(false);
+        setMostrarTabla(true);
+      })
+      .catch((err) => alert(err));
+  };
+
   
   const buscarDashboards = () => {
     //console.log("esto es la cadena")
     console.log(cadena);
-    let fechaCreacionIni = "",
+    let fechaCreacionIni = "", paginasCont=0,
       fechaCreacionFin = "",
       fechaModificacionIni = "",
       fechaModificacionFin = "";
@@ -113,6 +167,12 @@ const Dashboards = () => {
       .then((data) => {
         console.log(data);
         setDashboards(data);
+        if (data.length != null && data.length > 0) {
+          paginasCont = Math.ceil(data.length / maxPage);
+          setCountPage(paginasCont);
+          cargarPaginas(paginasCont);
+          setActualPage(1);
+        }
         setMostrarCarga(false);
         setMostrarTabla(true);
       })
@@ -333,8 +393,8 @@ const Dashboards = () => {
               </div>
             </div>
           )}
-          {mostrarTabla && (
-          <div className="table-responsive">
+          {mostrarTabla && dashboards.length>0 &&( <div>
+          <div className="table-responsive" style={{ height: "500px", overflow: "auto" }}>
             <table className="table">
               <thead>
                 <tr>
@@ -345,14 +405,14 @@ const Dashboards = () => {
                 </tr>
               </thead>
               <tbody>
-                {dashboards.map((dashboard) => (
+                {dashboards.slice((actualPage - 1) * maxPage, actualPage * maxPage).map((dashboard) => (
                   <tr key={dashboard["id"]}>
                     <td>{dashboard["nombre"]}</td>
                     <td>{dashboard["fechaCreacion"]}</td>
                     <td>{dashboard["fechaModificacion"]}</td>
                     <td>
                       <select
-                        className="form-control"
+                        className="select-menu"
                         onChange={(e) => handleVerDetalle(dashboard["id"], e)}
                       >
                         <option value={0} disabled selected hidden>
@@ -367,6 +427,29 @@ const Dashboards = () => {
               </tbody>
             </table>
           </div>
+          <div className="row">
+          <Pagination className="mx-auto">
+            {pages.map((_, index) => {
+              return (
+                <Pagination.Item
+                  onClick={() => setActualPage(index + 1)}
+                  key={index + 1}
+                  active={index + 1 === actualPage}
+                >
+                  {index + 1}
+                </Pagination.Item>
+              );
+            })}
+          </Pagination>
+        </div>
+        </div>
+          )}
+          {mostrarTabla && dashboards.length == 0 && (
+            <Form.Group>
+              <label className="col-sm-12 col-form-label">
+                No se han encontrado dashboards
+              </label>
+            </Form.Group>
           )}
         </div>
       </div>

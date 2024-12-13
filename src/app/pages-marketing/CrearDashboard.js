@@ -207,6 +207,7 @@ const CrearDashboard = () => {
     else if (tipo == "4") setNuevoComponenteOrganizado("oportunidad-estado");
     else if (tipo == "5") setNuevoComponenteOrganizado("contacto-estado");
     else if (tipo == "6") setNuevoComponenteOrganizado("empresa-tipo");
+    setNuevoComponenteValores("cantidad");
   };
 
   const handleEliminarComponentes = (componente) => () => {
@@ -1203,15 +1204,101 @@ const CrearDashboard = () => {
                   <Form.Group>
                     <label className="col-sm-12 col-form-label">Valores</label>
                     <div className="col-sm-12">
-                      <select
-                        className="form-control"
-                        value={nuevoComponenteValores}
-                        onChange={handleChangeNuevoComponenteValores}
-                      >
-                        <option value={"cantidad"} selected>
-                          Cantidad de registros
-                        </option>
-                      </select>
+                      {nuevoComponenteReporteTipo == "0" && (
+                        <select
+                          className="form-control"
+                          value={nuevoComponenteValores}
+                          onChange={handleChangeNuevoComponenteValores}
+                        >
+                          <option value={"cantidad"} selected>
+                            Cantidad de registros
+                          </option>
+                          <option value={"plan-presupuesto"}>
+                            Presupuesto de plan
+                          </option>
+                        </select>
+                      )}
+                      {nuevoComponenteReporteTipo == "1" && (
+                        <select
+                          className="form-control"
+                          value={nuevoComponenteValores}
+                          onChange={handleChangeNuevoComponenteValores}
+                        >
+                          <option value={"cantidad"} selected>
+                            Cantidad de registros
+                          </option>
+                          <option value={"programa-presupuesto"}>
+                            Presupuesto de programa
+                          </option>
+                        </select>
+                      )}
+                      {nuevoComponenteReporteTipo == "2" && (
+                        <select
+                          className="form-control"
+                          value={nuevoComponenteValores}
+                          onChange={handleChangeNuevoComponenteValores}
+                        >
+                          <option value={"cantidad"} selected>
+                            Cantidad de registros
+                          </option>
+                          <option value={"campana-presupuesto"}>
+                            Presupuesto de campaña
+                          </option>
+                        </select>
+                      )}
+                      {nuevoComponenteReporteTipo == "3" && (
+                        <select
+                          className="form-control"
+                          value={nuevoComponenteValores}
+                          onChange={handleChangeNuevoComponenteValores}
+                        >
+                          <option value={"cantidad"} selected>
+                            Cantidad de registros
+                          </option>
+                          <option value={"recurso-presupuesto"}>
+                            Presupuesto de recurso
+                          </option>
+                        </select>
+                      )}
+                      {nuevoComponenteReporteTipo == "4" && (
+                        <select
+                          className="form-control"
+                          value={nuevoComponenteValores}
+                          onChange={handleChangeNuevoComponenteValores}
+                        >
+                          <option value={"cantidad"} selected>
+                            Cantidad de registros
+                          </option>
+                          <option value={"oportunidad-importe"}>
+                            Importe de oportunidad
+                          </option>
+                        </select>
+                      )}
+                      {nuevoComponenteReporteTipo == "5" && (
+                        <select
+                          className="form-control"
+                          value={nuevoComponenteValores}
+                          onChange={handleChangeNuevoComponenteValores}
+                        >
+                          <option value={"cantidad"} selected>
+                            Cantidad de registros
+                          </option>
+                        </select>
+                      )}
+                      {nuevoComponenteReporteTipo == "6" && (
+                        <select
+                          className="form-control"
+                          value={nuevoComponenteValores}
+                          onChange={handleChangeNuevoComponenteValores}
+                        >
+                          <option value={"cantidad"} selected>
+                            Cantidad de registros
+                          </option>
+                          <option value={"empresa-cantEmpleados"}>
+                            Cantidad de empleados de empresa
+                          </option>
+                        </select>
+                      )}
                     </div>
                   </Form.Group>
                 </div>

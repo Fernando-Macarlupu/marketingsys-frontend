@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Tabs, Tab, Form, Modal, Alert } from "react-bootstrap";
+import { Tabs, Tab, Form, Modal, Alert, Pagination } from "react-bootstrap";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import api from "../api";
@@ -9,17 +9,31 @@ const Eventos = () => {
   const history = useHistory();
   const [startDateCreate, setStartDateCreate] = useState(new Date());
   const [endDateCreate, setEndDateCreate] = useState(new Date());
+  const [startDateCreateError, setStartDateCreateError] = useState(new Date());
+  const [endDateCreateError, setEndDateCreateError] = useState(new Date());
   const [actividades, setActividades] = useState([]);
   const [errores, setErrores] = useState([]);
   const [mostrarTabla, setMostrarTabla] = useState(false);
+  const [mostrarTablaErrores, setMostrarTablaErrores] = useState(false);
   const [mostrarCarga, setMostrarCarga] = useState(false);
   const [usuarioLogueado, setUsuarioLogueado] = useState({});
+  const [actualPage, setActualPage] = useState(1);
+  const [countPage, setCountPage] = useState(0);
+  const [pages, setPages] = useState([]);
+  const maxPage = 10;
 
   const handleChangeStartCreate = (date) => {
     setStartDateCreate(date);
   };
   const handleChangeEndCreate = (date) => {
     setEndDateCreate(date);
+  };
+
+  const handleChangeStartCreateError = (date) => {
+    setStartDateCreateError(date);
+  };
+  const handleChangeEndCreateError = (date) => {
+    setEndDateCreateError(date);
   };
 
   const buscarActividades = () => {
@@ -64,18 +78,18 @@ const Eventos = () => {
       fechaFin = "";
 
     fechaIni =
-      startDateCreate.getDate() +
+      startDateCreateError.getDate() +
       "-" +
-      parseInt(startDateCreate.getMonth() + 1) +
+      parseInt(startDateCreateError.getMonth() + 1) +
       "-" +
-      startDateCreate.getFullYear();
+      startDateCreateError.getFullYear();
     fechaFin =
-      endDateCreate.getDate() +
+      endDateCreateError.getDate() +
       "-" +
-      parseInt(endDateCreate.getMonth() + 1) +
+      parseInt(endDateCreateError.getMonth() + 1) +
       "-" +
-      endDateCreate.getFullYear();
-    setMostrarTabla(false);
+      endDateCreateError.getFullYear();
+    setMostrarTablaErrores(false);
     setMostrarCarga(true);
     api
       .post("filtrarLogs", {
@@ -89,7 +103,7 @@ const Eventos = () => {
         console.log(data);
         setErrores(data);
         setMostrarCarga(false);
-        setMostrarTabla(true);
+        setMostrarTablaErrores(true);
       })
       .catch((err) => alert(err));
   };
@@ -177,7 +191,7 @@ const Eventos = () => {
                           </div>
                         </div>
                       )}
-                      {mostrarTabla && (
+                      {mostrarTabla && actividades.length>0 &&(
                         <div className="table-responsive">
                           <table className="table">
                             <thead>
@@ -198,6 +212,13 @@ const Eventos = () => {
                             </tbody>
                           </table>
                         </div>
+                      )}
+                      {mostrarTabla && actividades.length == 0 && (
+                        <Form.Group>
+                          <label className="col-sm-12 col-form-label">
+                            No se han encontrado registros de actividades
+                          </label>
+                        </Form.Group>
                       )}
                     </div>
                   </div>
@@ -223,16 +244,16 @@ const Eventos = () => {
                           <div className="col-sm-4">
                             <DatePicker
                               className="form-control w-100"
-                              selected={startDateCreate}
-                              onChange={handleChangeStartCreate}
+                              selected={startDateCreateError}
+                              onChange={handleChangeStartCreateError}
                               dateFormat="dd/MM/yyyy"
                             />
                           </div>
                           <div className="col-sm-4">
                             <DatePicker
                               className="form-control w-100"
-                              selected={endDateCreate}
-                              onChange={handleChangeEndCreate}
+                              selected={endDateCreateError}
+                              onChange={handleChangeEndCreateError}
                               dateFormat="dd/MM/yyyy"
                             />
                           </div>
@@ -266,7 +287,7 @@ const Eventos = () => {
                           </div>
                         </div>
                       )}
-                      {mostrarTabla && (
+                      {mostrarTablaErrores && errores.length>0 &&(
                         <div className="table-responsive">
                           <table className="table">
                             <thead>
@@ -289,6 +310,13 @@ const Eventos = () => {
                             </tbody>
                           </table>
                         </div>
+                      )}
+                      {mostrarTablaErrores && errores.length == 0 && (
+                        <Form.Group>
+                          <label className="col-sm-12 col-form-label">
+                            No se han encontrado registros de errores
+                          </label>
+                        </Form.Group>
                       )}
                     </div>
                   </div>

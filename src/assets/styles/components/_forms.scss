@@ -186,3 +186,22 @@ select {
        cursor: pointer;
      }
 }
+
+
+.select-menu {
+    padding: .4375rem .75rem;
+    border: 0;
+    background: transparent;
+  -webkit-appearance: none;
+  appearance: none;
+    color: #21272A;
+    @each $color,
+    $value in $theme-colors {
+      &.border-#{$color} {
+        outline: 1px solid $value;
+        &:focus {
+          outline: 1px solid $value;
+        }
+      }
+    }
+}

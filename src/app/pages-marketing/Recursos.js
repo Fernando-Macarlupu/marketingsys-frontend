@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Form, Modal, Alert } from "react-bootstrap";
+import { Form, Modal, Alert, Pagination } from "react-bootstrap";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import api from "../api";
@@ -27,6 +27,11 @@ const Recursos = () => {
   const [mostrarMensajeExitoCarga, setMostrarMensajeExitoCarga] =
     useState(false);
 
+    const [actualPage, setActualPage] = useState(1);
+  const [countPage, setCountPage] = useState(0);
+  const [pages, setPages] = useState([]);
+  const maxPage = 10;
+
   const handleClose = () => setShow(false);
 
   useEffect(() => {
@@ -47,12 +52,69 @@ const Recursos = () => {
       }
     }
     setUsuarioLogueado(JSON.parse(usuario));
+    buscarRecursosInicial(JSON.parse(usuario)["idCuenta"]);
   }, []);
+
+  const cargarPaginas = (paginasCont) => {
+    let paginas = [];
+    for (let i = 0; i < paginasCont; i++) {
+      paginas.push(
+        <Pagination.Item onClick={setActualPage(i + 1)}>
+          {i + 1}
+        </Pagination.Item>
+      );
+    }
+    setPages(paginas);
+  };
+
+  const buscarRecursosInicial = (idCuenta) => {
+    //console.log("esto es la cadena")
+    console.log(cadena);
+    let fechaVigenciaIni = "", paginasCont = 0,
+      fechaVigenciaFin = "",
+      fechaHoy = "",
+      fecha = new Date();
+
+    fechaHoy =
+      fecha.getDate() +
+      "-" +
+      parseInt(fecha.getMonth() + 1) +
+      "-" +
+      fecha.getFullYear();
+
+    setMostrarTabla(false);
+    setMostrarCarga(true);
+    api
+      .post("filtrarRecursos", {
+        cadena: "",
+        estado: "",
+        tipo: "",
+        fechaHoy: fechaHoy,
+        fechaVigenciaIni: "",
+        fechaVigenciaFin: "",
+        propietario: idCuenta,
+      })
+      .then((res) => res.data)
+      .then((data) => {
+        console.log(data);
+        setRecursos(data);
+        if (data.length != null && data.length > 0) {
+          paginasCont = Math.ceil(data.length / maxPage);
+          setCountPage(paginasCont);
+          cargarPaginas(paginasCont);
+          setActualPage(1);
+        }
+        setMostrarCarga(false);
+        setMostrarTabla(true);
+      })
+      .catch((err) => alert(err));
+  };
+
 
   const buscarRecursos = () => {
     //console.log("esto es la cadena")
     console.log(cadena);
-    let fechaVigenciaIni = "",
+    let fechaVigenciaIni = "", paginasCont = 0,
       fechaVigenciaFin = "",
       fechaHoy = "",
       fecha = new Date();
@@ -94,6 +156,12 @@ const Recursos = () => {
       .then((data) => {
         console.log(data);
         setRecursos(data);
+        if (data.length != null && data.length > 0) {
+          paginasCont = Math.ceil(data.length / maxPage);
+          setCountPage(paginasCont);
+          cargarPaginas(paginasCont);
+          setActualPage(1);
+        }
         setMostrarCarga(false);
         setMostrarTabla(true);
       })
@@ -320,8 +388,8 @@ const Recursos = () => {
               </div>
             </div>
           )}
-          {mostrarTabla && (
-            <div className="table-responsive">
+          {mostrarTabla && recursos.length>0 &&  ( <div>
+            <div className="table-responsive" style={{ height: "500px", overflow: "auto" }}>
               <table className="table">
                 <thead>
                   <tr>
@@ -335,7 +403,7 @@ const Recursos = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {recursos.map((recurso) => (
+                  {recursos.slice((actualPage - 1) * maxPage, actualPage * maxPage).map((recurso) => (
                     <tr key={recurso["id"]}>
                       <td>{recurso["descripcion"]}</td>
                       <td>{recurso["tipo"]}</td>
@@ -346,7 +414,7 @@ const Recursos = () => {
                       <td>
                         {" "}
                         <select
-                          className="form-control"
+                          className="select-menu"
                           onChange={(e) => handleVerDetalle(recurso["id"], e)}
                         >
                           <option value={0} disabled selected hidden>
@@ -361,6 +429,28 @@ const Recursos = () => {
                 </tbody>
               </table>
             </div>
+                          <div className="row">
+                          <Pagination className="mx-auto">
+                            {pages.map((_, index) => {
+                              return (
+                                <Pagination.Item
+                                  onClick={() => setActualPage(index + 1)}
+                                  key={index + 1}
+                                  active={index + 1 === actualPage}
+                                >
+                                  {index + 1}
+                                </Pagination.Item>
+                              );
+                            })}
+                          </Pagination>
+                        </div> </div>
+          )}
+          {mostrarTabla && recursos.length == 0 && (
+            <Form.Group>
+              <label className="col-sm-12 col-form-label">
+                No se han encontrado recursos
+              </label>
+            </Form.Group>
           )}
         </div>
       </div>

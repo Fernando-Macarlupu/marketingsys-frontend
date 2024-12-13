@@ -101,7 +101,12 @@ const CrearCampana = () => {
     else if (tipo == "6") return "Página web";
   };
 
-  const handleChangeInicioVigencia = (date) => setInicioVigencia(date);
+  const handleChangeInicioVigencia = (date) => {
+    setInicioVigencia(date)
+    if(date>finVigencia){
+      setFinVigencia(date);
+    }
+  };
   const handleChangeFinVigencia = (date) => setFinVigencia(date);
 
   const handleBuscarPlanes = () => setMostrarBuscarPlanes(!mostrarBuscarPlanes);
@@ -964,6 +969,7 @@ const CrearCampana = () => {
                                   selected={finVigencia}
                                   onChange={handleChangeFinVigencia}
                                   dateFormat="dd/MM/yyyy"
+                                  minDate={inicioVigencia}
                                 />
                               </div>
                             </div>
@@ -1899,6 +1905,7 @@ const CrearCampana = () => {
           <Modal
             show={mostrarListaDetalle}
             onHide={() => setMostrarListaDetalle(false)}
+            dialogClassName="custom-modal-style"
           >
             <Modal.Header closeButton>
               <Modal.Title>

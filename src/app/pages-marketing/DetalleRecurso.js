@@ -71,6 +71,10 @@ const DetalleRecurso = () => {
   const [audienciaRedSocial, setAudienciaRedSocial] = useState("0");
   const [contenidoRedSocial, setContenidoRedSocial] = useState("");
 
+
+  const [usuarioToken ,setUsuarioToken]= useState("");
+  const [usuarioPaginaId ,setUsuarioPaginaId]= useState("");
+
   const [correosUsuario, setCorreosUsuario] = useState([]);
   const [remitenteCorreo, setRemitenteCorreo] = useState("");
   const [remitenteContrasena, setRemitenteContrasena] = useState("");
@@ -178,7 +182,12 @@ const DetalleRecurso = () => {
     setStep(1);
   };
 
-  const handleChangeInicioVigencia = (date) => setInicioVigencia(date);
+  const handleChangeInicioVigencia = (date) => {
+    setInicioVigencia(date)
+    if(date>finVigencia){
+      setFinVigencia(date);
+    }
+  };
   const handleChangeFinVigencia = (date) => setFinVigencia(date);
 
   const handleChangeRemitente = (event) => {
@@ -197,6 +206,16 @@ const DetalleRecurso = () => {
   const handleChangeUsuarioRedSocial = (event) => {
     //buscar la contra y setearla tambien setear el remitente
     setUsuarioRedSocial(event.target.value);
+    let token = "", paginaId = "";
+    for (let index = 0; index < redesUsuario.length; index++) {
+      const element = redesUsuario[index];
+      if (element["nombreUsuario"] == event.target.value) {
+        token = element["tokenRedSocial"];
+        paginaId = element["paginaIdRedSocial"];
+      }
+    }
+    setUsuarioToken(token);
+    setUsuarioPaginaId(paginaId);
   };
 
   const handleBuscarCampanas = () =>
@@ -430,6 +449,7 @@ const DetalleRecurso = () => {
     let cuerpo = {
       idRecurso: idRecurso,
       idCampana: campana.id,
+      idUsuario: usuarioLogueado["idUsuario"],
       tipo: tipo, //0: de programa, 1: stand-alone
       descripcion: descripcion,
       presupuesto: presupuesto,
@@ -485,6 +505,8 @@ const DetalleRecurso = () => {
       cuerpo["servicioRedSocial"] = servicioRedSocial;
       cuerpo["usuarioRedSocial"] = usuarioRedSocial;
       cuerpo["audienciaRedSocial"] = audienciaRedSocial;
+      cuerpo["tokenRedSocial"] = usuarioToken;
+      cuerpo["paginaIdRedSocial"] = usuarioPaginaId;
       cuerpo["contenido"] = caption;
       cuerpo["imagenes"] = imagenes;
     } else if (tipo == "2") {
@@ -539,6 +561,8 @@ const DetalleRecurso = () => {
       .then((data) => {
         console.log(data);
         setRedesUsuario(data);
+        console.log("Estas son las redes");
+        console.log(data);
       })
       .catch((err) => alert(err));
   };
@@ -551,6 +575,8 @@ const DetalleRecurso = () => {
       .then((res) => res.data)
       .then((data) => {
         console.log(data);
+        
+        
         setIdRecurso(parseInt(data["idRecurso"]));
         setIdUsuario(parseInt(data["idUsuario"]));
         setCampana({
@@ -566,6 +592,7 @@ const DetalleRecurso = () => {
         setIndicadores(data["indicadores"]);
         setContactos(data["contactos"]);
         if(data['tipo']=="0"){
+          cargarCorreos(data["idUsuario"]);
           setFechaPublicacionCorreo(new Date(data["fechaPublicacion"]));
           setHoraPublicacionCorreo(data['horaPublicacion']);
           setAsuntoCorreo(data['asuntoCorreo']);
@@ -577,6 +604,7 @@ const DetalleRecurso = () => {
           const date = new Date(data["fechaPublicacion"]);
           const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
           let enlaces = [];
+          cargarRedes(data["idUsuario"], data['servicioRedSocial']);
           setFechaPublicacionRedSocial(date);
           setFechaPublicacionRedSocialString(date.toLocaleDateString("es-ES", options));
           setHoraPublicacionRedSocial(data['horaPublicacion']);
@@ -599,8 +627,7 @@ const DetalleRecurso = () => {
         }
         setMostrarCargaDatos(false);
         setMostrarDatos(true);
-        cargarCorreos(data["idUsuario"]);
-        cargarRedes(data["idUsuario"], data['tipo']);
+        
       })
       .catch((err) => alert(err));
   };
@@ -923,6 +950,7 @@ const DetalleRecurso = () => {
                                       selected={finVigencia}
                                       onChange={handleChangeFinVigencia}
                                       dateFormat="dd/MM/yyyy"
+                                      minDate={inicioVigencia}
                                     />
                                   </div>
                                 </div>
@@ -1580,7 +1608,7 @@ const DetalleRecurso = () => {
                                       value={servicioRedSocial}
                                       onChange={handleChangeServicioRedSocial}
                                     >
-                                      <option value="" disabled selected hidden>
+                                      <option value="" disabled hidden>
                                         Seleccionar servicio
                                       </option>
                                       <option value={"0"}>Facebook</option>
@@ -1602,7 +1630,7 @@ const DetalleRecurso = () => {
                                     value={usuarioRedSocial}
                                     onChange={handleChangeUsuarioRedSocial}
                                   >
-                                    <option value={""} disabled selected hidden>
+                                    <option value={""} disabled hidden>
                                       Seleccione un usuario
                                     </option>
                                     {redesUsuario.map(({ nombreUsuario }) => (

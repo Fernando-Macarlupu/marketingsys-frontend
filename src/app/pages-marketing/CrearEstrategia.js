@@ -96,7 +96,12 @@ const CrearEstrategia = () => {
     }
   };
 
-  const handleChangeInicioVigencia = (date) => setInicioVigencia(date);
+  const handleChangeInicioVigencia = (date) => {
+    setInicioVigencia(date)
+    if(date>finVigencia){
+      setFinVigencia(date);
+    }
+  };
   const handleChangeFinVigencia = (date) => setFinVigencia(date);
 
   const handleBuscarPlanes = () => setMostrarBuscarPlanes(!mostrarBuscarPlanes);
@@ -886,6 +891,7 @@ const CrearEstrategia = () => {
                                   selected={finVigencia}
                                   onChange={handleChangeFinVigencia}
                                   dateFormat="dd/MM/yyyy"
+                                  minDate={inicioVigencia}
                                 />
                               </div>
                             </div>
@@ -2051,6 +2057,7 @@ const CrearEstrategia = () => {
           </Modal>
           <Modal
             show={mostrarListaDetalle}
+            dialogClassName="custom-modal-style"
             onHide={() => setMostrarListaDetalle(false)}
           >
             <Modal.Header closeButton>

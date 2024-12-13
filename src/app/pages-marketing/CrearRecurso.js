@@ -68,6 +68,9 @@ const CrearRecurso = () => {
   const [audienciaRedSocial, setAudienciaRedSocial] = useState("0");
   const [contenidoRedSocial, setContenidoRedSocial] = useState("");
 
+  const [usuarioToken ,setUsuarioToken]= useState("");
+  const [usuarioPaginaId ,setUsuarioPaginaId]= useState("");
+
   const [correosUsuario, setCorreosUsuario] = useState([]);
   const [remitenteCorreo, setRemitenteCorreo] = useState("");
   const [remitenteContrasena, setRemitenteContrasena] = useState("");
@@ -175,7 +178,12 @@ const CrearRecurso = () => {
     setStep(1);
   };
 
-  const handleChangeInicioVigencia = (date) => setInicioVigencia(date);
+  const handleChangeInicioVigencia = (date) => {
+    setInicioVigencia(date)
+    if(date>finVigencia){
+      setFinVigencia(date);
+    }
+  };
   const handleChangeFinVigencia = (date) => setFinVigencia(date);
 
   const handleChangeRemitente = (event) => {
@@ -194,6 +202,16 @@ const CrearRecurso = () => {
   const handleChangeUsuarioRedSocial = (event) => {
     //buscar la contra y setearla tambien setear el remitente
     setUsuarioRedSocial(event.target.value);
+    let token = "", paginaId = "";
+    for (let index = 0; index < redesUsuario.length; index++) {
+      const element = redesUsuario[index];
+      if (element["nombreUsuario"] == event.target.value) {
+        token = element["tokenRedSocial"];
+        paginaId = element["paginaIdRedSocial"];
+      }
+    }
+    setUsuarioToken(token);
+    setUsuarioPaginaId(paginaId);
   };
 
   const handleBuscarCampanas = () =>
@@ -483,6 +501,8 @@ const CrearRecurso = () => {
       cuerpo["servicioRedSocial"] = servicioRedSocial;
       cuerpo["usuarioRedSocial"] = usuarioRedSocial;
       cuerpo["audienciaRedSocial"] = audienciaRedSocial;
+      cuerpo["tokenRedSocial"] = usuarioToken;
+      cuerpo["paginaIdRedSocial"] = usuarioPaginaId;
       cuerpo["contenido"] = caption;
       cuerpo["imagenes"] = imagenes;
     } else if (tipo == "2") {
@@ -859,6 +879,7 @@ const CrearRecurso = () => {
                                       selected={finVigencia}
                                       onChange={handleChangeFinVigencia}
                                       dateFormat="dd/MM/yyyy"
+                                      minDate={inicioVigencia}
                                     />
                                   </div>
                                 </div>

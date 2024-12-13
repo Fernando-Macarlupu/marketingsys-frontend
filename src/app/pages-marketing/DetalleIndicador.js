@@ -337,7 +337,7 @@ const DetalleIndicador = () => {
       else {
         let abreviaturas = [];
         let variablesEmpleadas = [];
-        let operaciones = ["+", "-", "*", "/", "^", "(", ")"];
+        let operaciones = ["+", "-", "*", "/", "(", ")"];
         for (let index = 0; index < variables.length; index++) {
           const element = variables[index];
           abreviaturas.push(element["abreviatura"]);
@@ -467,7 +467,7 @@ const DetalleIndicador = () => {
   const comprobarSintaxis = () => {
     let abreviaturas = [];
     let variablesEmpleadas = [];
-    let operaciones = ["+", "-", "*", "/", "^", "(", ")"];
+    let operaciones = ["+", "-", "*", "/", "(", ")"];
     for (let index = 0; index < variables.length; index++) {
       const element = variables[index];
       abreviaturas.push(element["abreviatura"]);
@@ -942,7 +942,6 @@ const DetalleIndicador = () => {
                             <option value={"-"}>-</option>
                             <option value={"*"}>*</option>
                             <option value={"/"}>/</option>
-                            <option value={"^"}>^</option>
                             <option value={"("}>{"("}</option>
                             <option value={")"}>{")"}</option>
                           </select>

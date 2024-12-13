@@ -125,12 +125,14 @@ const CargarEmpresas = () => {
   const handleFile = (event) => {
     event.preventDefault();
     const fileToUpload = event.target.files[0];
-    console.log(getExtension(fileToUpload["name"]));
-    if (getExtension(fileToUpload["name"]) == "csv") {
-      setFile(fileToUpload);
-      setHabilitado(true);
-    } else {
-      alert("Seleccione un archivo en formato csv");
+    if(fileToUpload){
+      console.log(getExtension(fileToUpload["name"]));
+      if (getExtension(fileToUpload["name"]) == "csv") {
+        setFile(fileToUpload);
+        setHabilitado(true);
+      } else {
+        alert("Seleccione un archivo en formato csv");
+      }
     }
   };
 
@@ -348,7 +350,15 @@ const CargarEmpresas = () => {
                           </label>
                         </Form.Group>
                       </div>
-
+                    </div>
+                    <div className="row">
+                      <div className="col-md-10">
+                        <Form.Group>
+                          <label className="col-sm-12 col-form-label">
+                            Lista cargada
+                          </label>
+                        </Form.Group>
+                      </div>
                       <div className="col-md-2">
                         <Form.Group>
                           <button
@@ -363,35 +373,30 @@ const CargarEmpresas = () => {
                     </div>
                     <div className="row">
                       <div className="col-md-12">
-                        <Form.Group>
-                          <label className="col-sm-12 col-form-label">
-                            Lista cargada
-                          </label>
-                          <div className="col-sm-12">
-                            <div className="table-responsive">
-                              <table className="table">
-                                <thead>
-                                  <tr>
-                                    {columnas.map((columna) => (
-                                      <th>{columna["nombre"]}</th>
-                                    ))}
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {filas.map((fila) => (
-                                    <tr>
-                                      {Object.entries(fila).map(
-                                        ([llave, valor]) => (
-                                          <td>{valor}</td>
-                                        )
-                                      )}
-                                    </tr>
+                        <div className="col-sm-12">
+                          <div className="table-responsive">
+                            <table className="table">
+                              <thead>
+                                <tr>
+                                  {columnas.map((columna) => (
+                                    <th>{columna["nombre"]}</th>
                                   ))}
-                                </tbody>
-                              </table>
-                            </div>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {filas.map((fila) => (
+                                  <tr>
+                                    {Object.entries(fila).map(
+                                      ([llave, valor]) => (
+                                        <td>{valor}</td>
+                                      )
+                                    )}
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
                           </div>
-                        </Form.Group>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -457,7 +462,6 @@ const CargarEmpresas = () => {
                                     <th>Encabezado de archivo</th>
                                     <th>Tipo de propiedad</th>
                                     <th>Propiedad de empresa</th>
-
                                   </tr>
                                 </thead>
                                 <tbody>

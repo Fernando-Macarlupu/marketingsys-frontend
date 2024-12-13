@@ -11,7 +11,21 @@ const PerfilUsuario = () => {
   const [mostrarGuardarCorreos, setMostrarGuardarCorreos] = useState(false);
   const [mostrarGuardarRedes, setMostrarGuardarRedes] = useState(false);
   const [mostrarGuardarPoliticas, setMostrarGuardarPoliticas] = useState(false);
-  const [mostrarGuardarExpiracion, setMostrarGuardarExpiracion] = useState(false);
+  const [mostrarGuardarExpiracion, setMostrarGuardarExpiracion] =
+    useState(false);
+
+  const [redSocialCambiarRed, setRedSocialCambiarRed] = useState("");
+  const [redSocialCambiarNombreUsuario, setRedSocialCambiarNombreUsuario] =
+    useState("");
+  const [redSocialCambiarToken, setRedSocialCambiarToken] = useState("");
+  const [redSocialCambiarPaginaId, setRedSocialCambiarPaginaId] = useState("");
+  const [redCambiarMostrar, setRedCambiarMostrar] = useState(false);
+
+  const [correoCambiarId, setCorreoCambiarId] = useState("");
+  const [correoCambiarDireccion, setCorreoCambiarDireccion] = useState("");
+  const [correoCambiarServicio, setCorreoCambiarServicio] = useState("");
+  const [correoCambiarContrasena, setCorreoCambiarContrasena] = useState("");
+  const [correoCambiarMostrar, setCorreoCambiarMostrar] = useState(false);
 
   const [usuarioLogueado, setUsuarioLogueado] = useState({});
   const [mostrarContrasena, setMostrarContrasena] = useState(false);
@@ -30,7 +44,6 @@ const PerfilUsuario = () => {
   const [politicasOriginales, setPoliticasOriginales] = useState([]);
   const [politicas, setPoliticas] = useState([]);
   const [correosNoDisponibles, setCorreosNoDisponibles] = useState([]);
-  
 
   const [nombreCompletoOriginal, setNombreCompletoOriginal] = useState("");
   const [nombreUsuarioOriginal, setNombreUsuarioOriginal] = useState("");
@@ -40,23 +53,28 @@ const PerfilUsuario = () => {
   const [nuevaRed, setNuevaRed] = useState({});
   const [expiracionCuenta, setExpiracionCuenta] = useState(null);
   const [creacionCuenta, setCreacionCuenta] = useState(null);
-  const [expiracionCuentaOriginal, setExpiracionCuentaOriginal] = useState(null);
+  const [expiracionCuentaOriginal, setExpiracionCuentaOriginal] =
+    useState(null);
   const [diasExpiracionOriginal, setDiasExpiracionOriginal] = useState(null);
-
 
   const handleClose = () => setShow(false);
   const handleChangeFechaExpiracion = (date) => {
     setExpiracionCuenta(date);
     console.log(date);
-    setCuenta({...cuenta, diasExpiracioncuenta: Math.round
-      ((date.getTime() - creacionCuenta.getTime()) / (1000 * 3600 * 24))});
-
+    setCuenta({
+      ...cuenta,
+      diasExpiracioncuenta: Math.round(
+        (date.getTime() - creacionCuenta.getTime()) / (1000 * 3600 * 24)
+      ),
+    });
   };
 
   const handleCloseCorreos = () => setMostrarGuardarCorreos(false);
   const handleCloseRedes = () => setMostrarGuardarRedes(false);
   const handleClosePoliticas = () => setMostrarGuardarPoliticas(false);
   const handleCloseExpiracion = () => setMostrarGuardarExpiracion(false);
+  const handleCloseCorreoCambiar = () => setCorreoCambiarMostrar(false);
+  const handleCloseRedSocialCambiar = () => setRedCambiarMostrar(false);
 
   const handleShowCorreos = () => setMostrarGuardarCorreos(true);
   const handleShowRedes = () => setMostrarGuardarRedes(true);
@@ -69,7 +87,7 @@ const PerfilUsuario = () => {
   };
 
   const handleDiasExpiracion = (e) => {
-    setCuenta({...cuenta, diasExpiracioncuenta: e.target.value});
+    setCuenta({ ...cuenta, diasExpiracioncuenta: e.target.value });
     const fecha = new Date(creacionCuenta);
     fecha.setDate(creacionCuenta.getDate() + Number(e.target.value));
     setExpiracionCuenta(fecha);
@@ -87,16 +105,16 @@ const PerfilUsuario = () => {
   };
 
   const cargarUsuario = (usuario) => {
-    let politicasListaOriginal = []
+    let politicasListaOriginal = [];
     api
       .get(`detalleUsuario/${parseInt(usuario["idUsuario"])}`)
       .then((res) => res.data)
       .then((data) => {
         console.log(data);
         setIdUsuario(parseInt(usuario["idUsuario"]));
-        setDiasExpiracionOriginal(parseInt(
-          data["cuentaUsuario"]["diasExpiracioncuenta"]
-        ));
+        setDiasExpiracionOriginal(
+          parseInt(data["cuentaUsuario"]["diasExpiracioncuenta"])
+        );
         setCuenta({
           id: parseInt(data["cuentaUsuario"]["id"]),
           nombre: data["cuentaUsuario"]["nombre"],
@@ -106,8 +124,12 @@ const PerfilUsuario = () => {
           ),
         });
         console.log(data["cuentaUsuario"]["expiracionCuenta"]);
-        setExpiracionCuenta(new Date(data["cuentaUsuario"]["expiracionCuenta"]));
-        setExpiracionCuentaOriginal(new Date(data["cuentaUsuario"]["expiracionCuenta"]));
+        setExpiracionCuenta(
+          new Date(data["cuentaUsuario"]["expiracionCuenta"])
+        );
+        setExpiracionCuentaOriginal(
+          new Date(data["cuentaUsuario"]["expiracionCuenta"])
+        );
         setCreacionCuenta(new Date(data["cuentaUsuario"]["fechaCreacion"]));
         setNombreCompleto(data["nombreCompleto"]);
         setNombreCompletoOriginal(data["nombreCompleto"]);
@@ -146,7 +168,7 @@ const PerfilUsuario = () => {
   };
   const cancelarCambiosExpiracion = () => {
     setExpiracionCuenta(expiracionCuentaOriginal);
-    setCuenta({...cuenta, diasExpiracioncuenta: diasExpiracionOriginal});
+    setCuenta({ ...cuenta, diasExpiracioncuenta: diasExpiracionOriginal });
   };
 
   const cancelarCambiosPoliticas = () => {
@@ -271,6 +293,44 @@ const PerfilUsuario = () => {
       .catch((err) => alert(err));
   };
 
+  const handleGuardarCorreoCambiar = (e) => {
+    e.preventDefault();
+    const correosLista = [];
+    //console.log(id);
+    for (let index = 0; index < correos.length; index++) {
+      const element = correos[index];
+      if (
+        element["servicio"] == correoCambiarServicio &&
+        element["direccion"] == correoCambiarDireccion
+      )
+        element["contrasena"] = correoCambiarContrasena;
+      correosLista.push(element);
+    }
+    console.log(correosLista);
+    setCorreos(correosLista);
+    setCorreoCambiarMostrar(false);
+  };
+
+  const handleGuardarRedSocialCambiar = (e) => {
+    e.preventDefault();
+    const redesLista = [];
+    //console.log(id);
+    for (let index = 0; index < redes.length; index++) {
+      const element = redes[index];
+      if (
+        element["redSocial"] == redSocialCambiarRed &&
+        element["nombreUsuario"] == redSocialCambiarNombreUsuario
+      ) {
+        element["tokenRedSocial"] = redSocialCambiarToken;
+        element["paginaIdRedSocial"] = redSocialCambiarPaginaId;
+      }
+
+      redesLista.push(element);
+    }
+    console.log(redesLista);
+    setRedes(redesLista);
+    setRedCambiarMostrar(false);
+  };
 
   const handleGuardarPerfilExpiracion = (e) => {
     e.preventDefault();
@@ -278,16 +338,16 @@ const PerfilUsuario = () => {
 
     if (expiracionCuenta != null) {
       fechaExpiracion =
-      expiracionCuenta.getDate() +
+        expiracionCuenta.getDate() +
         "-" +
         parseInt(expiracionCuenta.getMonth() + 1) +
         "-" +
         expiracionCuenta.getFullYear();
     }
-    setCuenta({...cuenta, expiracionCuenta: fechaExpiracion});
+    setCuenta({ ...cuenta, expiracionCuenta: fechaExpiracion });
     const usuarioGuardar = {
       idUsuario: idUsuario,
-      cuentaUsuario: {...cuenta, expiracionCuenta: fechaExpiracion},
+      cuentaUsuario: { ...cuenta, expiracionCuenta: fechaExpiracion },
       guardarPerfil: "4",
     };
 
@@ -297,7 +357,7 @@ const PerfilUsuario = () => {
       .then((data) => {
         console.log(data);
         setExpiracionCuentaOriginal(expiracionCuenta);
-        setDiasExpiracionOriginal(cuenta['diasExpiracioncuenta']);
+        setDiasExpiracionOriginal(cuenta["diasExpiracioncuenta"]);
         setMostrarGuardarExpiracion(false);
       })
       .catch((err) => alert(err));
@@ -354,6 +414,8 @@ const PerfilUsuario = () => {
       {
         redSocial: redSocial.value,
         nombreUsuario: nombreUsuario.value,
+        tokenRedSocial: "",
+        paginaIdRedSocial: "",
       },
     ]);
     redSocial.value = "";
@@ -361,33 +423,74 @@ const PerfilUsuario = () => {
   };
 
   const mostrarCorreo = (servicio, direccion) => {
-    let resultado = "";
-    if (servicio == "0") resultado += "Cuenta de Google - Dirección: ";
-    else {
-      if (servicio == "1") resultado += "Cuenta de Microsoft - Dirección: ";
-      else {
+    let resultado = "",
+      icono = "";
+    if (servicio == "0") {
+      icono = "mdi mdi-google";
+      resultado += "Cuenta de Google - Dirección: ";
+    } else {
+      if (servicio == "1") {
+        icono = "mdi mdi-microsoft";
+        resultado += "Cuenta de Microsoft - Dirección: ";
+      } else {
+        icono = "mdi mdi-email";
         resultado += "Cuenta de correo - Dirección: ";
       }
     }
     if (direccion != "") resultado += direccion;
-    return resultado;
+    return (
+      <div>
+        <i className={icono} style={{ padding: 10 }}></i>
+        {resultado}
+      </div>
+    );
   };
 
   const mostrarRedSocial = (redSocial, nombreUsuario) => {
-    let resultado = "";
-    if (redSocial == "0")
+    let resultado = "",icono = "";
+    if (redSocial == "0"){
+      icono = "mdi mdi-facebook";
       resultado += "Cuenta de Facebook - Nombre de usuario: ";
+    }
     else {
-      if (redSocial == "1")
+      if (redSocial == "1"){
+        icono = "mdi mdi-linkedin";
         resultado += "Cuenta de Linkedin - Nombre de usuario: ";
+      }
       else {
-        if (redSocial == "2")
+        if (redSocial == "2"){
+          icono = "mdi mdi-instagram";
           resultado += "Cuenta de Instagram - Nombre de usuario: ";
+        }
       }
     }
     if (nombreUsuario != "") resultado += nombreUsuario;
-    return resultado;
+    return (
+      <div>
+        <i className={icono} style={{ padding: 10 }}></i>
+        {resultado}
+      </div>
+    );
   };
+
+  const handleConfigurarContrasena =
+    (servicio, direccion, contrasena) => () => {
+      setCorreoCambiarServicio(servicio);
+      setCorreoCambiarDireccion(direccion);
+      setCorreoCambiarContrasena(contrasena);
+      setCorreoCambiarMostrar(true);
+      //console.log(event.target.value);
+    };
+
+  const handleConfigurarRedSocial =
+    (redSocial, nombreUsuario, tokenRedSocial, paginaIdRedSocial) => () => {
+      setRedSocialCambiarRed(redSocial);
+      setRedSocialCambiarNombreUsuario(nombreUsuario);
+      setRedSocialCambiarToken(tokenRedSocial);
+      setRedSocialCambiarPaginaId(paginaIdRedSocial);
+      setRedCambiarMostrar(true);
+      //console.log(event.target.value);
+    };
 
   const handleEliminarCorreos = (direccion) => () => {
     setCorreos((prev) => prev.filter((el) => el.direccion !== direccion));
@@ -613,32 +716,44 @@ const PerfilUsuario = () => {
                                 </div>
                               </Form.Group>
 
-                              {correos.map(({ servicio, direccion }) => (
-                                <div className="row" key={direccion}>
-                                  <div className="col-md-12">
-                                    <Form.Group>
-                                      <label
-                                        className="col-sm-12"
-                                        style={{ display: "flex" }}
-                                      >
-                                        {mostrarCorreo(servicio, direccion)}
-                                        <button
-                                          style={{ marginLeft: "auto" }}
-                                          type="button"
+                              {correos.map(
+                                ({ servicio, direccion, contrasena }) => (
+                                  <div className="row" key={direccion}>
+                                    <div className="col-md-12">
+                                      <Form.Group>
+                                        <label
+                                          className="col-sm-12"
+                                          style={{ display: "flex" }}
                                         >
-                                          <i
-                                            className="mdi mdi-delete"
-                                            style={{ color: "black" }}
-                                            onClick={handleEliminarCorreos(
-                                              direccion
-                                            )}
-                                          ></i>
-                                        </button>
-                                      </label>
-                                    </Form.Group>
+                                          {mostrarCorreo(servicio, direccion)}
+                                          <div style={{ marginLeft: "auto" }}>
+                                            <button type="button">
+                                              <i
+                                                className="mdi mdi-pencil"
+                                                style={{ color: "black" }}
+                                                onClick={handleConfigurarContrasena(
+                                                  servicio,
+                                                  direccion,
+                                                  contrasena
+                                                )}
+                                              ></i>
+                                            </button>
+                                            <button type="button">
+                                              <i
+                                                className="mdi mdi-delete"
+                                                style={{ color: "black" }}
+                                                onClick={handleEliminarCorreos(
+                                                  direccion
+                                                )}
+                                              ></i>
+                                            </button>
+                                          </div>
+                                        </label>
+                                      </Form.Group>
+                                    </div>
                                   </div>
-                                </div>
-                              ))}
+                                )
+                              )}
                             </div>
                           </div>
 
@@ -724,38 +839,56 @@ const PerfilUsuario = () => {
                                 </div>
                               </Form.Group>
 
-                              {redes.map(({ redSocial, nombreUsuario }) => (
-                                <div
-                                  className="row"
-                                  key={redSocial + nombreUsuario}
-                                >
-                                  <div className="col-md-12">
-                                    <Form.Group>
-                                      <label
-                                        className="col-sm-12"
-                                        style={{ display: "flex" }}
-                                      >
-                                        {mostrarRedSocial(
-                                          redSocial,
-                                          nombreUsuario
-                                        )}
-                                        <button
-                                          style={{ marginLeft: "auto" }}
-                                          type="button"
+                              {redes.map(
+                                ({
+                                  redSocial,
+                                  nombreUsuario,
+                                  tokenRedSocial,
+                                  paginaIdRedSocial,
+                                }) => (
+                                  <div
+                                    className="row"
+                                    key={redSocial + nombreUsuario}
+                                  >
+                                    <div className="col-md-12">
+                                      <Form.Group>
+                                        <label
+                                          className="col-sm-12"
+                                          style={{ display: "flex" }}
                                         >
-                                          <i
-                                            className="mdi mdi-delete"
-                                            style={{ color: "black" }}
-                                            onClick={handleEliminarRedes(
-                                              redSocial + nombreUsuario
-                                            )}
-                                          ></i>
-                                        </button>
-                                      </label>
-                                    </Form.Group>
+                                          {mostrarRedSocial(
+                                            redSocial,
+                                            nombreUsuario
+                                          )}
+                                          <div style={{ marginLeft: "auto" }}>
+                                            <button type="button">
+                                              <i
+                                                className="mdi mdi-pencil"
+                                                style={{ color: "black" }}
+                                                onClick={handleConfigurarRedSocial(
+                                                  redSocial,
+                                                  nombreUsuario,
+                                                  tokenRedSocial,
+                                                  paginaIdRedSocial
+                                                )}
+                                              ></i>
+                                            </button>
+                                            <button type="button">
+                                              <i
+                                                className="mdi mdi-delete"
+                                                style={{ color: "black" }}
+                                                onClick={handleEliminarRedes(
+                                                  redSocial + nombreUsuario
+                                                )}
+                                              ></i>
+                                            </button>
+                                          </div>
+                                        </label>
+                                      </Form.Group>
+                                    </div>
                                   </div>
-                                </div>
-                              ))}
+                                )
+                              )}
                             </div>
                           </div>
 
@@ -786,51 +919,48 @@ const PerfilUsuario = () => {
               </Tab>
               <Tab eventKey="Politicas" title="Políticas de seguridad">
                 <div className="row">
-                <div className="col-12 grid-margin">
+                  <div className="col-12 grid-margin">
                     <div className="card">
                       <div className="card-body">
                         <div className="row">
-                          <h4 className="card-title col-md-8">Expiración de la cuenta</h4>
+                          <h4 className="card-title col-md-8">
+                            Expiración de la cuenta
+                          </h4>
                         </div>
                         <form className="form-sample">
                           <div className="row">
                             <div className="col-md-6">
-                              <Form.Group >
-                                
-                              <label className="col-sm-12 col-form-label">
-                              Días de expiración de la cuenta
-                            </label>
-                            <div className="col-sm-12">
-                              <Form.Control
-                                type="number"
-                                value={cuenta['diasExpiracioncuenta']}
-                                onChange={
-                                  handleDiasExpiracion
-                                }
-                              />
-                            </div>
+                              <Form.Group>
+                                <label className="col-sm-12 col-form-label">
+                                  Días de expiración de la cuenta
+                                </label>
+                                <div className="col-sm-12">
+                                  <Form.Control
+                                    type="number"
+                                    value={cuenta["diasExpiracioncuenta"]}
+                                    onChange={handleDiasExpiracion}
+                                  />
+                                </div>
                               </Form.Group>
                             </div>
 
-
                             <div className="col-md-6">
-                            <Form.Group>
-                            <label className="col-sm-12 col-form-label">
-                              Fecha de expiración
-                            </label>
-                            <div className="col-sm-12">
-                              <div className="customDatePickerWidth">
-                                <DatePicker
-                                  className="form-control w-100"
-                                  selected={expiracionCuenta}
-                                  onChange={handleChangeFechaExpiracion}
-                                  dateFormat="dd/MM/yyyy"
-                                />
-                              </div>
+                              <Form.Group>
+                                <label className="col-sm-12 col-form-label">
+                                  Fecha de expiración
+                                </label>
+                                <div className="col-sm-12">
+                                  <div className="customDatePickerWidth">
+                                    <DatePicker
+                                      className="form-control w-100"
+                                      selected={expiracionCuenta}
+                                      onChange={handleChangeFechaExpiracion}
+                                      dateFormat="dd/MM/yyyy"
+                                    />
+                                  </div>
+                                </div>
+                              </Form.Group>
                             </div>
-                          </Form.Group>
-                            </div>
-                            
                           </div>
 
                           <div className="row">
@@ -874,13 +1004,13 @@ const PerfilUsuario = () => {
                                       type="checkbox"
                                       className="custom-control-input"
                                       id={politica["id"]}
-                                      checked={politica['estado']}
-                                      onChange={handleEstadoPolitica(
-                                          politica)
-                                      }
+                                      checked={politica["estado"]}
+                                      onChange={handleEstadoPolitica(politica)}
                                     />
-                                    <label className="custom-control-label"
-                                    for={politica["id"]}>
+                                    <label
+                                      className="custom-control-label"
+                                      for={politica["id"]}
+                                    >
                                       {politica["nombre"]}
                                     </label>
                                   </div>
@@ -1023,7 +1153,10 @@ const PerfilUsuario = () => {
             Cancelar
           </button>
 
-          <button className="btn btn-primary" onClick={handleGuardarPerfilPoliticas}>
+          <button
+            className="btn btn-primary"
+            onClick={handleGuardarPerfilPoliticas}
+          >
             Guardar
           </button>
         </Modal.Footer>
@@ -1049,7 +1182,135 @@ const PerfilUsuario = () => {
             Cancelar
           </button>
 
-          <button className="btn btn-primary" onClick={handleGuardarPerfilExpiracion}>
+          <button
+            className="btn btn-primary"
+            onClick={handleGuardarPerfilExpiracion}
+          >
+            Guardar
+          </button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal show={correoCambiarMostrar} onHide={handleCloseCorreoCambiar}>
+        <Modal.Header closeButton>
+          <Modal.Title>
+            <h4 className="card-title" style={{ color: "#000000" }}>
+              Guardar correo
+            </h4>
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="row">
+            <div className="col-md-12">
+            <Form.Group>
+                <label className="col-md-12 col-form-label">Correo</label>
+                <label className="col-md-12 col-form-label">{mostrarCorreo(correoCambiarServicio, correoCambiarDireccion)}</label>
+                </Form.Group>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-md-12">
+              <Form.Group>
+                <label className="col-md-12 col-form-label">Contraseña</label>
+                <div className="col-md-12">
+                  <Form.Control
+                    type="text"
+                    value={correoCambiarContrasena}
+                    onChange={({ target }) =>
+                      setCorreoCambiarContrasena(target.value)
+                    }
+                  />
+                </div>
+              </Form.Group>
+            </div>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <button
+            className="btn btn-outline-primary"
+            onClick={handleCloseCorreoCambiar}
+          >
+            Cancelar
+          </button>
+
+          <button
+            className="btn btn-primary"
+            onClick={handleGuardarCorreoCambiar}
+          >
+            Guardar
+          </button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal show={redCambiarMostrar} onHide={handleCloseRedSocialCambiar}>
+        <Modal.Header closeButton>
+          <Modal.Title>
+            <h4 className="card-title" style={{ color: "#000000" }}>
+              Guardar red social
+            </h4>
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="row">
+            <div className="col-md-12">
+              <Form.Group>
+                <label className="col-md-12 col-form-label">Red social</label>
+                <label className="col-md-12 col-form-label">
+                  {mostrarRedSocial(
+                    redSocialCambiarRed,
+                    redSocialCambiarNombreUsuario
+                  )}
+                </label>
+              </Form.Group>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-md-12">
+              <Form.Group>
+                <label className="col-md-12 col-form-label">
+                  Token de usuario
+                </label>
+                <div className="col-md-12">
+                  <Form.Control
+                    type="text"
+                    value={redSocialCambiarToken}
+                    onChange={({ target }) =>
+                      setRedSocialCambiarToken(target.value)
+                    }
+                  />
+                </div>
+              </Form.Group>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-md-12">
+              <Form.Group>
+                <label className="col-md-12 col-form-label">Id de página</label>
+                <div className="col-md-12">
+                  <Form.Control
+                    type="text"
+                    value={redSocialCambiarPaginaId}
+                    onChange={({ target }) =>
+                      setRedSocialCambiarPaginaId(target.value)
+                    }
+                  />
+                </div>
+              </Form.Group>
+            </div>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <button
+            className="btn btn-outline-primary"
+            onClick={handleCloseRedSocialCambiar}
+          >
+            Cancelar
+          </button>
+
+          <button
+            className="btn btn-primary"
+            onClick={handleGuardarRedSocialCambiar}
+          >
             Guardar
           </button>
         </Modal.Footer>

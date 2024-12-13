@@ -54,7 +54,12 @@ const DetallePlan = () => {
     }
   };
 
-  const handleChangeInicioVigencia = (date) => setInicioVigencia(date);
+  const handleChangeInicioVigencia = (date) => {
+    setInicioVigencia(date)
+    if(date>finVigencia){
+      setFinVigencia(date);
+    }
+  };
   const handleChangeFinVigencia = (date) => setFinVigencia(date);
 
   const handleAgregarIndicadores =
@@ -452,6 +457,7 @@ const DetallePlan = () => {
                                   selected={finVigencia}
                                   onChange={handleChangeFinVigencia}
                                   dateFormat="dd/MM/yyyy"
+                                  minDate={inicioVigencia}
                                 />
                               </div>
                             </div>

@@ -396,6 +396,8 @@ const CrearReporte = () => {
     };
     console.log("cuerpo a subir");
     console.log(cuerpo);
+    console.log("filas a subir");
+    console.log(filas);
     setMostrarDatos(false);
     setMostrarCargaDatos(true);
     api
