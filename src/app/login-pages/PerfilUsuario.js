@@ -47,7 +47,7 @@ const PerfilUsuario = () => {
         });
         setNombreCompleto(data["nombreCompleto"]);
         setNombreUsuario(data["nombreUsuario"]);
-        setContrasena(data["contrasena"]);
+        setContrasena("");
         setRol(data["rol"]);
         setFoto(data["foto"]);
         setEsAdministrador(Boolean(data["esAdministrador"]));
@@ -63,10 +63,7 @@ const PerfilUsuario = () => {
     if (nombreCompleto == "") alert("Ingrese el nombre completo del contacto");
     else {
       if (nombreUsuario == "") alert("Ingrese un nombre de usuario");
-      else {
-        if (contrasena == "") alert("Ingrese una contraseña");
-        else setShow(true);
-      }
+      else setShow(true);
     }
   };
 
@@ -85,7 +82,6 @@ const PerfilUsuario = () => {
       cuentaUsuario: cuentaGuardar,
       nombreCompleto: nombreCompleto,
       nombreUsuario: nombreUsuario,
-      contrasena: contrasena,
       foto: foto,
       rol: rol,
       esAdministrador: esAdministrador,
@@ -93,6 +89,9 @@ const PerfilUsuario = () => {
       redes: redes,
       politicas: politicas,
     };
+    if (contrasena !== "") {
+      usuarioGuardar.contrasena = contrasena;
+    }
 
     api
       .post("registrarUsuario", usuarioGuardar)
@@ -235,7 +234,7 @@ const PerfilUsuario = () => {
                             <div className="col-md-11">
                               <Form.Group>
                                 <label className="col-sm-12 col-form-label">
-                                  Contraseña<code>*</code>
+                                  Nueva contraseña
                                 </label>
                                 <div className="col-sm-12">
                                   <Form.Control
@@ -243,6 +242,7 @@ const PerfilUsuario = () => {
                                       mostrarContrasena ? "text" : "password"
                                     }
                                     value={contrasena}
+                                    placeholder="Dejar vacío para no cambiar"
                                     onChange={({ target }) =>
                                       setContrasena(target.value)
                                     }

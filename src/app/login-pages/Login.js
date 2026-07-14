@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import { Form, Alert } from "react-bootstrap";
 import { googleLogout, useGoogleLogin } from "@react-oauth/google";
-import api from "../api";
+import api, { saveAuthSession } from "../api";
 import axios from 'axios';
 
 const Login = () => {
@@ -48,15 +48,7 @@ const Login = () => {
         if (data["mensaje"] == "Usuario no encontrado") alert(data["mensaje"]);
         else {
           setUsuario(data["datos"]);
-          localStorage.setItem(
-            "marketingSYSusuario",
-            JSON.stringify(data["datos"])
-          );
-          localStorage.setItem(
-            "marketingSYSusuario_logueado",
-            JSON.stringify(true)
-          );
-          console.log("llego hasta poner el dashboard");
+          saveAuthSession(data["datos"], data["tokens"]);
           history.push({
             pathname: "/dashboard",
           });
@@ -134,15 +126,7 @@ const Login = () => {
         if (data["mensaje"] == "Usuario no encontrado") alert(data["mensaje"]);
         else {
           setUsuario(data["datos"]);
-          localStorage.setItem(
-            "marketingSYSusuario",
-            JSON.stringify(data["datos"])
-          );
-          localStorage.setItem(
-            "marketingSYSusuario_logueado",
-            JSON.stringify(true)
-          );
-          console.log("llego hasta poner el dashboard");
+          saveAuthSession(data["datos"], data["tokens"]);
           history.push({
             pathname: "/dashboard",
           });

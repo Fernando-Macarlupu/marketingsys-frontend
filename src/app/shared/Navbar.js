@@ -2,6 +2,7 @@ import React, { useEffect, Component, useState } from "react";
 import { Dropdown } from "react-bootstrap";
 import { Link, useHistory } from "react-router-dom";
 import { Trans } from "react-i18next";
+import { clearAuthSession } from "../api";
 
 const Navbar = () => {
   const history = useHistory();
@@ -13,11 +14,7 @@ const Navbar = () => {
 
   const cerrarSesion = (event) => {
     event.preventDefault();
-    localStorage.removeItem("marketingSYSusuario");
-    localStorage.setItem(
-      "marketingSYSusuario_logueado",
-      JSON.stringify(false)
-    );
+    clearAuthSession();
     history.push({
         pathname: "/iniciarSesion",
       });
