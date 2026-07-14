@@ -7,8 +7,11 @@ const Dashboard = lazy(() => import("./dashboard/Dashboard"));
 
 const IniciarSesion = lazy(() => import("./login-pages/Login"));
 const RegistrarCuenta = lazy(() => import("./login-pages/Register"));
+const RestablecerContrasena = lazy(() => import("./login-pages/RecuperarContrasena"));
 
 const PerfilUsuario = lazy(() => import("./login-pages/PerfilUsuario"));
+
+//const LoginMicrosoftDemo = lazy(() => import("./login-pages/LoginMicrosoftDemo"));
 
 const Contactos = lazy(() => import("./pages/Contactos"));
 const Empresas = lazy(() => import("./pages/Empresas"));
@@ -50,8 +53,12 @@ const DetalleCampana= lazy(() => import("./pages-marketing/DetalleCampana"));
 const DetalleRecurso= lazy(() => import("./pages-marketing/DetalleRecurso"));
 const DetalleFlujo= lazy(() => import("./pages-marketing/DetalleFlujo"));
 const DetalleOportunidad= lazy(() => import("./pages-marketing/DetalleOportunidad"));
+const DetalleReporte = lazy(() => import("./pages-marketing/DetalleReporte"));
+const DetalleDashboard = lazy(() => import("./pages-marketing/DetalleDashboard"));
 
 const Eventos = lazy(() => import("./pages/Eventos"));
+
+//const Editor = lazy(() => import("./pages-marketing/Editor"));
 
 const Buttons = lazy(() => import("./basic-ui/Buttons"));
 const Dropdowns = lazy(() => import("./basic-ui/Dropdowns"));
@@ -91,13 +98,16 @@ const AppRoutes = () => {
   return (
     <Suspense fallback={<Spinner />}>
       <Switch>
+      {/* <Route path="/editor" component={Editor} /> */}
+
         <Route path="/iniciarSesion" component={IniciarSesion} />
-
-
+        {/* <Route path="/microsoft" component={LoginMicrosoftDemo} /> */}
         
         <Route path="/dashboard" component={Dashboard} />
 
         <Route path="/registrarCuenta" component={RegistrarCuenta} />
+
+        <Route path="/restablecerContrasena" component={RestablecerContrasena} />
 
         <Route path="/perfilUsuario" component={PerfilUsuario} />
 
@@ -145,7 +155,10 @@ const AppRoutes = () => {
         <Route path="/informes" component={Informes} />
 
         <Route path="/crearReporte" component={CrearReporte} />
+        <Route path="/detalleReporte" component={DetalleReporte} />
+
         <Route path="/crearDashboard" component={CrearDashboard} />
+        <Route path="/detalleDashboard" component={DetalleDashboard} />
 
         <Route path="/eventos" component={Eventos} />
 

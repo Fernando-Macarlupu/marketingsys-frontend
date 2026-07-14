@@ -13,6 +13,10 @@ const DetalleContacto = () => {
   const [mostrarDatos, setMostrarDatos] = useState(false);
   const [open, setOpen] = useState(false);
 
+  const [campanas, setCampanas] = useState([]);
+  const [recursos, setRecursos] = useState([]);
+  const [oportunidades, setOportunidades] = useState([]);
+
   const [mostrarBuscarEmpresas, setMostrarBuscarEmpresas] = useState(false);
   const [mostrarTabla, setMostrarTabla] = useState(false);
   const [cadenaBuscarEmpresa, setCadenaBuscarEmpresa] = useState("");
@@ -175,16 +179,30 @@ const DetalleContacto = () => {
   };
 
   const mostrarRedSocial = (redSocial, nombreUsuario) => {
-    let resultado = "";
-    if (redSocial == "0") resultado += "Facebook - ";
+    let resultado = "", icono = "";
+    if (redSocial == "0"){ 
+      icono = "mdi mdi-facebook"; 
+      resultado += "Facebook - ";
+    }
     else {
-      if (redSocial == "1") resultado += "Linkedin - ";
+      if (redSocial == "1"){
+        icono = "mdi mdi-linkedin"; 
+        resultado += "Linkedin - ";
+      }
       else {
-        if (redSocial == "2") resultado += "Instagram - ";
+        if (redSocial == "2"){
+          icono = "mdi mdi-instagram"; 
+          resultado += "Instagram - ";
+        }
       }
     }
     if (nombreUsuario != "") resultado += nombreUsuario;
-    return resultado;
+    return (
+      <div>
+        <i className={icono} style={{ padding: 10 }}></i>
+        {resultado}
+      </div>
+    );
   };
 
   const handleChangeNombreCompleto = (event) => {
@@ -326,6 +344,9 @@ const DetalleContacto = () => {
         setRedes(data["redes"]);
         setEmpresa({});
         setCorreosNoDisponibles(data["correosNoDisponibles"]);
+        setCampanas(data["campanas"]);
+        setRecursos(data["recursos"]);
+        setOportunidades(data["oportunidades"]);
 
         if (data["empresas"] != []) {
           setEmpresa({
@@ -1037,18 +1058,135 @@ const DetalleContacto = () => {
                   <div className="card-body">
                     <div className="row">
                       <h4 className="card-title col-md-8">Actividades</h4>
+                      </div>
                       <form className="form-sample">
                         <div className="row">
                           <div className="col-md-12">
                             <Form.Group>
-                              <label className="col-sm-12 col-form-label">
-                                El contacto aún no tiene actividades asignadas
-                              </label>
+                            <h5 className="col-sm-12 card-subtitle" style={{color: "black"}}>
+                                Campañas registradas
+                              </h5>
                             </Form.Group>
+
+                            
+                            {campanas.length == 0 ? (
+                              <Form.Group>
+                                <label className="col-sm-12 col-form-label">
+                                  El contacto no tiene campañas registradas
+                                </label>
+                              </Form.Group>
+                            ) : (
+                              <Form.Group>
+                                <div className="col-sm-12">
+                              <div className="table-responsive">
+                                <table className="table">
+                                  <thead>
+                                    <tr>
+                                      <th>Descripción</th>
+                                      <th>Tipo</th>
+                                      <th>Estado</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {campanas.map((campana) => (
+                                      <tr>
+                                        <td>{campana["descripcion"]}</td>
+                                        <td>{campana["tipo"]}</td>
+                                        <td>{campana["estado"]}</td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                              </div>
+                              </Form.Group>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="row">
+                          <div className="col-md-12">
+                            <Form.Group>
+                            <h5 className="col-sm-12 card-subtitle" style={{color: "black"}}>
+                                Recursos registrados
+                              </h5>
+                            </Form.Group>
+                            {recursos.length == 0 ? (
+                              <Form.Group>
+                                <label className="col-sm-12 col-form-label">
+                                  El contacto no tiene recursos registrados
+                                </label>
+                              </Form.Group>
+                            ) : (
+                              <Form.Group>
+                                <div className="col-sm-12">
+                              <div className="table-responsive">
+                                <table className="table">
+                                  <thead>
+                                    <tr>
+                                      <th>Descripción</th>
+                                      <th>Tipo</th>
+                                      <th>Estado</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {recursos.map((recurso) => (
+                                      <tr>
+                                        <td>{recurso["descripcion"]}</td>
+                                        <td>{recurso["tipo"]}</td>
+                                        <td>{recurso["estado"]}</td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                              </div>
+                              </Form.Group>
+                            )}
+                          </div>
+                        </div>
+                        <div className="row">
+                          <div className="col-md-12">
+                            <Form.Group>
+                            <h5 className="col-sm-12 card-subtitle" style={{color: "black"}}>
+                                Oportunidades registradas
+                                </h5>
+                            </Form.Group>
+                            {oportunidades.length == 0 ? (
+                              <Form.Group>
+                                <label className="col-sm-12 col-form-label">
+                                  El contacto no tiene oportunidades registradas
+                                </label>
+                              </Form.Group>
+                            ) : (
+                              <Form.Group>
+                                <div className="col-sm-12">
+                              <div className="table-responsive">
+                                <table className="table">
+                                  <thead>
+                                    <tr>
+                                      <th>Descripción</th>
+                                      <th>Etapa</th>
+                                      <th>Estado</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {oportunidades.map((oportunidad) => (
+                                      <tr>
+                                        <td>{oportunidad["descripcion"]}</td>
+                                        <td>{oportunidad["etapa"]}</td>
+                                        <td>{oportunidad["estado"]}</td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                              </div>
+                              </Form.Group>
+                            )}
                           </div>
                         </div>
                       </form>
-                    </div>
                   </div>
                 </div>
               </div>

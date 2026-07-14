@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Form, Modal, Alert } from "react-bootstrap";
+import { Form, Modal, Alert, Pagination } from "react-bootstrap";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import api from "../api";
@@ -25,6 +25,11 @@ const Flujos = () => {
   const [mostrarMensajeExitoCarga, setMostrarMensajeExitoCarga] =
     useState(false);
 
+    const [actualPage, setActualPage] = useState(1);
+    const [countPage, setCountPage] = useState(0);
+    const [pages, setPages] = useState([]);
+    const maxPage = 10;
+
   useEffect(() => {
     let usuario = localStorage.getItem("marketingSYSusuario");
     if (usuario == null) {
@@ -43,6 +48,7 @@ const Flujos = () => {
       }
     }
     setUsuarioLogueado(JSON.parse(usuario));
+    buscarFlujosInicial(JSON.parse(usuario)["idCuenta"]);
   }, []);
 
   // state = {
@@ -55,11 +61,57 @@ const Flujos = () => {
   //   estado: "",
   //   contactos: [],
   // };
+
+  const cargarPaginas = (paginasCont) => {
+    let paginas = [];
+    for (let i = 0; i < paginasCont; i++) {
+      paginas.push(
+        <Pagination.Item onClick={setActualPage(i + 1)}>
+          {i + 1}
+        </Pagination.Item>
+      );
+    }
+    setPages(paginas);
+  };
+
+  const buscarFlujosInicial = (idCuenta) => {
+    //console.log("esto es la cadena")
+    console.log(cadena);
+    let fechaCreacionIni = "", paginasCont=0,
+      fechaCreacionFin = "",
+      fechaModificacionIni = "",
+      fechaModificacionFin = "";
+    setMostrarTabla(false);
+    setMostrarCarga(true);
+    api
+      .post("filtrarFlujos", {
+        cadena: "",
+        fechaCreacionIni: "",
+        fechaCreacionFin: "",
+        fechaModificacionIni: "",
+        fechaModificacionFin: "",
+        propietario: idCuenta,
+      })
+      .then((res) => res.data)
+      .then((data) => {
+        console.log(data);
+        setFlujos(data);
+        if (data.length != null && data.length > 0) {
+          paginasCont = Math.ceil(data.length / maxPage);
+          setCountPage(paginasCont);
+          cargarPaginas(paginasCont);
+          setActualPage(1);
+        }
+        setMostrarCarga(false);
+        setMostrarTabla(true);
+      })
+      .catch((err) => alert(err));
+  };
   
   const buscarFlujos = () => {
     //console.log("esto es la cadena")
     console.log(cadena);
-    let fechaCreacionIni = "",
+    let fechaCreacionIni = "", paginasCont=0,
       fechaCreacionFin = "",
       fechaModificacionIni = "",
       fechaModificacionFin = "";
@@ -113,6 +165,12 @@ const Flujos = () => {
       .then((data) => {
         console.log(data);
         setFlujos(data);
+        if (data.length != null && data.length > 0) {
+          paginasCont = Math.ceil(data.length / maxPage);
+          setCountPage(paginasCont);
+          cargarPaginas(paginasCont);
+          setActualPage(1);
+        }
         setMostrarCarga(false);
         setMostrarTabla(true);
       })
@@ -333,8 +391,8 @@ const Flujos = () => {
               </div>
             </div>
           )}
-          {mostrarTabla && (
-          <div className="table-responsive">
+          {mostrarTabla && flujos.length>0 && ( <div>
+          <div className="table-responsive" style={{ height: "500px", overflow: "auto" }}>
             <table className="table">
               <thead>
                 <tr>
@@ -345,7 +403,7 @@ const Flujos = () => {
                 </tr>
               </thead>
               <tbody>
-                {flujos.map((flujo) => (
+                {flujos.slice((actualPage - 1) * maxPage, actualPage * maxPage).map((flujo) => (
                   <tr key={flujo["id"]}>
                     <td>{flujo["nombre"]}</td>
                     <td>{flujo["fechaCreacion"]}</td>
@@ -367,6 +425,29 @@ const Flujos = () => {
               </tbody>
             </table>
           </div>
+          <div className="row">
+          <Pagination className="mx-auto">
+            {pages.map((_, index) => {
+              return (
+                <Pagination.Item
+                  onClick={() => setActualPage(index + 1)}
+                  key={index + 1}
+                  active={index + 1 === actualPage}
+                >
+                  {index + 1}
+                </Pagination.Item>
+              );
+            })}
+          </Pagination>
+        </div>
+        </div>
+          )}
+          {mostrarTabla && flujos.length == 0 && (
+            <Form.Group>
+              <label className="col-sm-12 col-form-label">
+                No se han encontrado flujos de trabajo
+              </label>
+            </Form.Group>
           )}
         </div>
       </div>

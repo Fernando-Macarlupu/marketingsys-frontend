@@ -1,8 +1,14 @@
 import axios from "axios";
 
 const api = axios.create({
+<<<<<<< HEAD
   baseURL: process.env.REACT_APP_API_URL || "http://127.0.0.1:8000/api/v1",
 });
+=======
+    baseURL: "http://52.204.231.97:8000/api/v1"
+    //baseURL: "http://127.0.0.1:8000/api/v1"
+})
+>>>>>>> 5a29d8fbe2cd4366e43daab4f78e83d73f048e05
 
 api.interceptors.request.use((config) => {
   const accessToken = localStorage.getItem("marketingSYSaccess_token");

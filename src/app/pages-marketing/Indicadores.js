@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Form, Modal, Alert } from "react-bootstrap";
+import { Form, Modal, Alert, Pagination } from "react-bootstrap";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import api from "../api";
@@ -25,6 +25,11 @@ const Indicadores = () => {
   const [mostrarMensajeExitoCarga, setMostrarMensajeExitoCarga] =
     useState(false);
 
+  const [actualPage, setActualPage] = useState(1);
+  const [countPage, setCountPage] = useState(0);
+  const [pages, setPages] = useState([]);
+  const maxPage = 10;
+
   useEffect(() => {
     let usuario = localStorage.getItem("marketingSYSusuario");
     if (usuario == null) {
@@ -43,6 +48,7 @@ const Indicadores = () => {
       }
     }
     setUsuarioLogueado(JSON.parse(usuario));
+    buscarIndicadoresInicial(JSON.parse(usuario)["idCuenta"]);
   }, []);
 
   // state = {
@@ -55,14 +61,63 @@ const Indicadores = () => {
   //   estado: "",
   //   contactos: [],
   // };
-  
+
+  const cargarPaginas = (paginasCont) => {
+    let paginas = [];
+    for (let i = 0; i < paginasCont; i++) {
+      paginas.push(
+        <Pagination.Item onClick={setActualPage(i + 1)}>
+          {i + 1}
+        </Pagination.Item>
+      );
+    }
+    setPages(paginas);
+  };
+
+  const buscarIndicadoresInicial = (idCuenta) => {
+    //console.log("esto es la cadena")
+    let fechaCreacionIni = "",
+      fechaCreacionFin = "",
+      fechaModificacionIni = "",
+      fechaModificacionFin = "",
+      paginasCont = 0;
+    setMostrarTabla(false);
+    setMostrarCarga(true);
+    api
+      .post("filtrarIndicadores", {
+        cadena: "",
+        aspecto: "",
+        tipo: "",
+        fechaCreacionIni: "",
+        fechaCreacionFin: "",
+        fechaModificacionIni: "",
+        fechaModificacionFin: "",
+        propietario: idCuenta,
+      })
+      .then((res) => res.data)
+      .then((data) => {
+        console.log(data);
+        setIndicadores(data);
+        if (data.length != null && data.length > 0) {
+          paginasCont = Math.ceil(data.length / maxPage);
+          setCountPage(paginasCont);
+          cargarPaginas(paginasCont);
+          setActualPage(1);
+        }
+        setMostrarCarga(false);
+        setMostrarTabla(true);
+      })
+      .catch((err) => alert(err));
+  };
+
   const buscarIndicadores = () => {
     //console.log("esto es la cadena")
     console.log(cadena);
     let fechaCreacionIni = "",
       fechaCreacionFin = "",
       fechaModificacionIni = "",
-      fechaModificacionFin = "";
+      fechaModificacionFin = "",
+      paginasCont = 0;
 
     if (buscarFechas == 1 || buscarFechas == 3) {
       console.log("buscar por fecha de crea");
@@ -115,6 +170,12 @@ const Indicadores = () => {
       .then((data) => {
         console.log(data);
         setIndicadores(data);
+        if (data.length != null && data.length > 0) {
+          paginasCont = Math.ceil(data.length / maxPage);
+          setCountPage(paginasCont);
+          cargarPaginas(paginasCont);
+          setActualPage(1);
+        }
         setMostrarCarga(false);
         setMostrarTabla(true);
       })
@@ -328,47 +389,78 @@ const Indicadores = () => {
       </form>
       <div className="row">
         <div className="col-sm-12">
-        {mostrarCarga && (
+          {mostrarCarga && (
             <div className="row h-100">
               <div className="col-sm-12 my-auto">
                 <div className="circle-loader"></div>
               </div>
             </div>
           )}
-          {mostrarTabla && (
-          <div className="table-responsive">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>Nombre</th>
-                  <th>Fecha de creación</th>
-                  <th>Fecha de modificación</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {indicadores.map((indicador) => (
-                  <tr key={indicador["id"]}>
-                    <td>{indicador["nombre"]}</td>
-                    <td>{indicador["fechaCreacion"]}</td>
-                    <td>{indicador["fechaModificacion"]}</td>
-                    <td>
-                      <select
-                        className="form-control"
-                        onChange={(e) => handleVerDetalle(indicador["id"], e)}
+          {mostrarTabla && indicadores.length > 0 && (
+            <div>
+              <div
+                className="table-responsive"
+                style={{ height: "500px", overflow: "auto" }}
+              >
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <th>Nombre</th>
+                      <th>Fecha de creación</th>
+                      <th>Fecha de modificación</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {indicadores
+                      .slice((actualPage - 1) * maxPage, actualPage * maxPage)
+                      .map((indicador) => (
+                        <tr key={indicador["id"]}>
+                          <td>{indicador["nombre"]}</td>
+                          <td>{indicador["fechaCreacion"]}</td>
+                          <td>{indicador["fechaModificacion"]}</td>
+                          <td>
+                            <select
+                              className="select-menu"
+                              onChange={(e) =>
+                                handleVerDetalle(indicador["id"], e)
+                              }
+                            >
+                              <option value={0} disabled selected hidden>
+                                ...
+                              </option>
+                              <option value={1}>Ver detalle</option>
+                              <option value={2}>Eliminar</option>
+                            </select>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="row">
+                <Pagination className="mx-auto">
+                  {pages.map((_, index) => {
+                    return (
+                      <Pagination.Item
+                        onClick={() => setActualPage(index + 1)}
+                        key={index + 1}
+                        active={index + 1 === actualPage}
                       >
-                        <option value={0} disabled selected hidden>
-                          ...
-                        </option>
-                        <option value={1}>Ver detalle</option>
-                        <option value={2}>Eliminar</option>
-                      </select>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                        {index + 1}
+                      </Pagination.Item>
+                    );
+                  })}
+                </Pagination>
+              </div>
+            </div>
+          )}
+          {mostrarTabla && indicadores.length == 0 && (
+            <Form.Group>
+              <label className="col-sm-12 col-form-label">
+                No se han encontrado indicadores
+              </label>
+            </Form.Group>
           )}
         </div>
       </div>

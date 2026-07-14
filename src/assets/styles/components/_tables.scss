@@ -7,11 +7,16 @@
       border-top: 0;
       border-bottom-width: 1px;
       font-family: $type1;
-      font-weight: 600;
-      font-weight: initial;
-      i{
+      font-weight: bold;
+      background: rgb(245, 245, 245);
+      i {
         margin-left: 0.325rem;
       }
+    }
+  }
+  tbody {
+    tr {
+      background: white;
     }
   }
   th,
@@ -29,9 +34,11 @@
       margin-bottom: 0;
     }
   }
-  &.table-borderless{
+  &.table-borderless {
     border: none;
-    tr,td,th{
+    tr,
+    td,
+    th {
       border: none;
     }
   }

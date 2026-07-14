@@ -60,6 +60,7 @@ class App extends Component {
     const fullPageLayoutRoutes = [
       "/iniciarSesion",
       "/registrarCuenta",
+      "/restablecerContrasena",
       "/user-pages/login-1",
       "/user-pages/login-2",
       "/user-pages/register-1",

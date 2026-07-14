@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Form, Modal, Alert } from "react-bootstrap";
+import { Form, Modal, Alert, Pagination } from "react-bootstrap";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import api from "../api";
 import "react-datepicker/dist/react-datepicker.css";
+import { buildStyles } from "react-circular-progressbar";
 
 const Oportunidades = () => {
   const location = useLocation();
@@ -26,6 +27,10 @@ const Oportunidades = () => {
   const [mostrarMensajeExito, setMostrarMensajeExito] = useState(false);
   const [mostrarMensajeExitoCarga, setMostrarMensajeExitoCarga] =
     useState(false);
+  const [actualPage, setActualPage] = useState(1);
+  const [countPage, setCountPage] = useState(0);
+  const [pages, setPages] = useState([]);
+  const maxPage = 10;
 
   const handleClose = () => setShow(false);
 
@@ -47,12 +52,68 @@ const Oportunidades = () => {
       }
     }
     setUsuarioLogueado(JSON.parse(usuario));
+    buscarOportunidadesInicial(JSON.parse(usuario)["idCuenta"]);
   }, []);
+
+  const cargarPaginas = (paginasCont) => {
+    let paginas = [];
+    for (let i = 0; i < paginasCont; i++) {
+      paginas.push(
+        <Pagination.Item onClick={setActualPage(i + 1)}>
+          {i + 1}
+        </Pagination.Item>
+      );
+    }
+    setPages(paginas);
+  };
+
+  const buscarOportunidadesInicial = (idCuenta) => {
+    //console.log("esto es la cadena")
+    console.log(cadena);
+    let fechaVigenciaIni = "", paginasCont=0,
+      fechaVigenciaFin = "",
+      fechaHoy = "",
+      fecha = new Date();
+
+    fechaHoy =
+      fecha.getDate() +
+      "-" +
+      parseInt(fecha.getMonth() + 1) +
+      "-" +
+      fecha.getFullYear();
+
+    setMostrarTabla(false);
+    setMostrarCarga(true);
+    api
+      .post("filtrarOportunidades", {
+        cadena: "",
+        estado: "",
+        etapa: "",
+        fechaHoy: fechaHoy,
+        fechaVigenciaIni: "",
+        fechaVigenciaFin: "",
+        propietario: idCuenta,
+      })
+      .then((res) => res.data)
+      .then((data) => {
+        console.log(data);
+        setOportunidades(data);
+        if (data.length != null && data.length > 0) {
+          paginasCont = Math.ceil(data.length / maxPage);
+          setCountPage(paginasCont);
+          cargarPaginas(paginasCont);
+          setActualPage(1);
+        }
+        setMostrarCarga(false);
+        setMostrarTabla(true);
+      })
+      .catch((err) => alert(err));
+  };
 
   const buscarOportunidades = () => {
     //console.log("esto es la cadena")
     console.log(cadena);
-    let fechaVigenciaIni = "",
+    let fechaVigenciaIni = "", paginasCont=0,
       fechaVigenciaFin = "",
       fechaHoy = "",
       fecha = new Date();
@@ -94,6 +155,12 @@ const Oportunidades = () => {
       .then((data) => {
         console.log(data);
         setOportunidades(data);
+        if (data.length != null && data.length > 0) {
+          paginasCont = Math.ceil(data.length / maxPage);
+          setCountPage(paginasCont);
+          cargarPaginas(paginasCont);
+          setActualPage(1);
+        }
         setMostrarCarga(false);
         setMostrarTabla(true);
       })
@@ -323,8 +390,8 @@ const Oportunidades = () => {
               </div>
             </div>
           )}
-          {mostrarTabla && (
-            <div className="table-responsive">
+          {mostrarTabla && oportunidades.length>0 && ( <div>
+            <div className="table-responsive" style={{ height: "500px", overflow: "auto" }}>
               <table className="table">
                 <thead>
                   <tr>
@@ -337,7 +404,7 @@ const Oportunidades = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {oportunidades.map((oportunidad) => (
+                  {oportunidades.slice((actualPage - 1) * maxPage, actualPage * maxPage).map((oportunidad) => ( 
                     <tr key={oportunidad["id"]}>
                       <td>{oportunidad["descripcion"]}</td>
                       <td>{oportunidad["etapa"]}</td>
@@ -347,7 +414,7 @@ const Oportunidades = () => {
                       <td>
                         {" "}
                         <select
-                          className="form-control"
+                          className="select-menu"
                           onChange={(e) => handleVerDetalle(oportunidad["id"], e)}
                         >
                           <option value={0} disabled selected hidden>
@@ -362,6 +429,29 @@ const Oportunidades = () => {
                 </tbody>
               </table>
             </div>
+            <div className="row">
+            <Pagination className="mx-auto">
+              {pages.map((_, index) => {
+                return (
+                  <Pagination.Item
+                    onClick={() => setActualPage(index + 1)}
+                    key={index + 1}
+                    active={index + 1 === actualPage}
+                  >
+                    {index + 1}
+                  </Pagination.Item>
+                );
+              })}
+            </Pagination>
+          </div>
+          </div>
+          )}
+          {mostrarTabla && oportunidades.length == 0 && (
+            <Form.Group>
+              <label className="col-sm-12 col-form-label">
+                No se han encontrado oportunidades
+              </label>
+            </Form.Group>
           )}
         </div>
       </div>

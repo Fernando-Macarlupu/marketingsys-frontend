@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Form, FormGroup, Modal } from "react-bootstrap";
+import { Form, FormGroup, Modal, Alert } from "react-bootstrap";
 import { Link, useHistory } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import api from "../api";
@@ -11,6 +11,7 @@ const CrearIndicador = () => {
   const [mostrarBuscarEmpresas, setMostrarBuscarEmpresas] = useState(false);
   const [mostrarTablaVariables, setMostrarTablaVariables] = useState(false);
   const [sintaxis, setSintaxis] = useState(false);
+  const [mostrarMensajeFormula, setMostrarMensajeFormula] = useState(false);
 
   const [variablesBusqueda, setVariablesBusqueda] = useState([]);
 
@@ -53,7 +54,7 @@ const CrearIndicador = () => {
         id: id,
         descripcion: descripcion,
         estado: estado,
-        valor: 0,
+        valor: 0.0,
       },
     ]);
   };
@@ -312,53 +313,77 @@ const CrearIndicador = () => {
     buscarPaginas();
   };
 
+  const handleValorIndicadores = (id, event) => {
+    const asociacionesLista = [];
+    console.log(id);
+    for (let index = 0; index < asociaciones.length; index++) {
+      const element = asociaciones[index];
+      if (element["id"] == id) element["valor"] = event.target.value;
+      asociacionesLista.push(element);
+    }
+    console.log(asociacionesLista);
+    setAsociaciones(asociacionesLista);
+  };
+
   const handleClose = () => setShow(false);
   const handleShow = () => {
     if (nombre == "") alert("Ingrese el nombre del indicador");
     else {
-      let abreviaturas = [];
-      let variablesEmpleadas = [];
-      let operaciones = ["+", "-", "*", "/", "^", "(", ")"];
-      for (let index = 0; index < variables.length; index++) {
-        const element = variables[index];
-        abreviaturas.push(element["abreviatura"]);
-      }
-      const elementos = formula.trim().split(" ");
-      let formulaCambio = "";
-
-      console.log(elementos);
-      for (let index = 0; index < elementos.length; index++) {
-        const element = elementos[index];
-        if (!abreviaturas.includes(element) && !operaciones.includes(element)) {
-          setSintaxis(false);
-          alert(
-            "La fórmula incluye términos que no son variables u operadores"
-          );
-        } else if (abreviaturas.includes(element)) {
-          variablesEmpleadas.push(element);
-          formulaCambio = formulaCambio + "1";
-        } else if (operaciones.includes(element)) {
-          formulaCambio = formulaCambio + element;
+      if (tipo == "") alert("Seleccione un tipo de asociación del indicador");
+      else {
+        if(formula!=""){
+        let abreviaturas = [];
+        let variablesEmpleadas = [];
+        let operaciones = ["+", "-", "*", "/", "(", ")"];
+        for (let index = 0; index < variables.length; index++) {
+          const element = variables[index];
+          abreviaturas.push(element["abreviatura"]);
         }
-      }
+        const elementos = formula.trim().split(" ");
+        let formulaCambio = "";
 
-      try {
-        eval(formulaCambio);
-      } catch (e) {
-        setSintaxis(false);
-        alert("La fórmula no puede ser evaluada");
-      }
+        console.log(elementos);
+        for (let index = 0; index < elementos.length; index++) {
+          const element = elementos[index];
+          if (
+            !abreviaturas.includes(element) &&
+            !operaciones.includes(element)
+          ) {
+            setSintaxis(false);
+            alert(
+              "La fórmula incluye términos que no son variables u operadores"
+            );
+          } else if (abreviaturas.includes(element)) {
+            variablesEmpleadas.push(element);
+            formulaCambio = formulaCambio + "1";
+          } else if (operaciones.includes(element)) {
+            formulaCambio = formulaCambio + element;
+          }
+        }
 
-      setSintaxis(true);
-      setShow(true);
+        try {
+          eval(formulaCambio);
+          setSintaxis(true);
+        
+        } catch (e) {
+          setSintaxis(false);
+          alert("La fórmula no puede ser evaluada");
+        }}
+        setShow(true);
+      }
     }
   };
 
   const handleAgregarVariables =
     (id, nombre, tipo, automatica, abreviatura) => () => {
+      let automaticaVariables = true;
       for (let index = 0; index < variables.length; index++) {
         const element = variables[index];
         if (element["id"] == id) return;
+        if (!element["automatica"]) {
+          automaticaVariables = false;
+          setAutomatizado(false);
+        }
       }
       setVariables([
         ...variables,
@@ -370,14 +395,34 @@ const CrearIndicador = () => {
           abreviatura: abreviatura,
         },
       ]);
+      console.log("valor de automatica");
+      console.log(automatica);
+      if (!automatica) {
+        automaticaVariables = false;
+        setAutomatizado(false);
+      }
+      setAutomatica(automaticaVariables);
     };
 
   const handleEliminarVariables = (id) => () => {
+    let automaticaVariables = true;
+    for (let index = 0; index < variables.length; index++) {
+      const element = variables[index];
+      if (!element["automatica"] && element["id"] != id) {
+        automaticaVariables = false;
+        setAutomatizado(false);
+      }
+    }
+    setAutomatica(automaticaVariables);
     setVariables((prev) => prev.filter((el) => el.id !== id));
   };
 
   const handleChangeTipo = (event) => {
     setTipo(event.target.value);
+    setVariables([]);
+    setVariablesBusqueda([]);
+    setMostrarBuscarVariables(false);
+    setMostrarTablaVariables(false);
     setMostrarBuscarAsociaciones(false);
     setMostrarTablaAsociaciones(false);
     setMostrarCargaAsociaciones(false);
@@ -385,6 +430,7 @@ const CrearIndicador = () => {
     setAsociacionEstado("");
     setAsociaciones([]);
     setAsociacionesBusqueda([]);
+    setFormula("");
   };
 
   const handleChangeAutomatizado = (event) => {
@@ -396,7 +442,7 @@ const CrearIndicador = () => {
     api
       .post("filtrarVariables", {
         cadena: variableCadena,
-        tipo: variableTipo,
+        tipo: tipo,
       })
       .then((res) => res.data)
       .then((data) => {
@@ -419,7 +465,7 @@ const CrearIndicador = () => {
   const comprobarSintaxis = () => {
     let abreviaturas = [];
     let variablesEmpleadas = [];
-    let operaciones = ["+", "-", "*", "/", "^", "(", ")"];
+    let operaciones = ["+", "-", "*", "/", "(", ")"];
     for (let index = 0; index < variables.length; index++) {
       const element = variables[index];
       abreviaturas.push(element["abreviatura"]);
@@ -443,12 +489,15 @@ const CrearIndicador = () => {
 
     try {
       eval(formulaCambio);
+      setMostrarMensajeFormula(true);
+        setTimeout(() => {
+          setMostrarMensajeFormula(false);
+        }, 5000);
+    setSintaxis(true);
     } catch (e) {
       setSintaxis(false);
       alert("La fórmula no puede ser evaluada");
     }
-
-    setSintaxis(true);
   };
 
   const guardarIndicador = () => {
@@ -556,7 +605,7 @@ const CrearIndicador = () => {
                     <div className="col-md-12">
                       <Form.Group>
                         <label className="col-sm-12 col-form-label">
-                          Asociado a
+                          Asociado a <code>*</code>
                         </label>
                         <div className="col-sm-12">
                           <select
@@ -590,6 +639,7 @@ const CrearIndicador = () => {
                             id="calificadoValor"
                             checked={automatizado}
                             onChange={handleChangeAutomatizado}
+                            disabled={!automatica}
                           />
                           <label
                             className="custom-control-label"
@@ -627,9 +677,12 @@ const CrearIndicador = () => {
                         <button
                           type="button"
                           className="btn btn-link float-sm-right"
-                          onClick={() =>
-                            setMostrarBuscarVariables(!mostrarBuscarVariables)
-                          }
+                          onClick={() => {
+                            if (tipo != "")
+                              setMostrarBuscarVariables(
+                                !mostrarBuscarVariables
+                              );
+                          }}
                         >
                           Buscar variables
                         </button>
@@ -662,7 +715,9 @@ const CrearIndicador = () => {
                                     <tr key={variable["id"]}>
                                       <td>{variable["nombre"]}</td>
                                       <td>{variable["tipo"]}</td>
-                                      <td>{variable["automatica"]}</td>
+                                      <td>
+                                        {variable["automatica"] ? "Sí" : "No"}
+                                      </td>
                                       <td>
                                         <button
                                           type="button"
@@ -690,9 +745,9 @@ const CrearIndicador = () => {
                   {mostrarBuscarVariables && (
                     <div>
                       <div className="row">
-                        <div className="col-md-7">
+                        <div className="col-md-11">
                           <Form.Group>
-                            <div className="search-field col-sm-12">
+                            <div className="search-field col-sm-8">
                               <form
                                 className="d-flex align-items-center h-100"
                                 onSubmit={buscarVariablesCadena}
@@ -716,7 +771,7 @@ const CrearIndicador = () => {
                           </Form.Group>
                         </div>
 
-                        <div className="col-md-4">
+                        {/* <div className="col-md-4">
                           <Form.Group>
                             <select
                               className="form-control col-sm-11"
@@ -737,7 +792,7 @@ const CrearIndicador = () => {
                               <option value={"6"}>Página web</option>
                             </select>
                           </Form.Group>
-                        </div>
+                        </div> */}
 
                         <div className="col-md-1">
                           <Form.Group>
@@ -776,7 +831,11 @@ const CrearIndicador = () => {
                                         >
                                           <td>{variable["nombre"]}</td>
                                           <td>{variable["tipo"]}</td>
-                                          <td>{variable["automatica"]}</td>
+                                          <td>
+                                            {variable["automatica"]
+                                              ? "Sí"
+                                              : "No"}
+                                          </td>
                                           <td>
                                             <button
                                               type="button"
@@ -822,7 +881,9 @@ const CrearIndicador = () => {
                               Seleccionar variable
                             </option>
                             {variables.map(({ nombre, abreviatura }) => (
-                              <option value={abreviatura}>{nombre}</option>
+                              <option value={abreviatura}>
+                                {nombre + " (" + abreviatura + ")"}
+                              </option>
                             ))}
                           </select>
                         </div>
@@ -845,7 +906,6 @@ const CrearIndicador = () => {
                             <option value={"-"}>-</option>
                             <option value={"*"}>*</option>
                             <option value={"/"}>/</option>
-                            <option value={"^"}>^</option>
                             <option value={"("}>{"("}</option>
                             <option value={")"}>{")"}</option>
                           </select>
@@ -871,8 +931,9 @@ const CrearIndicador = () => {
                   </div>
 
                   <div className="row">
-                    <div className="col-md-4">
+                    <div className="col-md-2">
                       <Form.Group>
+                      <div className="col-sm-12">
                         <button
                           type="button"
                           className="btn btn-primary"
@@ -880,9 +941,23 @@ const CrearIndicador = () => {
                         >
                           Comprobar sintáxis
                         </button>
+                        </div>
                       </Form.Group>
                     </div>
-                    <div className="col-md-8">
+                    <div className="col-md-3">
+                      <Form.Group>
+                    <Alert
+                      show={mostrarMensajeFormula}
+                      variant="success"
+                      className="small text-center"
+                    >
+                      {" "}
+                      <i className="px-2 mdi mdi-check-circle"></i>
+                      Fórmula validada correctamente
+                    </Alert>
+                    </Form.Group>
+                    </div>
+                    <div className="col-md-7">
                       <Form.Group>
                         <label>
                           <span className="icon-bg">
@@ -892,7 +967,7 @@ const CrearIndicador = () => {
                             ></i>
                           </span>
                           <span>
-                            La fórmula solo puede contener abreviaturas de las
+                            La fórmula debe contener abreviaturas de las
                             variables y operadores separados por espacios
                           </span>
                         </label>
@@ -942,6 +1017,7 @@ const CrearIndicador = () => {
                                     <tr>
                                       <th>Descripción</th>
                                       <th>Estado</th>
+                                      <th>Valor</th>
                                       <th></th>
                                     </tr>
                                   </thead>
@@ -950,6 +1026,21 @@ const CrearIndicador = () => {
                                       <tr key={asociacion["id"]}>
                                         <td>{asociacion["descripcion"]}</td>
                                         <td>{asociacion["estado"]}</td>
+                                        <td>
+                                          <input
+                                            type={"number"}
+                                            placeholder="Agregar valor"
+                                            className="form-control"
+                                            disabled={automatizado}
+                                            onChange={(e) =>
+                                              handleValorIndicadores(
+                                                asociacion["id"],
+                                                e
+                                              )
+                                            }
+                                            value={asociacion["valor"]}
+                                          />
+                                        </td>
                                         <td>
                                           <button
                                             style={{ marginLeft: "auto" }}
@@ -1003,7 +1094,7 @@ const CrearIndicador = () => {
                               </Form.Group>
                             </div>
 
-                            <div className="col-md-2">
+                            <div className="col-md-4">
                               <Form.Group>
                                 <select
                                   className="form-control col-sm-11"
@@ -1129,6 +1220,7 @@ const CrearIndicador = () => {
                                     <tr>
                                       <th>Descripción</th>
                                       <th>Estado</th>
+                                      <th>Valor</th>
                                       <th></th>
                                     </tr>
                                   </thead>
@@ -1137,6 +1229,21 @@ const CrearIndicador = () => {
                                       <tr key={asociacion["id"]}>
                                         <td>{asociacion["descripcion"]}</td>
                                         <td>{asociacion["estado"]}</td>
+                                        <td>
+                                          <input
+                                            type={"number"}
+                                            placeholder="Agregar valor"
+                                            className="form-control"
+                                            disabled={automatizado}
+                                            onChange={(e) =>
+                                              handleValorIndicadores(
+                                                asociacion["id"],
+                                                e
+                                              )
+                                            }
+                                            value={asociacion["valor"]}
+                                          />
+                                        </td>
                                         <td>
                                           <button
                                             style={{ marginLeft: "auto" }}
@@ -1190,7 +1297,7 @@ const CrearIndicador = () => {
                               </Form.Group>
                             </div>
 
-                            <div className="col-md-2">
+                            <div className="col-md-4">
                               <Form.Group>
                                 <select
                                   className="form-control col-sm-11"
@@ -1316,6 +1423,7 @@ const CrearIndicador = () => {
                                     <tr>
                                       <th>Descripción</th>
                                       <th>Estado</th>
+                                      <th>Valor</th>
                                       <th></th>
                                     </tr>
                                   </thead>
@@ -1324,6 +1432,21 @@ const CrearIndicador = () => {
                                       <tr key={asociacion["id"]}>
                                         <td>{asociacion["descripcion"]}</td>
                                         <td>{asociacion["estado"]}</td>
+                                        <td>
+                                          <input
+                                            type={"number"}
+                                            placeholder="Agregar valor"
+                                            className="form-control"
+                                            disabled={automatizado}
+                                            onChange={(e) =>
+                                              handleValorIndicadores(
+                                                asociacion["id"],
+                                                e
+                                              )
+                                            }
+                                            value={asociacion["valor"]}
+                                          />
+                                        </td>
                                         <td>
                                           <button
                                             style={{ marginLeft: "auto" }}
@@ -1377,7 +1500,7 @@ const CrearIndicador = () => {
                               </Form.Group>
                             </div>
 
-                            <div className="col-md-2">
+                            <div className="col-md-4">
                               <Form.Group>
                                 <select
                                   className="form-control col-sm-11"
@@ -1503,6 +1626,7 @@ const CrearIndicador = () => {
                                     <tr>
                                       <th>Descripción</th>
                                       <th>Estado</th>
+                                      <th>Valor</th>
                                       <th></th>
                                     </tr>
                                   </thead>
@@ -1511,6 +1635,21 @@ const CrearIndicador = () => {
                                       <tr key={asociacion["id"]}>
                                         <td>{asociacion["descripcion"]}</td>
                                         <td>{asociacion["estado"]}</td>
+                                        <td>
+                                          <input
+                                            type={"number"}
+                                            placeholder="Agregar valor"
+                                            className="form-control"
+                                            disabled={automatizado}
+                                            onChange={(e) =>
+                                              handleValorIndicadores(
+                                                asociacion["id"],
+                                                e
+                                              )
+                                            }
+                                            value={asociacion["valor"]}
+                                          />
+                                        </td>
                                         <td>
                                           <button
                                             style={{ marginLeft: "auto" }}
@@ -1564,7 +1703,7 @@ const CrearIndicador = () => {
                               </Form.Group>
                             </div>
 
-                            <div className="col-md-2">
+                            <div className="col-md-4">
                               <Form.Group>
                                 <select
                                   className="form-control col-sm-11"
@@ -1690,6 +1829,7 @@ const CrearIndicador = () => {
                                     <tr>
                                       <th>Descripción</th>
                                       <th>Estado</th>
+                                      <th>Valor</th>
                                       <th></th>
                                     </tr>
                                   </thead>
@@ -1698,6 +1838,21 @@ const CrearIndicador = () => {
                                       <tr key={asociacion["id"]}>
                                         <td>{asociacion["descripcion"]}</td>
                                         <td>{asociacion["estado"]}</td>
+                                        <td>
+                                          <input
+                                            type={"number"}
+                                            placeholder="Agregar valor"
+                                            className="form-control"
+                                            disabled={automatizado}
+                                            onChange={(e) =>
+                                              handleValorIndicadores(
+                                                asociacion["id"],
+                                                e
+                                              )
+                                            }
+                                            value={asociacion["valor"]}
+                                          />
+                                        </td>
                                         <td>
                                           <button
                                             style={{ marginLeft: "auto" }}
@@ -1751,7 +1906,7 @@ const CrearIndicador = () => {
                               </Form.Group>
                             </div>
 
-                            <div className="col-md-2">
+                            <div className="col-md-4">
                               <Form.Group>
                                 <select
                                   className="form-control col-sm-11"
@@ -1877,6 +2032,7 @@ const CrearIndicador = () => {
                                     <tr>
                                       <th>Descripción</th>
                                       <th>Estado</th>
+                                      <th>Valor</th>
                                       <th></th>
                                     </tr>
                                   </thead>
@@ -1885,6 +2041,21 @@ const CrearIndicador = () => {
                                       <tr key={asociacion["id"]}>
                                         <td>{asociacion["descripcion"]}</td>
                                         <td>{asociacion["estado"]}</td>
+                                        <td>
+                                          <input
+                                            type={"number"}
+                                            placeholder="Agregar valor"
+                                            className="form-control"
+                                            disabled={automatizado}
+                                            onChange={(e) =>
+                                              handleValorIndicadores(
+                                                asociacion["id"],
+                                                e
+                                              )
+                                            }
+                                            value={asociacion["valor"]}
+                                          />
+                                        </td>
                                         <td>
                                           <button
                                             style={{ marginLeft: "auto" }}
@@ -1938,7 +2109,7 @@ const CrearIndicador = () => {
                               </Form.Group>
                             </div>
 
-                            <div className="col-md-2">
+                            <div className="col-md-4">
                               <Form.Group>
                                 <select
                                   className="form-control col-sm-11"
@@ -2064,6 +2235,7 @@ const CrearIndicador = () => {
                                     <tr>
                                       <th>Descripción</th>
                                       <th>Estado</th>
+                                      <th>Valor</th>
                                       <th></th>
                                     </tr>
                                   </thead>
@@ -2072,6 +2244,21 @@ const CrearIndicador = () => {
                                       <tr key={asociacion["id"]}>
                                         <td>{asociacion["descripcion"]}</td>
                                         <td>{asociacion["estado"]}</td>
+                                        <td>
+                                          <input
+                                            type={"number"}
+                                            placeholder="Agregar valor"
+                                            className="form-control"
+                                            disabled={automatizado}
+                                            onChange={(e) =>
+                                              handleValorIndicadores(
+                                                asociacion["id"],
+                                                e
+                                              )
+                                            }
+                                            value={asociacion["valor"]}
+                                          />
+                                        </td>
                                         <td>
                                           <button
                                             style={{ marginLeft: "auto" }}
@@ -2125,7 +2312,7 @@ const CrearIndicador = () => {
                               </Form.Group>
                             </div>
 
-                            <div className="col-md-2">
+                            <div className="col-md-4">
                               <Form.Group>
                                 <select
                                   className="form-control col-sm-11"

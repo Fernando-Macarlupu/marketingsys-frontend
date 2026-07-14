@@ -55,7 +55,7 @@ class Sidebar extends Component {
   } 
   render () {
     return (
-      <nav className="sidebar sidebar-offcanvas" id="sidebar">
+      <nav className="sidebar sidebar-offcanvas fixed" id="sidebar">
         <ul className="nav">
           <li className={ this.isPathActive('/dashboard') ? 'nav-item active' : 'nav-item' }>
             <Link className="nav-link" to="/dashboard">
@@ -115,13 +115,13 @@ class Sidebar extends Component {
           </li>
           <li className={ this.isPathActive('/oportunidades') || this.isPathActive('/crearOportunidad') || this.isPathActive('/detalleOportunidad')? 'nav-item active' : 'nav-item' }>
             <Link className="nav-link" to="/oportunidades">
-              <span className="icon-bg"><i className="mdi mdi-view-list menu-icon"></i></span>
+              <span className="icon-bg"><i className="mdi mdi-cash-usd menu-icon"></i></span>
               <span className="menu-title"><Trans>Oportunidades</Trans></span>
             </Link>
           </li>
           <li className={ this.isPathActive('/informes') || this.isPathActive('/crearReporte') || this.isPathActive('/detalleReporte') || this.isPathActive('/crearDashboard') || this.isPathActive('/detalleDashboard')? 'nav-item active' : 'nav-item' }>
             <Link className="nav-link" to="/informes">
-              <span className="icon-bg"><i className="mdi mdi-view-list menu-icon"></i></span>
+              <span className="icon-bg"><i className="mdi mdi-chart-areaspline menu-icon"></i></span>
               <span className="menu-title"><Trans>Informes y reportes</Trans></span>
             </Link>
           </li>

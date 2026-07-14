@@ -12,6 +12,16 @@ const Register = () => {
   const [mostrarCargaDatos, setMostrarCargaDatos] = useState(false);
   const [mostrarDatos, setMostrarDatos] = useState(true);
 
+  const politicasDefault = [
+    { id: 1, estado: true },
+    { id: 2, estado: false },
+    { id: 3, estado: true },
+    { id: 4, estado: true },
+    { id: 5, estado: true },
+    { id: 6, estado: true },
+    { id: 7, estado: true },
+  ];
+
   const handleRegister = (e) => {
     e.preventDefault();
     if (nombreCompleto == "") return alert("Ingrese su nombre completo");
@@ -28,16 +38,22 @@ const Register = () => {
       nombreUsuario: nombreUsuario,
       contrasena: contrasena,
       redes: [],
-      correos: [{servicio: "", direccion: correo, contrasena: ""}],
+      correos: [{ servicio: "", direccion: correo, contrasena: "" }],
+      politicas: politicasDefault,
       esAdministrador: true,
       foto: "",
       rol: "",
       cuentaUsuario: {
         id: 0,
         nombre: nombreUsuario,
-        expiracionCuenta: fechaExpiracion.getDate() + "-" + parseInt(fechaExpiracion.getMonth() + 1) + "-" + fechaExpiracion.getFullYear(),
+        expiracionCuenta:
+          fechaExpiracion.getDate() +
+          "-" +
+          parseInt(fechaExpiracion.getMonth() + 1) +
+          "-" +
+          fechaExpiracion.getFullYear(),
         diasExpiracioncuenta: 180,
-      }
+      },
     };
     setMostrarDatos(false);
     setMostrarCargaDatos(true);
@@ -66,130 +82,134 @@ const Register = () => {
         </div>
       )}
       {mostrarDatos && (
-      <div className="d-flex auth px-0">
-        <div className="row w-100 mx-0">
-        <div className="col-lg-6 px-0">
-            <div className="text-center py-5 px-4 px-sm-5">
-              <div className="col-lg-8 mx-auto">
-                <img
-                  src={require("../../assets/images/imagenLogin.png")}
-                  alt="logo"
-                />
+        <div className="d-flex auth px-0">
+          <div className="row w-100 mx-0">
+            <div className="col-lg-6 px-0">
+              <div className="text-center py-5 px-4 px-sm-5">
+                <div className="col-lg-8 mx-auto">
+                  <img
+                    src={require("../../assets/images/imagenLogin.png")}
+                    alt="logo"
+                  />
+                </div>
               </div>
             </div>
-          </div>
-          <div className="col-lg-6 px-0">
-            <div className="auth-form-light text-left py-5 px-4 px-sm-5">
-              <div className="page-header">
-                <h2 className="page-title"> Crear cuenta </h2>
-              </div>
-              <Form className="pt-3">
-                <Form.Group className="row">
-                  <label className="col-form-label">
-                    <code>*</code> Información obligatoria
-                  </label>
-                </Form.Group>
-                <Form.Group className="row">
-                  <div className="col-md-12">
+            <div className="col-lg-6 px-0">
+              <div className="auth-form-light text-left py-5 px-4 px-sm-5">
+                <div className="page-header">
+                  <h2 className="page-title"> Crear cuenta </h2>
+                </div>
+                <Form className="pt-3">
+                  <Form.Group className="row">
                     <label className="col-form-label">
-                      Nombre completo <code>*</code>
+                      <code>*</code> Información obligatoria
+                    </label>
+                  </Form.Group>
+                  <Form.Group className="row">
+                    <div className="col-md-12">
+                      <label className="col-form-label">
+                        Nombre completo <code>*</code>
+                      </label>
+                      <div>
+                        <Form.Control
+                          type="text"
+                          size="lg"
+                          className="h-auto"
+                          value={nombreCompleto}
+                          onChange={({ target }) =>
+                            setNombreCompleto(target.value)
+                          }
+                        />
+                      </div>
+                    </div>
+                  </Form.Group>
+                  <Form.Group>
+                    <label className="col-form-label">
+                      Correo <code>*</code>
+                    </label>
+                    <div>
+                      <Form.Control
+                        type="email"
+                        size="lg"
+                        className="h-auto"
+                        value={correo}
+                        onChange={({ target }) => setCorreo(target.value)}
+                      />
+                    </div>
+                  </Form.Group>
+                  <Form.Group>
+                    <label className="col-form-label">
+                      Nombre de usuario <code>*</code>
                     </label>
                     <div>
                       <Form.Control
                         type="text"
                         size="lg"
                         className="h-auto"
-                        value={nombreCompleto}
+                        value={nombreUsuario}
                         onChange={({ target }) =>
-                          setNombreCompleto(target.value)
+                          setNombreUsuario(target.value)
                         }
                       />
                     </div>
-                  </div>
-                </Form.Group>
-                <Form.Group>
-                  <label className="col-form-label">
-                    Correo <code>*</code>
-                  </label>
-                  <div>
-                    <Form.Control
-                      type="email"
-                      size="lg"
-                      className="h-auto"
-                      value={correo}
-                      onChange={({ target }) => setCorreo(target.value)}
-                    />
-                  </div>
-                </Form.Group>
-                <Form.Group>
-                  <label className="col-form-label">
-                    Nombre de usuario <code>*</code>
-                  </label>
-                  <div>
-                    <Form.Control
-                      type="text"
-                      size="lg"
-                      className="h-auto"
-                      value={nombreUsuario}
-                      onChange={({ target }) => setNombreUsuario(target.value)}
-                    />
-                  </div>
-                </Form.Group>
-                <Form.Group>
-                  <label className="col-form-label">
-                    Contraseña <code>*</code>
-                  </label>
-                  <div>
-                    <Form.Control
-                      type="password"
-                      size="lg"
-                      className="h-auto"
-                      value={contrasena}
-                      onChange={({ target }) => setContrasena(target.value)}
-                    />
-                  </div>
-                </Form.Group>
-                <div className="mt-3">
-                  <button
+                  </Form.Group>
+                  <Form.Group>
+                    <label className="col-form-label">
+                      Contraseña <code>*</code>
+                    </label>
+                    <div>
+                      <Form.Control
+                        type="password"
+                        size="lg"
+                        className="h-auto"
+                        value={contrasena}
+                        onChange={({ target }) => setContrasena(target.value)}
+                      />
+                    </div>
+                  </Form.Group>
+                  <div className="mt-3">
+                    <button
                       type="button"
                       className="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn"
                       onClick={handleRegister}
                     >
                       Registrarse
                     </button>
-                </div>
-                <div className="row mt-3">
-                  <div className="col-md-12">
-                    <button
-                      type="button"
-                      className="btn btn-block btn-outline-primary btn-lg font-weight-medium auth-form-btn"
-                    >
-                      <i className="mdi mdi-google mr-2"></i>Iniciar con Google
-                    </button>
                   </div>
-                </div>
-                <div className="row mt-3">
-                  <div className="col-md-12">
-                    <button
-                      type="button"
-                      className="btn btn-block btn-outline-primary btn-lg font-weight-medium auth-form-btn"
-                    >
-                      <i className="mdi mdi-windows mr-2"></i>Iniciar con
-                      Windows
-                    </button>
+                  <div className="row mt-3">
+                    <div className="col-md-12">
+                      <button
+                        type="button"
+                        className="btn btn-block btn-outline-primary btn-lg font-weight-medium auth-form-btn"
+                      >
+                        <i className="mdi mdi-google mr-2"></i>Iniciar con
+                        Google
+                      </button>
+                    </div>
                   </div>
-                </div>
-                <div className="auth-link text-left mt-3">
-                  <span className="text-black">¿Ya tiene una cuenta? </span>
-                  <Link to="/iniciarSesion" className="text-primary">
-                    Iniciar sesión
-                  </Link>
-                </div>
-              </Form>
+                  <div className="row mt-3">
+                    <div className="col-md-12">
+                      <button
+                        type="button"
+                        className="btn btn-block btn-outline-primary btn-lg font-weight-medium auth-form-btn"
+                      >
+                        <i className="mdi mdi-microsoft mr-2"></i>Iniciar con
+                        Microsoft
+                      </button>
+                    </div>
+                  </div>
+                  <div className="auth-link text-left mt-3">
+                    <span className="text-black">¿Ya tiene una cuenta? </span>
+                    <Link to="/iniciarSesion" className="text-primary">
+                      Iniciar sesión
+                    </Link>
+                  </div>
+                </Form>
+              </div>
             </div>
           </div>
         </div>
-      </div>)}
+      )}
     </div>
   );
 };

@@ -137,12 +137,14 @@ const CargarContactos = () => {
   const handleFile = (event) => {
     event.preventDefault();
     const fileToUpload = event.target.files[0];
-    console.log(getExtension(fileToUpload["name"]));
-    if (getExtension(fileToUpload["name"]) == "csv") {
-      setFile(fileToUpload);
-      setHabilitado(true);
-    } else {
-      alert("Seleccione un archivo en formato csv");
+    if(fileToUpload){
+      console.log(getExtension(fileToUpload["name"]));
+      if (getExtension(fileToUpload["name"]) == "csv") {
+        setFile(fileToUpload);
+        setHabilitado(true);
+      } else {
+        alert("Seleccione un archivo en formato csv");
+      }
     }
   };
 
@@ -381,6 +383,17 @@ const CargarContactos = () => {
                             </Form.Group>
                           </div>
 
+                        </div>
+                        <div className="row">
+                          <div className="col-md-10">
+                            <Form.Group>
+                              <label className="col-sm-12 col-form-label">
+                                Lista cargada
+                              </label>
+
+                            </Form.Group>
+                          </div>
+                          
                           <div className="col-md-2">
                             <Form.Group>
                               <button
@@ -395,11 +408,7 @@ const CargarContactos = () => {
                         </div>
                         <div className="row">
                           <div className="col-md-12">
-                            <Form.Group>
-                              <label className="col-sm-12 col-form-label">
-                                Lista cargada
-                              </label>
-                              <div className="col-sm-12">
+                          <div className="col-sm-12">
                                 <div className="table-responsive">
                                   <table className="table">
                                     <thead>
@@ -423,9 +432,8 @@ const CargarContactos = () => {
                                   </table>
                                 </div>
                               </div>
-                            </Form.Group>
                           </div>
-                        </div>
+                          </div>
                       </div>
                     )}
                     {step == 2 && (
